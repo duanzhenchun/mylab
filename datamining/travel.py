@@ -2,11 +2,7 @@
 import sys
 from data import *
 import logging
-from redisclient import rdscli
-
-hotPeople = 'douban:hotpeople'
-CONTACTS = 'contacts'
-R_CONTACTS = 'rev_contacts'
+from redisclient import *
 
 commit_intervel=50
 max_user=1000000
@@ -72,7 +68,8 @@ def construct_r_contacts():
             rdscli.zadd(R_CONTACTS+':'+j, From, out_w )        
         
                     
-def calc_hot():
+def stat_hot():
+    rdscli.delete(hotPeople)
     for i in rdscli.keys(R_CONTACTS+'*'):
         To=i[i.find(':')+1:]
         r_scores = rdscli.zrange(i,0,-1,withscores=True)
@@ -80,12 +77,8 @@ def calc_hot():
         for score in r_scores:
             hotv += score[1]
         rdscli.zadd(hotPeople,To,hotv)
-    print rdscli.zrevrangebyscore(hotPeople, 
+    return rdscli.zrevrangebyscore(hotPeople, 
         sys.maxint,0, start=0, num=20, withscores=True)       
-
-def test():
-#    construct_r_contacts(rdscli)
-    calc_hot(rdscli)
 
 
 def TODO():
@@ -95,27 +88,8 @@ concern each other
 map distribution, maybe google map api
 """
 
-def ringlen(pid):
-    traveling=[pid]
-    while True:
-        Tos=getTos(traveling.pop(0))
-        if To in traveling:
-            continue
-        for To in Tos:
-            if To == pid:   
-                print 'got it', To
-                break
-            if not To in traveling:
-                traveling.append(To)    
-                rdscli.zadd(R_CONTACTS+':'+j, From, out_w )        
-
-def getTos(pid):
-    From = CONTACTS+':'+pid
-    return rdscli.smembers(From)
-
 def similar(p1,p2):
     "return range: [0,1]"
-
     Tos1,Tos2 = [getTos(p) for p in (p1,p2)]
     if not Tos1 or not Tos2:
         logging.info('no Tos')
@@ -123,11 +97,40 @@ def similar(p1,p2):
     count=0
     for To in Tos1:
         if To in Tos2:
-           count +=1
-    return count**2/len(Tos1)/len(Tos2)
+           count += 1
+    return count**2 * 1.0 /len(Tos1)/len(Tos2)
 
+def ringlen(pid):
+    assert pid
+    print pid
+    traveling=[pid]
+    maxlimit,count=(1000,)*2
+    for i in xrange(1000):
+        if not traveling:
+            break
+        From = traveling.pop(0)
+        Tos=getTos(From)
+        if not Tos:
+            continue
+        for To in Tos:
+            if To == pid:   
+                print 'got it after:%d travel' %i
+                return
+            if not To in traveling:
+                traveling.append(To)    
+                
 def t_similar():
-    print similar('2005040','50473758')
-
-#t_similar()
-travel()
+    for i in range(200):
+        p1,p2 = randFrom(),randFrom()
+        res = similar(p1,p2)
+        if res>0: 
+            print 'after:', i, p1,p2,res   
+        
+def test():
+#    construct_r_contacts()
+#    print stat_hot()
+    ringlen(randFrom())
+    t_similar()    
+    
+test()
+#travel()

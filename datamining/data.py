@@ -1,7 +1,5 @@
-
-from redisclient import rdscli
-
 from util import get_ret
+from redisclient import *
 
 person_fmt='http://api.douban.com/people/'
 book_fmt='http://api.douban.com/book/subject/'
