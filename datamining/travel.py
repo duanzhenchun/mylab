@@ -2,6 +2,7 @@
 import sys
 from data import *
 import logging
+from redisclient import rdscli
 
 hotPeople = 'douban:hotpeople'
 CONTACTS = 'contacts'
@@ -11,14 +12,14 @@ commit_intervel=50
 max_user=1000000
 max_results={'max-results':100}        
         
-def get_contacts(iD,db,rdscli):
+def get_contacts(iD,db):
     dic=get_ret( person_fmt+str(iD)+'/'+CONTACTS, max_results)
     if not dic:
         return
     contacts=dic.pop('entry')
     Tos=[]
     for cont in contacts:
-        p=Person(cont,db,rdscli)
+        p=Person(cont,db)
         pid=p.dic['id'] 
         Tos.append( pid[pid.rfind('/')+1:])
     return Tos        
@@ -36,12 +37,11 @@ def travel():
     logging.info('init traveling:%s' %traveling)
     
     db=dbmgr.dbmanager('douban.db')
-    rdscli=redis.client.Redis()
     
     #init db table
     dic=get_ret(person_fmt+'62508021')
     assert dic
-    Person(dic,db,rdscli)
+    Person(dic,db)
     
     visited=0
     while traveling or max_user < max_user:
@@ -49,7 +49,7 @@ def travel():
         iD=traveling.pop(0)
         logging.info('traveling len:%d' %len(traveling))
         visited+=1
-        Tos = get_contacts(iD,db,rdscli)
+        Tos = get_contacts(iD,db)
         if not Tos:
             continue
         out_w=1.0/len(Tos)
@@ -63,7 +63,7 @@ def travel():
         if visited % commit_intervel == 0:
             db.commit()
 
-def construct_r_contacts(rdscli):
+def construct_r_contacts():
     for i in rdscli.keys(CONTACTS+'*'):
         From=i[i.find(':')+1:]
         Tos = rdscli.smembers(i)
@@ -72,7 +72,7 @@ def construct_r_contacts(rdscli):
             rdscli.zadd(R_CONTACTS+':'+j, From, out_w )        
         
                     
-def calc_hot(rdscli):
+def calc_hot():
     for i in rdscli.keys(R_CONTACTS+'*'):
         To=i[i.find(':')+1:]
         r_scores = rdscli.zrange(i,0,-1,withscores=True)
@@ -84,7 +84,6 @@ def calc_hot(rdscli):
         sys.maxint,0, start=0, num=20, withscores=True)       
 
 def test():
-    rdscli=redis.client.Redis()
 #    construct_r_contacts(rdscli)
     calc_hot(rdscli)
 
@@ -96,10 +95,10 @@ concern each other
 map distribution, maybe google map api
 """
 
-def ringlen(rdscli,pid):
+def ringlen(pid):
     traveling=[pid]
     while True:
-        Tos=getTos(rdscli,traveling.pop(0))
+        Tos=getTos(traveling.pop(0))
         if To in traveling:
             continue
         for To in Tos:
@@ -110,15 +109,16 @@ def ringlen(rdscli,pid):
                 traveling.append(To)    
                 rdscli.zadd(R_CONTACTS+':'+j, From, out_w )        
 
-def getTos(rdscli,pid):
+def getTos(pid):
     From = CONTACTS+':'+pid
     return rdscli.smembers(From)
 
 def similar(p1,p2):
     "return range: [0,1]"
-    rdscli=redis.client.Redis()
-    Tos1,Tos2 = [getTos(rdscli,p) for p in (p1,p2)]
+
+    Tos1,Tos2 = [getTos(p) for p in (p1,p2)]
     if not Tos1 or not Tos2:
+        logging.info('no Tos')
         return 0
     count=0
     for To in Tos1:
@@ -129,5 +129,5 @@ def similar(p1,p2):
 def t_similar():
     print similar('2005040','50473758')
 
-t_similar()
-#travel()
+#t_similar()
+travel()

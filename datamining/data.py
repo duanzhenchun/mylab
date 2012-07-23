@@ -1,5 +1,6 @@
 
-import redis
+from redisclient import rdscli
+
 from util import get_ret
 
 person_fmt='http://api.douban.com/people/'
@@ -21,7 +22,7 @@ gd_rating='gd:rating'
 class Person(object):
     Keys=[] #class property
     
-    def __init__(self,dic,db,rdscli):
+    def __init__(self,dic,db):
         self.dic={}
         self.tags={}
         for k,v in dic.iteritems():
@@ -30,7 +31,7 @@ class Person(object):
         self.modify_key()
         if not self.__class__.Keys:
             self.createtable(db)
-        self.save(db,rdscli,False)
+        self.save(db,False)
             
     def modify_key(self):
         moddic={}
@@ -72,12 +73,12 @@ class Person(object):
         self.__class__.Keys=sorted(self.dic.keys())
         db.createtable(self.tbl_fmt()) 
             
-    def save(self,db,rdscli,cmt=True):
+    def save(self,db,cmt=True):
         db.save(self.__class__.__name__,self.v_lst(),cmt) 
         for k,v in self.tags.iteritems():
             rdscli.zadd(self.dic['id']+':'+db_tag,k,v) 
   
-    def load(self,db,rdscli):
+    def load(self,db):
         lst = db.load(self.__class__.__name__,self.dic['id'])
         vlst=[self.dic[k] for k in self.__class__.Keys if k in self.dic]
         #assert vlst == list(lst)
@@ -109,12 +110,12 @@ class Book(Person):
             for k,v in dic[gd_rating].iteritems():
                 self.rating[k] = str(v)
                 
-    def save(self,db,rdscli,cmt=True):
-        super(Book,self).save(db,rdscli,cmt)
+    def save(self,db,cmt=True):
+        super(Book,self).save(db,cmt)
         rdscli.hmset(self.dic['id']+':'+gd_rating, self.rating)               
         
-    def load(self,db,rdscli):
-        super(Book,self).load(db,rdscli)
+    def load(self,db):
+        super(Book,self).load(db)
         dic = rdscli.hgetall(self.dic['id']+':'+gd_rating)
         assert self.rating == dic
         
@@ -125,20 +126,19 @@ import dbmgr
 
 def t_objs(cls,url_fmt,lst):
     db=dbmgr.dbmanager('douban.db')
-    rdscli=redis.client.Redis()
     objs=[]
     for i in lst:
         dic=get_ret(url_fmt+str(i))
         if not dic:
             continue
-        obj=cls(dic,db,rdscli)
+        obj=cls(dic,db)
         objs.append(obj)
     else:
         db.commit()
         rdscli.save()
     #show
     for obj in objs:
-        obj.load(db,rdscli)    
+        obj.load(db)    
         
 def t_persons():
     lst=('6829400','antonia','yelucaizi','62508021',)    
