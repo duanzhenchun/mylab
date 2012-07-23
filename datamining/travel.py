@@ -33,7 +33,7 @@ def travel():
     init_log()
     
     traveling=map(str, randselect(40))
-    logging.info(traveling)
+    logging.info('init traveling:%s' %traveling)
     
     db=dbmgr.dbmanager('douban.db')
     rdscli=redis.client.Redis()
@@ -129,5 +129,5 @@ def similar(p1,p2):
 def t_similar():
     print similar('2005040','50473758')
 
-#t_similar()
-travel()
+t_similar()
+#travel()
