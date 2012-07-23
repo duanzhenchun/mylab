@@ -80,31 +80,26 @@ def stat_hot():
     return rdscli.zrevrangebyscore(hotPeople, 
         sys.maxint,0, start=0, num=20, withscores=True)       
 
-
-def TODO():
-    pass
-"""
-concern each other
-map distribution, maybe google map api
-"""
-
 def similar(p1,p2):
     "return range: [0,1]"
+    if p1 == p2:
+        print 'same person'
+        return 0
     Tos1,Tos2 = [getTos(p) for p in (p1,p2)]
     if not Tos1 or not Tos2:
         logging.info('no Tos')
         return 0
-    count=0
+    common=[]
     for To in Tos1:
         if To in Tos2:
-           count += 1
-    return count**2 * 1.0 /len(Tos1)/len(Tos2)
+            common.append(To)
+    if common:
+        print 'common contacts:', common
+    return len(common)**2 * 1.0 /len(Tos1)/len(Tos2)
 
-def ringlen(pid):
+def find_circle(pid):
     assert pid
-    print pid
     traveling=[pid]
-    maxlimit,count=(1000,)*2
     for i in xrange(1000):
         if not traveling:
             break
@@ -114,11 +109,28 @@ def ringlen(pid):
             continue
         for To in Tos:
             if To == pid:   
-                print 'got it after:%d travel' %i
+                print 'got %s  after:%d travel' %(pid,i)
                 return
             if not To in traveling:
                 traveling.append(To)    
-                
+
+def find_pair(From):
+    "concern each other"
+    Tos=getTos(From)
+    if not Tos:
+        return
+    for To in Tos:
+        if To == From:   
+            print '%s and %s are pair' %(From,i)
+            return    
+      
+def t_pair():
+    for i in xrange(2000):
+        find_pair(randFrom())
+            
+def googlemap():
+    pass
+        
 def t_similar():
     for i in range(200):
         p1,p2 = randFrom(),randFrom()
@@ -129,8 +141,9 @@ def t_similar():
 def test():
 #    construct_r_contacts()
 #    print stat_hot()
-    ringlen(randFrom())
-    t_similar()    
+#    find_circle(randFrom())
+    t_pair()
+#    t_similar()    
     
 test()
 #travel()
