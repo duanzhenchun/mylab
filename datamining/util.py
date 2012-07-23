@@ -5,10 +5,10 @@ import json
 json_fmt='alt=json'
 apikey='apikey=0cc65c265ad25ea12653147310771be3'
 
-def init_log():
+def init_log(lvl=logging.DEBUG):
     import logging,sys
     selflogfile = "./%s.log" % (sys.argv[0].split('/')[-1][:-3])
-    logging.basicConfig(filename=selflogfile,format='[%(asctime)s] [%(levelname)s]%(message)s')
+    logging.basicConfig(filename=selflogfile,level=lvl, format='[%(asctime)s] [%(levelname)s] %(message)s')
 
 simbol = '='
 max_pos=50

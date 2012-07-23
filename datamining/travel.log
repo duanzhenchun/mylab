@@ -1,0 +1,231 @@
+[2012-07-23 11:55:28,623] [INFO]['60667649', '27234885', '53531827', '87392915', '41110358', '44282443', '61151086', '89561234', '59040647', '57269099', '39129140', '89437396', '54436467', '83655370', '24144746', '50595454', '56146479', '30012404', '30112464', '58743086', '11284899', '32782287', '51313967', '45021298', '51268400', '34184006', '69924999', '29207109', '52295365', '46227578', '41426202', '29311159', '69347911', '33328014', '66337270', '52910577', '85984210', '87950649', '71986256', '27242186']
+[2012-07-23 11:55:28,623] [INFO]http://api.douban.com/people/62508021?alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:28,711] [INFO]http://api.douban.com/people/60667649/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:28,806] [INFO]http://api.douban.com/people/27234885/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:28,918] [INFO]http://api.douban.com/people/53531827/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,006] [INFO]http://api.douban.com/people/87392915/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,093] [ERROR]http://api.douban.com/people/87392915/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,094] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:55:29,095] [INFO]http://api.douban.com/people/41110358/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,184] [INFO]http://api.douban.com/people/44282443/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,289] [INFO]http://api.douban.com/people/61151086/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,393] [INFO]http://api.douban.com/people/89561234/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,484] [ERROR]http://api.douban.com/people/89561234/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,484] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:55:29,485] [INFO]http://api.douban.com/people/59040647/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,574] [ERROR]http://api.douban.com/people/59040647/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,574] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:55:29,575] [INFO]http://api.douban.com/people/57269099/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,665] [INFO]http://api.douban.com/people/39129140/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,765] [INFO]http://api.douban.com/people/89437396/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,852] [ERROR]http://api.douban.com/people/89437396/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,853] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:55:29,854] [INFO]http://api.douban.com/people/54436467/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:29,949] [INFO]http://api.douban.com/people/83655370/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:30,041] [ERROR]http://api.douban.com/people/83655370/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:30,041] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:55:30,042] [INFO]http://api.douban.com/people/24144746/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:30,135] [INFO]http://api.douban.com/people/50595454/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:30,251] [INFO]http://api.douban.com/people/56146479/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:30,435] [INFO]http://api.douban.com/people/30012404/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:30,555] [INFO]http://api.douban.com/people/30112464/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:30,652] [INFO]http://api.douban.com/people/58743086/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:30,763] [INFO]http://api.douban.com/people/11284899/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:30,853] [INFO]http://api.douban.com/people/32782287/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:30,956] [INFO]http://api.douban.com/people/51313967/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:31,050] [INFO]http://api.douban.com/people/45021298/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:31,147] [INFO]http://api.douban.com/people/51268400/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:31,238] [INFO]http://api.douban.com/people/34184006/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:31,349] [INFO]http://api.douban.com/people/69924999/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:31,436] [ERROR]http://api.douban.com/people/69924999/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:31,436] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:55:31,437] [INFO]http://api.douban.com/people/29207109/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:31,542] [INFO]http://api.douban.com/people/52295365/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:31,635] [INFO]http://api.douban.com/people/46227578/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:31,734] [INFO]http://api.douban.com/people/41426202/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:31,868] [INFO]http://api.douban.com/people/29311159/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:31,983] [INFO]http://api.douban.com/people/69347911/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:32,089] [ERROR]http://api.douban.com/people/69347911/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:32,090] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:55:32,090] [INFO]http://api.douban.com/people/33328014/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:32,184] [INFO]http://api.douban.com/people/66337270/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:32,298] [ERROR]http://api.douban.com/people/66337270/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:32,298] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:55:32,299] [INFO]http://api.douban.com/people/52910577/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:32,422] [INFO]http://api.douban.com/people/85984210/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:32,507] [ERROR]http://api.douban.com/people/85984210/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:32,508] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:55:32,509] [INFO]http://api.douban.com/people/87950649/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:32,595] [ERROR]http://api.douban.com/people/87950649/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:55:32,595] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:01,750] [INFO]['53920971', '66903881', '37123986', '59023355', '56070062', '44311584', '64395756', '32784554', '29706451', '29022904', '77027235', '21921361', '47869817', '80146206', '89260941', '71966307', '66428636', '89656220', '64032117', '83551195', '36773911', '45578248', '18968499', '45112776', '22882286', '77581716', '69204526', '82192380', '61098190', '12357559', '60870031', '37169507', '79551763', '56327349', '79674601', '78194029', '75320123', '51610639', '47196605', '25015334']
+[2012-07-23 11:56:01,750] [INFO]http://api.douban.com/people/62508021?alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:01,850] [DEBUG]traveling len:39
+[2012-07-23 11:56:01,851] [INFO]http://api.douban.com/people/53920971/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:01,954] [DEBUG]traveling len:38
+[2012-07-23 11:56:01,955] [INFO]http://api.douban.com/people/66903881/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:02,141] [ERROR]http://api.douban.com/people/66903881/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:02,142] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:02,142] [DEBUG]traveling len:37
+[2012-07-23 11:56:02,142] [INFO]http://api.douban.com/people/37123986/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:02,239] [DEBUG]traveling len:36
+[2012-07-23 11:56:02,239] [INFO]http://api.douban.com/people/59023355/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:02,356] [DEBUG]traveling len:35
+[2012-07-23 11:56:02,356] [INFO]http://api.douban.com/people/56070062/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:02,520] [DEBUG]traveling len:42
+[2012-07-23 11:56:02,520] [INFO]http://api.douban.com/people/44311584/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:02,648] [DEBUG]traveling len:41
+[2012-07-23 11:56:02,649] [INFO]http://api.douban.com/people/64395756/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:02,752] [ERROR]http://api.douban.com/people/64395756/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:02,752] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:02,753] [DEBUG]traveling len:40
+[2012-07-23 11:56:02,753] [INFO]http://api.douban.com/people/32784554/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:02,861] [DEBUG]traveling len:39
+[2012-07-23 11:56:02,861] [INFO]http://api.douban.com/people/29706451/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:03,025] [DEBUG]traveling len:38
+[2012-07-23 11:56:03,025] [INFO]http://api.douban.com/people/29022904/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:04,149] [DEBUG]traveling len:37
+[2012-07-23 11:56:04,149] [INFO]http://api.douban.com/people/77027235/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:28,911] [INFO]['43757739', '85376438', '55440320', '13216975', '17989837', '37877175', '43117040', '76822923', '23191649', '25094718', '16717044', '72188646', '37484998', '16706050', '30761553', '78867650', '46947336', '51147098', '54957825', '30779652', '83025669', '25316455', '64237230', '24328247', '38585629', '39404062', '35116449', '17909064', '21320860', '24642239', '86936135', '19230266', '73424618', '26810397', '85812772', '86341816', '59156795', '28424141', '38277059', '59656651']
+[2012-07-23 11:56:28,912] [INFO]http://api.douban.com/people/62508021?alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,108] [DEBUG]traveling len:39
+[2012-07-23 11:56:29,108] [INFO]http://api.douban.com/people/43757739/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,202] [DEBUG]traveling len:38
+[2012-07-23 11:56:29,202] [INFO]http://api.douban.com/people/85376438/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,294] [ERROR]http://api.douban.com/people/85376438/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,295] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:29,295] [DEBUG]traveling len:37
+[2012-07-23 11:56:29,295] [INFO]http://api.douban.com/people/55440320/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,397] [DEBUG]traveling len:36
+[2012-07-23 11:56:29,397] [INFO]http://api.douban.com/people/13216975/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,491] [DEBUG]traveling len:35
+[2012-07-23 11:56:29,492] [INFO]http://api.douban.com/people/17989837/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,589] [DEBUG]traveling len:34
+[2012-07-23 11:56:29,589] [INFO]http://api.douban.com/people/37877175/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,679] [DEBUG]traveling len:33
+[2012-07-23 11:56:29,679] [INFO]http://api.douban.com/people/43117040/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,810] [DEBUG]traveling len:32
+[2012-07-23 11:56:29,811] [INFO]http://api.douban.com/people/76822923/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,898] [ERROR]http://api.douban.com/people/76822923/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,899] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:29,899] [DEBUG]traveling len:31
+[2012-07-23 11:56:29,900] [INFO]http://api.douban.com/people/23191649/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:29,994] [DEBUG]traveling len:30
+[2012-07-23 11:56:29,994] [INFO]http://api.douban.com/people/25094718/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:30,096] [DEBUG]traveling len:29
+[2012-07-23 11:56:30,096] [INFO]http://api.douban.com/people/16717044/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:30,479] [DEBUG]traveling len:28
+[2012-07-23 11:56:30,480] [INFO]http://api.douban.com/people/72188646/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:30,575] [ERROR]http://api.douban.com/people/72188646/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:30,575] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:30,576] [DEBUG]traveling len:27
+[2012-07-23 11:56:30,576] [INFO]http://api.douban.com/people/37484998/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:30,688] [DEBUG]traveling len:26
+[2012-07-23 11:56:30,689] [INFO]http://api.douban.com/people/16706050/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:30,889] [DEBUG]traveling len:25
+[2012-07-23 11:56:30,889] [INFO]http://api.douban.com/people/30761553/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:30,982] [DEBUG]traveling len:24
+[2012-07-23 11:56:30,982] [INFO]http://api.douban.com/people/78867650/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,067] [ERROR]http://api.douban.com/people/78867650/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,068] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:31,068] [DEBUG]traveling len:23
+[2012-07-23 11:56:31,068] [INFO]http://api.douban.com/people/46947336/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,165] [DEBUG]traveling len:22
+[2012-07-23 11:56:31,166] [INFO]http://api.douban.com/people/51147098/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,275] [DEBUG]traveling len:21
+[2012-07-23 11:56:31,276] [INFO]http://api.douban.com/people/54957825/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,378] [DEBUG]traveling len:20
+[2012-07-23 11:56:31,379] [INFO]http://api.douban.com/people/30779652/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,476] [DEBUG]traveling len:19
+[2012-07-23 11:56:31,476] [INFO]http://api.douban.com/people/83025669/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,573] [ERROR]http://api.douban.com/people/83025669/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,574] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:31,574] [DEBUG]traveling len:18
+[2012-07-23 11:56:31,574] [INFO]http://api.douban.com/people/25316455/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,694] [DEBUG]traveling len:17
+[2012-07-23 11:56:31,695] [INFO]http://api.douban.com/people/64237230/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,785] [ERROR]http://api.douban.com/people/64237230/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,786] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:31,786] [DEBUG]traveling len:16
+[2012-07-23 11:56:31,786] [INFO]http://api.douban.com/people/24328247/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,882] [DEBUG]traveling len:15
+[2012-07-23 11:56:31,882] [INFO]http://api.douban.com/people/38585629/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:31,983] [DEBUG]traveling len:14
+[2012-07-23 11:56:31,983] [INFO]http://api.douban.com/people/39404062/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:32,264] [DEBUG]R_CONTACTS122884839404062
+[2012-07-23 11:56:32,269] [DEBUG]R_CONTACTS167844839404062
+[2012-07-23 11:56:32,272] [DEBUG]R_CONTACTS188783439404062
+[2012-07-23 11:56:32,275] [DEBUG]R_CONTACTS191530439404062
+[2012-07-23 11:56:32,279] [DEBUG]R_CONTACTS227445639404062
+[2012-07-23 11:56:32,282] [DEBUG]R_CONTACTS182056139404062
+[2012-07-23 11:56:32,286] [DEBUG]R_CONTACTS214039239404062
+[2012-07-23 11:56:32,289] [DEBUG]R_CONTACTS104340839404062
+[2012-07-23 11:56:32,292] [DEBUG]R_CONTACTS109516139404062
+[2012-07-23 11:56:32,296] [DEBUG]R_CONTACTS133249539404062
+[2012-07-23 11:56:32,299] [DEBUG]R_CONTACTS147701839404062
+[2012-07-23 11:56:32,302] [DEBUG]R_CONTACTS341600439404062
+[2012-07-23 11:56:32,306] [DEBUG]R_CONTACTS100093739404062
+[2012-07-23 11:56:32,309] [DEBUG]R_CONTACTS287298639404062
+[2012-07-23 11:56:32,312] [DEBUG]R_CONTACTS327074439404062
+[2012-07-23 11:56:32,315] [DEBUG]R_CONTACTS4659577839404062
+[2012-07-23 11:56:32,318] [DEBUG]R_CONTACTS196079139404062
+[2012-07-23 11:56:32,321] [DEBUG]R_CONTACTS109094839404062
+[2012-07-23 11:56:32,323] [DEBUG]R_CONTACTS103256539404062
+[2012-07-23 11:56:32,327] [DEBUG]R_CONTACTS2802979439404062
+[2012-07-23 11:56:32,330] [DEBUG]R_CONTACTS178139539404062
+[2012-07-23 11:56:32,333] [DEBUG]R_CONTACTS4810235739404062
+[2012-07-23 11:56:32,336] [DEBUG]R_CONTACTS4321022539404062
+[2012-07-23 11:56:32,339] [DEBUG]R_CONTACTS133637239404062
+[2012-07-23 11:56:32,342] [DEBUG]R_CONTACTS268886839404062
+[2012-07-23 11:56:32,346] [DEBUG]R_CONTACTS3914190539404062
+[2012-07-23 11:56:32,349] [DEBUG]R_CONTACTS4651911139404062
+[2012-07-23 11:56:32,352] [DEBUG]R_CONTACTS1513363639404062
+[2012-07-23 11:56:32,355] [DEBUG]R_CONTACTS131041939404062
+[2012-07-23 11:56:32,358] [DEBUG]R_CONTACTS109631639404062
+[2012-07-23 11:56:32,361] [DEBUG]R_CONTACTS389744939404062
+[2012-07-23 11:56:32,365] [DEBUG]R_CONTACTS130650339404062
+[2012-07-23 11:56:32,368] [DEBUG]R_CONTACTS114281839404062
+[2012-07-23 11:56:32,372] [DEBUG]R_CONTACTS284845339404062
+[2012-07-23 11:56:32,375] [DEBUG]R_CONTACTS247949239404062
+[2012-07-23 11:56:32,379] [DEBUG]R_CONTACTS201566539404062
+[2012-07-23 11:56:32,383] [DEBUG]R_CONTACTS4208584539404062
+[2012-07-23 11:56:32,386] [DEBUG]R_CONTACTS143720539404062
+[2012-07-23 11:56:32,389] [DEBUG]R_CONTACTS170536939404062
+[2012-07-23 11:56:32,392] [DEBUG]R_CONTACTS4056782639404062
+[2012-07-23 11:56:32,395] [DEBUG]R_CONTACTS4053808539404062
+[2012-07-23 11:56:32,398] [DEBUG]R_CONTACTS321739839404062
+[2012-07-23 11:56:32,402] [DEBUG]traveling len:53
+[2012-07-23 11:56:32,403] [INFO]http://api.douban.com/people/35116449/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:32,510] [DEBUG]traveling len:52
+[2012-07-23 11:56:32,510] [INFO]http://api.douban.com/people/17909064/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:32,606] [DEBUG]traveling len:51
+[2012-07-23 11:56:32,606] [INFO]http://api.douban.com/people/21320860/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:32,736] [DEBUG]traveling len:50
+[2012-07-23 11:56:32,737] [INFO]http://api.douban.com/people/24642239/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:32,854] [DEBUG]traveling len:49
+[2012-07-23 11:56:32,854] [INFO]http://api.douban.com/people/86936135/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:32,945] [ERROR]http://api.douban.com/people/86936135/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:32,945] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:32,946] [DEBUG]traveling len:48
+[2012-07-23 11:56:32,946] [INFO]http://api.douban.com/people/19230266/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:33,045] [DEBUG]traveling len:47
+[2012-07-23 11:56:33,045] [INFO]http://api.douban.com/people/73424618/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:33,137] [ERROR]http://api.douban.com/people/73424618/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:33,138] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:33,139] [DEBUG]traveling len:46
+[2012-07-23 11:56:33,139] [INFO]http://api.douban.com/people/26810397/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:33,235] [DEBUG]traveling len:45
+[2012-07-23 11:56:33,235] [INFO]http://api.douban.com/people/85812772/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:33,326] [ERROR]http://api.douban.com/people/85812772/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:33,326] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:33,327] [DEBUG]traveling len:44
+[2012-07-23 11:56:33,327] [INFO]http://api.douban.com/people/86341816/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:33,444] [ERROR]http://api.douban.com/people/86341816/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:33,445] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:33,445] [DEBUG]traveling len:43
+[2012-07-23 11:56:33,445] [INFO]http://api.douban.com/people/59156795/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:33,566] [ERROR]http://api.douban.com/people/59156795/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:33,567] [ERROR]HTTP Error 404: Not Found
+[2012-07-23 11:56:33,567] [DEBUG]traveling len:42
+[2012-07-23 11:56:33,568] [INFO]http://api.douban.com/people/28424141/contacts?max-results=100&alt=json&apikey=0cc65c265ad25ea12653147310771be3
+[2012-07-23 11:56:33,660] [DEBUG]traveling len:41

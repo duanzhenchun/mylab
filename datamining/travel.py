@@ -47,7 +47,7 @@ def travel():
     while traveling or max_user < max_user:
         #progressbar(max_user,len(traveling))
         iD=traveling.pop(0)
-        logging.debug('traveling len:', len(traveling))
+        logging.info('traveling len:%d' %len(traveling))
         visited+=1
         Tos = get_contacts(iD,db,rdscli)
         if not Tos:
@@ -55,7 +55,7 @@ def travel():
         out_w=1.0/len(Tos)
         for j in Tos: 
             rdscli.sadd(CONTACTS + ':'+iD,j) #get them by smembers
-            logging.debug('R_CONTACTS', j, iD)
+            logging.debug('R_CONTACTS:%s %s'%(j,iD))
             rdscli.zadd(R_CONTACTS+':'+j,iD, out_w )
          
             if not rdscli.keys(CONTACTS + ':'+j): #not visited before
