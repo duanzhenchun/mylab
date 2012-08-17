@@ -1,0 +1,6 @@
+{% extends "templates/layout.jinja2" %}
+{% block content %}
+{% for f in files %}
+    <li><a href="{{f.href}}"> {{f.name}} </a></li>
+{% endfor %}
+{% endblock %}

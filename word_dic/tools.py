@@ -9,8 +9,8 @@ def is_cs(word):
 def sortk_iter(dic):
     return sorted(dic.iteritems())
 
-def sortk_iter_bylen(dic):
-    return sorted(dic.iteritems(),key=lambda (k,v):(len(k),v),reverse=True)
+def sortk_iter_bylen(dic,decrease=True):
+    return sorted(dic.iteritems(),key=lambda (k,v):(len(k),v),reverse=decrease)
             
 def sortv_iter(dic):
     for key, value in sorted(dic.iteritems(), reverse=True, key=lambda (k,v): (v,k)):

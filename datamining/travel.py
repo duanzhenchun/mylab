@@ -145,5 +145,5 @@ def test():
     t_pair()
 #    t_similar()    
     
-test()
-#travel()
+#test()
+travel()

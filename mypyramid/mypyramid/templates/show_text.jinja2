@@ -1,0 +1,27 @@
+<html>
+<head>
+<style type="text/css">
+#bookview{
+    width: 80ex ;
+    margin-left: auto ;
+    margin-right: auto ;
+}
+
+#content{  
+    color:blue;
+    text-indent: 20px;
+    text-align: left;
+    width:80ex;
+}
+</style>
+	
+</head>
+<body>
+<div id="bookview">
+<h2> {{file.name}}</h2>
+<div id="content">
+{{file.text|safe}}
+</div>
+</div>
+</body>
+</html>

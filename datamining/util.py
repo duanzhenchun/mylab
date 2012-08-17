@@ -5,7 +5,7 @@ import json
 json_fmt='alt=json'
 apikey='apikey=0cc65c265ad25ea12653147310771be3'
 
-def init_log(lvl=logging.DEBUG):
+def init_log(lvl=logging.INFO):
     import logging,sys
     selflogfile = "./%s.log" % (sys.argv[0].split('/')[-1][:-3])
     logging.basicConfig(filename=selflogfile,level=lvl, format='[%(asctime)s] [%(levelname)s] %(message)s')
@@ -32,7 +32,7 @@ waitnot=waitmaker(60)
 from random import randint
 
 def randselect(length):
-    return [randint(1*10**7,9*10**7) for i in range(length)]
+    return [randint(1*10**6,9*10**6) for i in range(length)]
 
 def get_ret(urlstr,kv=None):
     waitnot()
