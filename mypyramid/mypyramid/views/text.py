@@ -5,7 +5,7 @@ from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPFound
 from tools import *
 
-filestore='/tmp'
+filestore='store'
 
 @view_config(route_name='upload', request_method='GET',renderer="upload.jinja2")
 def get_upload(request):
@@ -15,7 +15,7 @@ def get_upload(request):
 def upload(request):
     fname = request.POST['text'].filename
     fin = request.POST['text'].file
-    fpath = os.path.join(filestore, fname)
+    fpath = getabspath(os.path.join(filestore, fname))
     fout = open(fpath, 'wb')
     # write file
     fin.seek(0)
@@ -35,32 +35,38 @@ def file_list(request):
     return {'files':lst}
         
 import os
-@view_config(route_name='show', renderer="show_text.jinja2")
-def show_text(request):
+@view_config(route_name='show', http_cache=3600, renderer="show_text.jinja2")
+def text_view(request):
     fname = request.matchdict['filename']
-    fpath = os.path.join(filestore, fname)
-    logging.info(fpath)
-    f = open(fpath, 'rb')
-    txt= to_unicode(f.read())
+    fpath = getabspath(os.path.join(filestore, fname))
+    fin = open(fpath, 'r')
+    txt = to_unicode(open(fpath, 'r').read())
+    global g_worddic
+    dicref = request.route_url('worddict')
+    txt = dicsub(g_worddic,txt,dicref)
+    txt = txt2html(txt)
     return {
         'file':{'name':fname, 'text':txt}
         }
         
 @view_config(route_name='sample',http_cache=3600, renderer="show_text.jinja2")
 def sample(request):
-    fname='static/sif/sample.txt'
-    path=getabspath(fname)
-    fin = open(path, 'r')
-    txt = to_unicode(open(path, 'r').read())
-    global g_worddic
-    txt = dicsub(g_worddic,txt)
-    txt = txt2html(txt)
-    return {
-        'file':{'name':fname, 'text':txt}
-        }
+    request.matchdict['filename']='sample.txt'
+    return text_view(request)
 #    response = Response(content_type='text/plain')
 #    response.app_iter = fin
 #    return response
 
-g_worddic=getdic('static/sif/sorted_en')
+g_worddic=getdic(filestore +'/sorted_en')
     
+@view_config(route_name='worddict', renderer="show_text.jinja2")        
+def wordict_view(request):
+    global g_worddic
+    txt=''
+    for k,v in sorted(g_worddic.iteritems()):
+        txt += '%s:\t%s\n' %(k,v)
+    txt = txt2html(txt)
+    return {
+        'file':{'name':'worddict', 'text':txt}
+        }
+        

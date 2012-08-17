@@ -32,6 +32,6 @@ def demo_view(config):
     config.add_route('json','/json/{foo}')
         
 def text_view(config):    
-    for i in ('upload','list','sample'):
+    for i in ('upload','list','sample','worddict'):
         config.add_route(i,'/'+i)
     config.add_route('show','/show/{filename}')

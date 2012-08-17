@@ -37,12 +37,11 @@ def getdic(fpath):
 def sortk_iter_bylen(dic,decrease=True):
     return sorted(dic.iteritems(),key=lambda (k,v):(len(k),v),reverse=decrease)
                     
-def dicsub(dic, txt, iter_fn=sortk_iter_bylen):
+def dicsub(dic, txt, dicref, iter_fn=sortk_iter_bylen):
     for k,v in iter_fn(dic):
-        txt = re.sub(k, hint(k,v), txt)
+        txt = re.sub(k, hint(k,v,dicref), txt)
     return txt
     
-def hint(k,v):
-    #return '%s(%s)' %(v,k)
-    return "<a title='%s' class=body_con href=http://index.html>%s</a>"  %(v,k)
+def hint(k,v, dicref):
+    return "<a title='%s' class=body_con href=%s>%s</a>"  %(v,dicref,k)
 
