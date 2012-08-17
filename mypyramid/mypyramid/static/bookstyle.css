@@ -5,14 +5,14 @@
     margin-right:auto;  
 }
 #text_div{  
-    color:blue;
+/*    color:blue;*/
     text-indent: 4ex;
     text-align: left;
     width:80ex;
 }
 a{
-  color: #900;
-//  text-decoration: none;
+//  color: #900;
+  text-decoration: none;
 }
 a:hover {
   color: red;
