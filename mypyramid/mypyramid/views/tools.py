@@ -10,7 +10,7 @@ def to_unicode(s):
     
 def txt2html(txt):
     return re.sub('(^.*?$)', '<p>\\1</p>', txt, flags=re.MULTILINE)
-    
+        
 def txt2html2(txt):
     return re.sub('(^.*?$)', '\\1<br/>', txt, flags=re.MULTILINE)
     
@@ -39,6 +39,10 @@ def sortk_iter_bylen(dic,decrease=True):
                     
 def dicsub(dic, txt, iter_fn=sortk_iter_bylen):
     for k,v in iter_fn(dic):
-        txt = re.sub(k, '%s(%s)' %(v,k), txt)
+        txt = re.sub(k, hint(k,v), txt)
     return txt
     
+def hint(k,v):
+    #return '%s(%s)' %(v,k)
+    return "<a title='%s' class=body_con href=http://index.html>%s</a>"  %(v,k)
+
