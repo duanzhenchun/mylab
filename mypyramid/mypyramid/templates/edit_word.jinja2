@@ -1,0 +1,12 @@
+<!--{% extends "base.jinja2" %}-->
+<!--{% block title %}Edit word dict{% endblock %}-->
+
+<!--{% block content %}-->
+<form action="${save_url}" method="post">
+  <textarea name="en" tal:content="word.en" rows="2" cols="40"/>
+  <textarea name="cs" tal:content="word.cs" rows="2" cols="40"/>
+  <br/>
+  <input type="submit" name="form.submitted" value="Save"/>
+</form>
+{% endblock %}
+

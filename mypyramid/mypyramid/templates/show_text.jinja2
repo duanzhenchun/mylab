@@ -4,6 +4,67 @@
 {% block head %}
     {{ super() }}
     <link rel="stylesheet" href="{{request.static_url('mypyramid:static/bookstyle.css')}}" />
+<link rel="stylesheet"  href="{{request.static_url('mypyramid:static/linkmenu.css')}}" type="text/css" />
+    <link rel="stylesheet"  href="{{request.static_url('mypyramid:static/themes/base/jquery.ui.all.css')}}" type="text/css" />
+	<script src="{{request.static_url('mypyramid:static/js/jquery-1.8.0.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.core.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.widget.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.mouse.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.button.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.position.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.dialog.js')}}"></script>
+	<style>
+		input.text { margin-bottom:12px; width:95%; padding: .4em; }
+		fieldset { padding:0; border:0; margin-top:25px; }
+		h1 { font-size: 1.2em; margin: .6em 0; }
+		div#words-contain { width: 350px; margin: 20px 0; }
+		div#words-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
+		div#words-contain table td, div#words-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
+	</style>
+	<script>
+	$(function() {
+		var cs = $("#cs"),
+			en = $("#en");
+	    
+		$( "#dialog-form" ).dialog({
+			autoOpen: false,
+			height: 300,
+			width: 400,
+			modal: true,
+			buttons: {
+				"Save": function() {
+			        $.post("../worddict",
+		            {cs:$("#cs").val(),en:$("#en").val(),}
+                    );
+					$( this ).dialog( "close" );
+					window.location.reload();
+				},
+				"Delete": function() {
+				    $.ajax({
+                    url: '../worddict/'+en.val(),
+                    type: 'DELETE',
+                    success: function(result) {
+                        window.location.reload();
+                    }
+                });
+                    $( this ).dialog( "close" );
+				},
+				"Add": function() {
+				    en.val("");
+				    cs.val("");
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			},
+		});
+        $("a.edit-word").click(function(){
+            en.val($(this).text());
+            cs.val($(this).attr('title'));
+			$( "#dialog-form" ).dialog( "open" );
+		});
+	});
+	</script>
 {% endblock %}
 
 {% block content %}
@@ -14,5 +75,19 @@
       {{file.text|safe}}
     </div>
   </div>
+
+
+<div id="dialog-form" >
+	<form>
+	<fieldset>
+		<label>Chinese</label>
+		<input type="text" name="cs" id="cs" value="" class="text ui-widget-content ui-corner-all">
+		<label>English</label>
+		<input type="text" name="en" id="en" value="" class="text ui-widget-content ui-corner-all">
+	</fieldset>
+	</form>
+</div>
+
 {% endblock %}
+
 

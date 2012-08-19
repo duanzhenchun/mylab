@@ -39,6 +39,7 @@ import os
 def text_view(request):
     fname = request.matchdict['filename']
     fpath = getabspath(os.path.join(filestore, fname))
+    logging.info(fpath)
     fin = open(fpath, 'r')
     txt = to_unicode(open(fpath, 'r').read())
     global g_worddic
@@ -70,3 +71,65 @@ def wordict_view(request):
         'file':{'name':'worddict', 'text':txt}
         }
         
+@view_config(route_name='worddict',request_method='POST',renderer='string') 
+def edit_word(request):
+    cs, en = [request.params[i] for i in ('cs','en')]
+    global g_worddic
+    if en in g_worddic:
+        g_worddic[en]=cs
+    else:
+        olden = find_key(g_worddic,cs)
+        if olden:
+            del g_worddic[olden]
+        g_worddic[en]=cs
+    return "OK"
+    
+@view_config(route_name='worddict.del',request_method='DELETE',renderer='string') 
+def delete_word(request):
+    en = request.matchdict['en']
+    global g_worddic
+    del g_worddic[en]
+    return "OK"
+    
+            
+"""      
+@view_config(route_name='edit_word', renderer='edit_word.jinja2')
+def edit_word(request):
+    word = request.matchdict['word']
+    if 'form.submitted' in request.params:
+        global g_worddic
+        word.cs = request.params['cs']
+        word.en = request.params['en']
+        g_worddic[word.cs] = word.en
+        return HTTPFound(location = request.route_url('view_word',
+                                                      word=word))
+    return dict(
+        page=page,
+        save_url = request.route_url('edit_word', word=word),
+        )
+      
+@view_config(route_name='add_word', renderer='edit_word.jinja2')
+def add_word(request):
+    if 'form.submitted' in request.params:
+        return edit_word(request)
+        
+    word = request.matchdict['word']   
+    save_url = request.route_url('add_word', word=name)
+    word = {'cs':'', 'en':''}
+    return dict(word=word, save_url=save_url)
+    
+    
+@view_config(route_name='view_word', renderer='view_word.jinja2')
+def view_word(request):
+    word = request.matchdict['word'] 
+    page = DBSession.query(Page).filter_by(name=pagename).first()
+    if page is None:
+        return HTTPNotFound('No such page')
+
+    content = publish_parts(page.data, writer_name='html')['html_body']
+    content = wikiwords.sub(check, content)
+    edit_url = request.route_url('edit_page', pagename=pagename)
+    return dict(page=page, content=content, edit_url=edit_url,
+                logged_in=authenticated_userid(request))
+                
+                """

@@ -14,6 +14,13 @@ def txt2html(txt):
 def txt2html2(txt):
     return re.sub('(^.*?$)', '\\1<br/>', txt, flags=re.MULTILINE)
     
+def find_key(dic, val):
+    res=None
+    lst = [k for k, v in dic.iteritems() if v == val]
+    if lst: 
+        res = lst[0]
+    return res
+    
 def gendic(fpath):
     f=open(fpath,'r')
     for line in f.readlines():
@@ -39,9 +46,14 @@ def sortk_iter_bylen(dic,decrease=True):
                     
 def dicsub(dic, txt, dicref, iter_fn=sortk_iter_bylen):
     for k,v in iter_fn(dic):
-        txt = re.sub(k, hint(k,v,dicref), txt)
+        txt = re.sub(v, hint(k,v,dicref), txt)
     return txt
     
+def popup(txt):
+    txt= """<div class="bodynav"><li class="bodynavli"> %s <ul><li class="bodynavli"><a href="/">Edit</a></li><li class="bodynavli"><a href="/">Delete</a></li></ul></li></div>""" %txt
+    return txt
+        
 def hint(k,v, dicref):
-    return "<a title='%s' class=body_con href=%s>%s</a>"  %(v,dicref,k)
+#    return "<a title='%s'  class=edit-word href=%s>%s </a>"  %(v,dicref,k )
+    return "<a title='%s' class=edit-word href=# >%s</a>"  %(v,k)
 
