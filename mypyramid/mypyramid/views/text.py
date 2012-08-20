@@ -39,9 +39,11 @@ import os
 def text_view(request):
     fname = request.matchdict['filename']
     fpath = getabspath(os.path.join(filestore, fname))
-    logging.info(fpath)
-    fin = open(fpath, 'r')
-    txt = to_unicode(open(fpath, 'r').read())
+    logging.debug(fpath)
+    txt=getpage(fpath,2)
+    txt=to_unicode(txt)
+#    fin = open(fpath, 'r')
+#    txt = to_unicode(open(fpath, 'r').read())
     global g_worddic
     dicref = request.route_url('worddict')
     txt = dicsub(g_worddic,txt,dicref)
@@ -50,10 +52,10 @@ def text_view(request):
         'file':{'name':fname, 'text':txt}
         }
         
-@view_config(route_name='sample',http_cache=3600, renderer="show_text.jinja2")
-def sample(request):
-    request.matchdict['filename']='sample.txt'
-    return text_view(request)
+#@view_config(route_name='sample',http_cache=3600, renderer="show_text.jinja2")
+#def sample(request):
+#    request.matchdict['filename']='sample.txt'
+#    return text_view(request)
 #    response = Response(content_type='text/plain')
 #    response.app_iter = fin
 #    return response

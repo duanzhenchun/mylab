@@ -32,7 +32,7 @@ def demo_view(config):
     config.add_route('json','/json/{foo}')
         
 def text_view(config):    
-    for i in ('upload','list','sample','worddict'):
+    for i in ('upload','list','worddict'):
         config.add_route(i,'/'+i)
     config.add_route('worddict.del','/worddict/{en}')
     config.add_route('show','/show/{filename}')

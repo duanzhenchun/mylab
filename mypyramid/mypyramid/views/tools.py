@@ -21,6 +21,25 @@ def find_key(dic, val):
         res = lst[0]
     return res
     
+import os
+def getpage(fname, pageindex=0, pagesize=10000, ahead=1000):
+    """read page roughly by byte size"""
+    size = os.path.getsize(fname)
+    pagenum = size/pagesize
+    print pagenum
+    f=open(fname,'r')
+    pos=pageindex * pagesize
+    #ahead some line
+    pos -= ahead
+    if pos <= 0: 
+       f.seek(0)   
+    else:
+        f.seek(pos)
+        f.readline()
+    txt = f.read(pagesize)
+    txt += f.readline()    
+    return txt
+    
 def gendic(fpath):
     f=open(fpath,'r')
     for line in f.readlines():
@@ -34,7 +53,7 @@ def getabspath(fpath):
     a = AssetResolver('mypyramid')
     resolver = a.resolve(fpath)
     abspath = resolver.abspath()
-    logging.info(abspath)
+    logging.debug(abspath)
     return abspath
     
 def getdic(fpath):
@@ -43,10 +62,17 @@ def getdic(fpath):
     
 def sortk_iter_bylen(dic,decrease=True):
     return sorted(dic.iteritems(),key=lambda (k,v):(len(k),v),reverse=decrease)
-                    
-def dicsub(dic, txt, dicref, iter_fn=sortk_iter_bylen):
-    for k,v in iter_fn(dic):
-        txt = re.sub(v, hint(k,v,dicref), txt)
+
+def sortk_iter_byvlen(dic,decrease=True):
+    return sorted(dic.iteritems(),key=lambda (k,v):(len(v),k),reverse=decrease)
+    
+                        
+def dicsub(dic, txt, dicref, iter_fn=sortk_iter_byvlen):
+    for en,cs in iter_fn(dic):
+        txt = re.sub(en, hint(en,cs,dicref), txt)
+        #negtive lookbehind
+#        re.sub(卡霍城', '\\1Karhak' ,s)
+        txt = re.sub('((?<!title=\'))'+cs, '\\1' + hint(en,cs,dicref), txt)
     return txt
     
 def popup(txt):
