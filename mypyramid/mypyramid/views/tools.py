@@ -21,12 +21,26 @@ def find_key(dic, val):
         res = lst[0]
     return res
     
+pagesize=20000
+ahead = 1000
+
 import os
-def getpage(fname, pageindex=0, pagesize=20000, ahead=1000):
+def getlastpage(fname):
+    print fname
+    size = os.path.getsize(fname)
+    return size/pagesize
+
+class OutpageException(Exception):
+    def __init__(self, pagenum):
+        self.pagenum = pagenum
+                            
+def getpage(fname, pageindex=0):
     """read page roughly by byte size"""
     size = os.path.getsize(fname)
     pagenum = size/pagesize
-    print pagenum
+    if pageindex > pagenum:
+        raise OutpageException(pagenum)
+    
     f=open(fname,'r')
     pos=pageindex * pagesize
     #ahead some line
@@ -43,7 +57,6 @@ def getpage(fname, pageindex=0, pagesize=20000, ahead=1000):
 def getpage2(fname, pageindex=0, pagelines=100):
     f=open(fname,'r')
     startline=pageindex * pagelines
-    print startline
     txt=''
     i = 0
     for line in f:
@@ -52,8 +65,10 @@ def getpage2(fname, pageindex=0, pagelines=100):
             continue
         if i > startline + pagelines:
             break
-        txt += line    
-    print i
+        txt += line
+    else:
+        if i < startline:
+            raise Exception('out of page!')   
     return txt
         
 def gendic(fpath):
@@ -87,8 +102,7 @@ def dicsub(dic, txt, dicref, iter_fn=sortk_iter_byvlen):
     for en,cs in iter_fn(dic):
         txt = re.sub(en, hint(en,cs,dicref), txt)
         #negtive lookbehind
-#        re.sub(卡霍城', '\\1Karhak' ,s)
-        txt = re.sub('((?<!title=\'))'+cs, '\\1' + hint(en,cs,dicref), txt)
+        txt = re.sub('((?<!title=\'))%s((?!\'))' %cs, '\\1%s\\2' %hint(en,cs,dicref), txt)
     return txt
     
 def popup(txt):

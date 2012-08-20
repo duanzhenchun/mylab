@@ -3,8 +3,6 @@
 
 {% block head %}
     {{ super() }}
-    <link rel="stylesheet" href="{{request.static_url('mypyramid:static/fixedlayout.css')}}" />
-    <link rel="stylesheet" href="{{request.static_url('mypyramid:static/bookstyle.css')}}" />
     <link rel="stylesheet"  href="{{request.static_url('mypyramid:static/themes/base/jquery.ui.all.css')}}" type="text/css" />
 	<script src="{{request.static_url('mypyramid:static/js/jquery-1.8.0.js')}}"></script>
     <script src="{{request.static_url('mypyramid:static/js/jquery.ui.core.js')}}"></script>
@@ -13,7 +11,10 @@
     <script src="{{request.static_url('mypyramid:static/js/jquery.ui.button.js')}}"></script>
     <script src="{{request.static_url('mypyramid:static/js/jquery.ui.position.js')}}"></script>
     <script src="{{request.static_url('mypyramid:static/js/jquery.ui.dialog.js')}}"></script>
-    <script src="{{request.static_url('mypyramid:static/popup.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/popup.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/navibar.js')}}"></script>
+    <link rel="stylesheet" href="{{request.static_url('mypyramid:static/css/fixedlayout.css')}}" />
+    <link rel="stylesheet" href="{{request.static_url('mypyramid:static/css/bookstyle.css')}}" />
 	<style>
 		input.text { margin-bottom:12px; width:95%; padding: .4em; }
 		fieldset { padding:0; border:0; margin-top:25px; }
@@ -39,7 +40,12 @@
     </div>
 </div>
 <div id="navibar">
-ddd
+<input type="button" value="<<" onclick="navipage(0)" >
+<input type="button" value="<" onclick="navipageup(false)" >
+<input type="button" value="Goto" onclick="navipageto()" >
+<input type="text" name="curpage" id="curpage" value="{{file.curpage}}" style="width:50px;">
+<input type="button" value=">" onclick="navipageup(true)" >
+<input type="button" value=">>" onclick="navipage(-1)" >
 </div>
 
 <div id="dialog-form" >

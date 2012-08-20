@@ -33,23 +33,37 @@ def file_list(request):
     dummy = ('1.txt','2.txt')
     lst=[ {'name':i,'href':os.path.join(filestore, i)} for i in dummy]
     return {'files':lst}
+    
+def redirectpage(request,fname,index):
+        url = request.route_url('show',filename=fname) 
+        url += '?page=%d' %index 
+        return HTTPFound(url)
         
 import os
 @view_config(route_name='show', http_cache=3600, renderer="show_text.jinja2")
 def text_view(request):
     fname = request.matchdict['filename']
+    pageindex=request.params.get('page')
+    if not pageindex:
+        return redirectpage(request,fname,0)
+            
     fpath = getabspath(os.path.join(filestore, fname))
     logging.debug(fpath)
-    txt=getpage(fpath,0)
+    pageindex = int(pageindex)
+    if pageindex< 0:
+        return redirectpage(request,fname,getlastpage(fpath))
+    try:    
+        txt=getpage(fpath,pageindex)
+    except OutpageException, e:
+        return redirectpage(request,fname,e.pagenum)
+        
     txt=to_unicode(txt)
-#    fin = open(fpath, 'r')
-#    txt = to_unicode(open(fpath, 'r').read())
     global g_worddic
     dicref = request.route_url('worddict')
     txt = dicsub(g_worddic,txt,dicref)
     txt = txt2html(txt)
     return {
-        'file':{'name':fname, 'text':txt}
+        'file':{'name':fname, 'text':txt, 'curpage':pageindex}
         }
         
 #@view_config(route_name='sample',http_cache=3600, renderer="show_text.jinja2")
@@ -75,7 +89,7 @@ def wordict_view(request):
         
 @view_config(route_name='worddict',request_method='POST',renderer='string') 
 def edit_word(request):
-    cs, en = [request.params[i] for i in ('cs','en')]
+    cs, en = (request.params[i] for i in ('cs','en'))
     global g_worddic
     if en in g_worddic:
         g_worddic[en]=cs
