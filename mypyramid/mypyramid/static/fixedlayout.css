@@ -1,0 +1,36 @@
+#filename {
+    height: 40px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background: yellow;
+    text-align: center;
+}
+#navibar {
+    height: 50px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: 100%;
+    bottom: 0;
+    background: gray;
+    text-align: center;
+}
+#leftCol {
+    margin-top: 40px;
+    width: 200px;
+    position: fixed;
+    top: 0;
+    bottom: 50px;
+    left: 0;
+    background: green;
+    }
+#rightCol {
+    margin-left: 200px;
+    margin-top: 40px;
+    bottom: 50px;
+    padding:40px 0 50px 0; /* Header height and footer height */
+}
+

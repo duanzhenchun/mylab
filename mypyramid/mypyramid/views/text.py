@@ -40,7 +40,7 @@ def text_view(request):
     fname = request.matchdict['filename']
     fpath = getabspath(os.path.join(filestore, fname))
     logging.debug(fpath)
-    txt=getpage(fpath,2)
+    txt=getpage(fpath,0)
     txt=to_unicode(txt)
 #    fin = open(fpath, 'r')
 #    txt = to_unicode(open(fpath, 'r').read())

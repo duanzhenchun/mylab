@@ -22,7 +22,7 @@ def find_key(dic, val):
     return res
     
 import os
-def getpage(fname, pageindex=0, pagesize=10000, ahead=1000):
+def getpage(fname, pageindex=0, pagesize=20000, ahead=1000):
     """read page roughly by byte size"""
     size = os.path.getsize(fname)
     pagenum = size/pagesize
@@ -39,7 +39,23 @@ def getpage(fname, pageindex=0, pagesize=10000, ahead=1000):
     txt = f.read(pagesize)
     txt += f.readline()    
     return txt
-    
+
+def getpage2(fname, pageindex=0, pagelines=100):
+    f=open(fname,'r')
+    startline=pageindex * pagelines
+    print startline
+    txt=''
+    i = 0
+    for line in f:
+        i+=1
+        if i <startline:
+            continue
+        if i > startline + pagelines:
+            break
+        txt += line    
+    print i
+    return txt
+        
 def gendic(fpath):
     f=open(fpath,'r')
     for line in f.readlines():
