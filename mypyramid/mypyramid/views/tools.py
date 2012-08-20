@@ -101,7 +101,7 @@ def sortk_iter_byvlen(dic,decrease=True):
 def dicsub(dic, txt, dicref, iter_fn=sortk_iter_byvlen):
     for en,cs in iter_fn(dic):
         txt = re.sub(en, hint(en,cs,dicref), txt)
-        #negtive lookbehind
+        #negtive lookbehind & lookahead
         txt = re.sub('((?<!title=\'))%s((?!\'))' %cs, '\\1%s\\2' %hint(en,cs,dicref), txt)
     return txt
     
@@ -110,6 +110,5 @@ def popup(txt):
     return txt
         
 def hint(k,v, dicref):
-#    return "<a title='%s'  class=edit-word href=%s>%s </a>"  %(v,dicref,k )
     return "<a title='%s' class=edit-word href=# >%s</a>"  %(v,k)
 
