@@ -1,16 +1,46 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 from pyramid_beaker import session_factory_from_settings
-            
-from .models import DBSession
+ 
+from pyramid.authentication import AuthTktAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy            
+from pyramid.security import( Allow, Everyone,Authenticated, ALL_PERMISSIONS)
 
+from .models import DBSession
+from mypyramid.models import USERS
+
+
+def groupfinder(userid, request):
+    user = USERS.get(userid)
+    if user:
+        return ['g:%s' % g for g in user.groups]
+
+class Root(object):
+    __acl__ = [
+        (Allow, Authenticated, 'create'),
+        (Allow, 'g:editor', 'edit'),
+        (Allow, 'g:admin', ALL_PERMISSIONS),
+    ]
+    def __init__(self, request):
+        self.request = request
+        
+        
 def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application.
-    """
+
     engine = engine_from_config(settings, 'sqlalchemy.')
-            
     DBSession.configure(bind=engine)
-    config = Configurator(settings=settings)
+
+    authn_policy = AuthTktAuthenticationPolicy(
+        settings['auth.secret'],
+        callback=groupfinder
+    )
+    authz_policy = ACLAuthorizationPolicy()
+    config = Configurator(
+        settings=settings,
+        authentication_policy=authn_policy,
+        authorization_policy=authz_policy,
+        root_factory=Root,
+    )
     config.add_static_view('static', 'static', cache_max_age=3600)
 
     session_factory = session_factory_from_settings(settings)
@@ -24,6 +54,7 @@ def main(global_config, **settings):
     config.include(demo_view, route_prefix='/demo')
     config.include(file_view, route_prefix='/file')
     config.include(login_view,route_prefix='/accounts')
+    config.include(admin_view,route_prefix='/admin')
     config.scan()
     return config.make_wsgi_app()
 
@@ -41,4 +72,9 @@ def file_view(config):
 def login_view(config):
     for i in ('login','logout','signup'):
         config.add_route(i,'/'+i)
-    
+
+def admin_view(config):
+    for i in ('users',):
+        config.add_route(i,'/'+i)   
+    config.add_route('user','/user/{login}')  
+         

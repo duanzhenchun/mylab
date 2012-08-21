@@ -2,7 +2,11 @@
 
 import re
 import logging
+import os
 
+pagesize=20000
+ahead = 1000
+            
 def to_unicode(s):
     if type(s) !=unicode:
         s = s.decode('utf-8','ignore')
@@ -21,10 +25,6 @@ def find_key(dic, val):
         res = lst[0]
     return res
     
-pagesize=20000
-ahead = 1000
-
-import os
 def getlastpage(fname):
     print fname
     size = os.path.getsize(fname)
@@ -91,24 +91,41 @@ def getdic(fpath):
     path=getabspath(fpath)
     return dict(gendic(path))  
     
-def sortk_iter_bylen(dic,decrease=True):
+def sortk_iter_byklen(dic,decrease=True):
     return sorted(dic.iteritems(),key=lambda (k,v):(len(k),v),reverse=decrease)
 
 def sortk_iter_byvlen(dic,decrease=True):
     return sorted(dic.iteritems(),key=lambda (k,v):(len(v),k),reverse=decrease)
     
                         
-def dicsub(dic, txt, dicref, iter_fn=sortk_iter_byvlen):
-    for en,cs in iter_fn(dic):
+def dicsub(dic, txt, dicref):
+    # trans en already
+    for en,cs in sortk_iter_byklen(dic):
         txt = re.sub(en, hint(en,cs,dicref), txt)
+    # trans cs
+    for en,cs in sortk_iter_byvlen(dic):    
         #negtive lookbehind & lookahead
         txt = re.sub('((?<!title=\'))%s((?!\'))' %cs, '\\1%s\\2' %hint(en,cs,dicref), txt)
+        
     return txt
     
-def popup(txt):
-    txt= """<div class="bodynav"><li class="bodynavli"> %s <ul><li class="bodynavli"><a href="/">Edit</a></li><li class="bodynavli"><a href="/">Delete</a></li></ul></li></div>""" %txt
-    return txt
-        
 def hint(k,v, dicref):
     return "<a title='%s' class=edit-word href=# >%s</a>"  %(v,k)
 
+
+import posixpath
+
+_os_alt_seps = list(sep for sep in [os.path.sep, os.path.altsep]
+                    if sep not in (None, '/'))
+                    
+def safe_join(directory, filename):
+    """Safely join `directory` and `filename`.  If this cannot be done,
+    this function returns ``None``.
+    """
+    filename = posixpath.normpath(filename)
+    for sep in _os_alt_seps:
+        if sep in filename:
+            return None
+    if os.path.isabs(filename) or filename.startswith('../'):
+        return None
+    return os.path.join(directory, filename)

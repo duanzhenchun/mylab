@@ -26,3 +26,23 @@ class MyModel(Base):
         self.name = name
         self.value = value
 
+class User(object):
+    def __init__(self, login, password, groups=None):
+        self.login = login
+        self.password = password
+        self.groups = groups or []
+
+    def check_password(self, passwd):
+        return self.password == passwd
+        
+### INITIALIZE MODEL
+USERS = {}
+def _make_demo_user(login, **kw):
+    kw.setdefault('password', login)
+    USERS[login] = User(login, **kw)
+    return USERS[login]
+
+_make_demo_user('luser')
+_make_demo_user('editor', groups=['editors'])
+_make_demo_user('admin', groups=['admin'])
+        

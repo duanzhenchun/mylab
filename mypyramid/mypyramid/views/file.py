@@ -2,7 +2,8 @@ import os
 import logging
 from pyramid.response import Response
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPFound
+from pyramid.security import authenticated_userid
+from pyramid.httpexceptions import (HTTPFound, HTTPForbidden)
 from tools import *
 
 filestore='store'
@@ -10,13 +11,16 @@ g_worddic=getdic(filestore +'/sorted_en')
 
 @view_config(route_name='file.upload', request_method='GET',renderer="file/upload.jinja2")
 def get_upload(request):
+    owner = authenticated_userid(request)
+    if owner is None:
+        raise HTTPForbidden()
     return {}
     
-@view_config(route_name='file.upload', request_method='POST')
+@view_config(route_name='file.upload', permission='create', request_method='POST')
 def upload(request):
     fname = request.POST['text'].filename
     fin = request.POST['text'].file
-    fpath = getabspath(os.path.join(filestore, fname))
+    fpath = getabspath(safe_join(filestore, fname))
     fout = open(fpath, 'wb')
     # write file
     fin.seek(0)
