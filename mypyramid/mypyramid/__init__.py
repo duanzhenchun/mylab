@@ -22,7 +22,8 @@ def main(global_config, **settings):
     
     config.add_route('home', '/')
     config.include(demo_view, route_prefix='/demo')
-    config.include(text_view, route_prefix='/text')
+    config.include(file_view, route_prefix='/file')
+    config.include(login_view,route_prefix='/accounts')
     config.scan()
     return config.make_wsgi_app()
 
@@ -31,8 +32,13 @@ def demo_view(config):
         config.add_route(i,'/'+i)
     config.add_route('json','/json/{foo}')
         
-def text_view(config):    
-    for i in ('upload','list','worddict'):
+def file_view(config):    
+    for i in ('upload','list','worddict','sample'):
+        config.add_route('file.'+i,'/'+i)
+    config.add_route('file.worddict.del','/worddict/{en}')
+    config.add_route('file.show','/show/{filename}')
+    
+def login_view(config):
+    for i in ('login','logout','signup'):
         config.add_route(i,'/'+i)
-    config.add_route('worddict.del','/worddict/{en}')
-    config.add_route('show','/show/{filename}')
+    

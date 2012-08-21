@@ -10,7 +10,6 @@ def json_view(request):
 @view_config(route_name='string',renderer="string") 
 def string_view(request):
     logging.info('string view')
-    #print request.json_body
     return 'string'    
     
 @view_config(route_name='post',request_method='POST',renderer="json") 
@@ -41,7 +40,7 @@ def test_mail(request):
     #mailer.send_to_queue(message)
     return Response('ok')
 
-@view_config(route_name='jinja', renderer='test.jinja2')    
+@view_config(route_name='jinja', renderer='demo.jinja2')    
 def test_jinja(request):
     return {'foo':1, 'bar':3}
 
