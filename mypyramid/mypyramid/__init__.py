@@ -6,14 +6,9 @@ from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy            
 from pyramid.security import( Allow, Everyone,Authenticated, ALL_PERMISSIONS)
 
-from .models import DBSession
+from .models import DBSession, groupfinder
 from mypyramid.models import USERS
 
-
-def groupfinder(userid, request):
-    user = USERS.get(userid)
-    if user:
-        return ['g:%s' % g for g in user.groups]
 
 class Root(object):
     __acl__ = [
@@ -52,6 +47,7 @@ def main(global_config, **settings):
     
     config.add_route('home', '/')
     config.include(demo_view, route_prefix='/demo')
+    config.include(reader_view)
     config.include(file_view, route_prefix='/file')
     config.include(login_view,route_prefix='/accounts')
     config.include(admin_view,route_prefix='/admin')
@@ -64,10 +60,15 @@ def demo_view(config):
     config.add_route('json','/json/{foo}')
         
 def file_view(config):    
-    for i in ('upload','list','worddict','sample'):
+    for i in ('upload','list','sample'):
         config.add_route('file.'+i,'/'+i)
-    config.add_route('file.worddict.del','/worddict/{en}')
     config.add_route('file.show','/show/{filename}')
+
+def reader_view(config):
+    config.add_route('reader', '/reader')
+    config.add_route('worddict','/worddict')
+    config.add_route('worddict.del','/worddict/{en}')
+
     
 def login_view(config):
     for i in ('login','logout','signup'):

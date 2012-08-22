@@ -11,54 +11,57 @@
     <script src="{{request.static_url('mypyramid:static/js/jquery.ui.button.js')}}"></script>
     <script src="{{request.static_url('mypyramid:static/js/jquery.ui.position.js')}}"></script>
     <script src="{{request.static_url('mypyramid:static/js/jquery.ui.dialog.js')}}"></script>
+    
+    <script src="{{request.static_url('mypyramid:static/js/readfile.js')}}"></script>
     <script src="{{request.static_url('mypyramid:static/js/popup.js')}}"></script>
-    <script src="{{request.static_url('mypyramid:static/js/navibar.js')}}"></script>
+    
     <link rel="stylesheet" href="{{request.static_url('mypyramid:static/css/fixedlayout.css')}}" />
     <link rel="stylesheet" href="{{request.static_url('mypyramid:static/css/bookstyle.css')}}" />
 	<style>
 		input.text { margin-bottom:12px; width:95%; padding: .4em; }
 		fieldset { padding:0; border:0; margin-top:25px; }
 		h1 { font-size: 1.2em; margin: .6em 0; }
-		div#words-contain { width: 350px; margin: 20px 0; }
-		div#words-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
-		div#words-contain table td, div#words-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
-	</style>
+    </style>
 {% endblock %}
 
 {% block content %}
 <div id="leftCol">
-    Dummy Index
+    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+    <input type="file" id="fileinput" class="ui-widget "/>
 </div>
+
+<div id="filetitle">
+<h2>
+<output id="filename">
+</h2>
+</div>
+
 <div id="rightCol">
-    <div id="filename">
-        <h2>{{file.name}}</h2>
-    </div>
-    <div id="center_div">
-        <div id="text_div">
-          {{file.text|safe}}
-        </div>
-    </div>
+<div id="center_div">
+<div id="text_div">
+{{file.text|safe}}
+</div>
 </div>
 <div id="navibar">
-<input type="button" value="<<" onclick="navipage(0)" >
-<input type="button" value="<" onclick="navipageup(false)" >
-<input type="button" value="Goto" onclick="navipageto()" >
-<input type="text" name="curpage" id="curpage" value="{{file.curpage}}" style="width:50px;">
-<input type="button" value=">" onclick="navipageup(true)" >
-<input type="button" value=">>" onclick="navipage(-1)" >
+<input type="button" id="navihome" value="<<" class="ui-button">
+<input type="button" id="naviup" value="<" class="ui-button">
+<input type="button" id="navigoto" value="Goto" class="ui-button">
+<input id="curpage" value="0" style="width:40px;"class="ui-widget ">
+/
+<input id="totalpage" value="" style="width:40px;" disabled class="ui-widget ">
+<input type="button" id="navidown" value=">" class="ui-button">
+<input type="button" id="naviend" value=">>" class="ui-button">
 </div>
 
 <div id="dialog-form" >
 	<form>
 	<fieldset>
-		<label>Chinese</label>
 		<input type="text" name="cs" id="cs" value="" class="text ui-widget-content ui-corner-all">
-		<label>English</label>
+		<label>To:</label>
 		<input type="text" name="en" id="en" value="" class="text ui-widget-content ui-corner-all">
 	</fieldset>
 	</form>
 </div>
 
 {% endblock %}
-
 

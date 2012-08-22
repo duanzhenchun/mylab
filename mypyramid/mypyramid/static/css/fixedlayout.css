@@ -1,4 +1,4 @@
-#filename {
+#filetitle {
     height: 40px;
     position: fixed;
     top: 0;
@@ -9,28 +9,26 @@
     text-align: center;
 }
 #navibar {
-    height: 50px;
+    height: 40px;
     position: fixed;
     left: 0;
     right: 0;
-    width: 100%;
     bottom: 0;
     background: gray;
     text-align: center;
 }
 #leftCol {
-    margin-top: 40px;
     width: 200px;
     position: fixed;
     top: 0;
-    bottom: 50px;
+    bottom: 0;
     left: 0;
     background: green;
     }
 #rightCol {
     margin-left: 200px;
     margin-top: 40px;
-    bottom: 50px;
-    padding:40px 0 50px 0; /* Header height and footer height */
+    bottom: 0;
+    padding: 40px 0 40px 0; /* Header height and footer height, avoid overlap */
 }
 

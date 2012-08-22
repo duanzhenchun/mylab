@@ -8,12 +8,14 @@ FILES = {}
 
 @view_config(route_name='home', renderer='home.mako')
 def home_view(request):
-    login = authenticated_userid(request)
-    user = USERS.get(login)
-    return {
-        'user': user,
-        'user_user_files': [p for (t, p) in FILES.iteritems() if p.owner == login],
-    }
+    return HTTPFound(location='reader')
+    
+#    login = authenticated_userid(request)
+#    user = USERS.get(login)
+#    return {
+#        'user': user,
+#        'user_user_files': [p for (t, p) in FILES.iteritems() if p.owner == login],
+#    }
 
 @forbidden_view_config()
 def forbidden_view(request):

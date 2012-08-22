@@ -35,14 +35,22 @@ class User(object):
     def check_password(self, passwd):
         return self.password == passwd
         
-### INITIALIZE MODEL
-USERS = {}
+
 def _make_demo_user(login, **kw):
     kw.setdefault('password', login)
     USERS[login] = User(login, **kw)
     return USERS[login]
 
+def groupfinder(userid, request):
+    """group format g:XXX """
+    user = USERS.get(userid)
+    if user:
+        return ['g:%s' % g for g in user.groups]
+        
+### INITIALIZE MODEL
+USERS = {}
 _make_demo_user('luser')
 _make_demo_user('editor', groups=['editors'])
 _make_demo_user('admin', groups=['admin'])
+
         
