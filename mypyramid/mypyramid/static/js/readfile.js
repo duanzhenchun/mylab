@@ -2,10 +2,18 @@ $(document).ready(function(){       //$(function() {
     var pagesize=5000;  // about 20kb data post, suitable for http transfer
     var curpage = $("#curpage");
     var totalpage = $("#totalpage"); 
+    var allnavis=[$("#navihome"),$("#naviend"),$("#naviup"),$("#navidown"),$("#navigoto")]
     
     function navi(page){
         curpage.val(page);
         $("#fileinput").change();
+    };
+    function disablenavi(betrue){
+        console.log(betrue);
+        for (var i in allnavis){
+            allnavis[i].button({ disabled: betrue });
+//            allnavis[i].prop("disabled", false);
+        }
     };
     $("#navigoto").click(function(){
         var cur = parseInt(curpage.val());
@@ -36,13 +44,20 @@ $(document).ready(function(){       //$(function() {
           return false;
         }
     }
+    // main interaction happens here
     $("#fileinput").change(function(evt){
-      if (!checkSupport()) {return; }
+      if (!checkSupport()) {
+        return; 
+      }
       var f = evt.target.files[0]; 
-      if (!f) {return;}
+      if (!f) {
+        return;
+      }
       console.log(f.name);
       var r = new FileReader();
       r.onload = function(e){
+        disablenavi(true);
+        
         $("#filename").val(f.name);
         var contents = e.target.result;
         totalpage.val(Math.floor(contents.length/pagesize));
@@ -60,6 +75,7 @@ $(document).ready(function(){       //$(function() {
           data: {fname:f.name,"txt":txt},
           success: function(data){
             $("#text_div").html(data);
+            disablenavi(false);
           }
         });
       }
