@@ -50,6 +50,7 @@ def wordict_view(request):
         
 @view_config(route_name='worddict',request_method='POST',renderer='string') 
 def edit_word(request):
+    logging.debug(request.client_addr)
     cs, en = (request.params[i] for i in ('cs','en'))
     global g_worddic
     if en in g_worddic:

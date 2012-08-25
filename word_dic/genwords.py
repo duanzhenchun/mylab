@@ -3,9 +3,8 @@
 Fwc_threshold = 10**7
 Word_threshold=6    #0~10
 
-
+import sys,logging
 from tools import * 
-import sys
 
 def gen_1_2w(blk_lst):
     """gen 1w,2w dic""" 
@@ -78,11 +77,11 @@ def gen_whole(blk_lst, high):
         dic_ls[i]=gen_high(dic_ls[i-1], blk_lst)
     return dic_ls  
     
-def stats(out, high=7):
+def stats(out, iter_fn=sortk_iter_bylen):
     sum_len,sum_freq=0,0
     dic=load_dic(out)
-    dic_out(dic,out, iter_fn=sortk_iter_bylen )
-    #plot_w(dic,out)    
+    dic_out(dic,out, iter_fn )
+    plot_w(dic,out)    
     print '%s words length: %d, sum feqence: %d' %(out, len(dic),sum(dic.values()))
 
 def load_dics(out,high):
@@ -98,24 +97,51 @@ def ave_pre(pre_dic,dic):
             
 def save_ws(dic_ls, out):
     pre_dic = load_dic(out)
+    logging.info('dic len:%s' %dic_ls)
     for i in xrange(len(dic_ls)):
         if i > 0:
             dic_ls[i] = gen_true(dic_ls[:i],dic_ls[i])
         ave_pre(pre_dic,dic_ls[i])    
     saveall(pre_dic, out)
         
-def gen_whole_merge_save(ppath, high=9 ):
+def gen_whole_merge_save(ppath, wcthold = Fwc_threshold, high=9 ):
     if ppath.endswith(os.sep):
         ppath=ppath[:-1]
     out = rela_name(ppath)
-    for blk_lst in iter_block(ppath,Fwc_threshold ):
+    logging.info(out)
+    for blk_lst in iter_block(ppath,wcthold):
         ls_merge=[{}]*high
         dic_ls = gen_whole(blk_lst,high)
         for i in xrange(high):
             ls_merge[i]= merged((ls_merge[i],dic_ls[i]))    
-        save_ws(ls_merge,out)
+        save_ws(ls_merge, out)
         stats(out)
-    
-gen_whole_merge_save('/cdisk/ebook')
-print get_dulps()
 
+def gen_eng(ppath,wcthold):
+    if ppath.endswith(os.sep):
+        ppath=ppath[:-1]
+    out = rela_name(ppath) +'_en'
+    logging.info(out)
+    pre_dic = load_dic(out)
+    logging.info('existed dic len:%s' %len(pre_dic))
+    raw_input()
+    for sens in iter_en_sens(ppath):
+        for w in sens:
+            incr(pre_dic,w)
+    saveall(pre_dic, out)
+    stats(out, sortv_iter)
+
+def main():
+    if len(sys.argv) < 2:
+        sys.exit('Usage: %s *.har' % sys.argv[0])
+    targpath = sys.argv[1]
+    logging.basicConfig(level=logging.DEBUG, filename=targpath+'.log')
+    
+    gen_whole_merge_save(targpath, 10**5)
+#    gen_eng(targpath,10**5)
+
+    print get_dulps()
+
+if __name__ == "__main__":
+    sys.exit(main())
+    

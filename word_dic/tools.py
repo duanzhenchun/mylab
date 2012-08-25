@@ -1,10 +1,8 @@
 #encoding:utf-8
-    
+import logging
+
 def incr(dic,w):
     dic[w]=dic.setdefault(w,0)+1
-    
-def is_cs(word):
-    return  u'\u4e00' < word < u'\u9fa5'
     
 def sortk_iter(dic):
     return sorted(dic.iteritems())
@@ -30,9 +28,16 @@ def dic_out(dic,fname, iter_fn=sortk_iter, overide=False):
 g_char = u'[\+\-a-zA-Z0-9\u4e00-\u9fa5]'
 g_div = u'[^(\+\-a-zA-Z0-9\u4e00-\u9fa5)]+'
 g_noncsdiv = u'[^(\u4e00-\u9fa5)]+'
+g_nonendiv = u'[^\w]+'
 
+def is_cs(word):
+    return  u'\u4e00' < word < u'\u9fa5'
+    
+def is_en(word):
+    return word.isalpha()
+        
 import re
-def split_sens(txt):
+def split_sens(txt ):
   txt = to_unicode(txt.strip())
   lst = re.split(g_noncsdiv, txt)
   lst=filter(None,lst)
@@ -46,6 +51,7 @@ def iter_block(ppath,wc_threshold, target='.txt'):
     """
     blk_lst,wc=[],0
     for fname in iter_fname(ppath,target):
+        logging.info(fname)
         remain=u''
         for line in open(fname,'r'):
             line = line.replace(' ','').replace('　','')
@@ -61,6 +67,21 @@ def iter_block(ppath,wc_threshold, target='.txt'):
             yield blk_lst
             blk_lst,wc=[],0    
 
+def split_sens_en(txt ):
+  txt = to_unicode(txt.strip())
+  lst = re.split(g_nonendiv, txt)
+  lst=filter(None,lst)
+  return lst
+    
+def iter_en_sens(ppath, target='.txt'):
+    for fname in iter_fname(ppath,target):
+        logging.info(fname)
+        for line in open(fname,'r'):
+            line = line.replace('　','') #chinese space
+            sens = split_sens_en(line)
+            if sens:
+                yield sens
+            
 def count_cs(ppath):
     count=0
     for line in iter_lines(ppath):
@@ -220,7 +241,7 @@ def iter_fname(ppath,target):
             fullpath = os.path.join(path, filename)
             suffix=filename[filename.rfind('.'):].lower()
             if suffix == target.lower():
-                print fullpath
+                logging.info(fullpath)
                 yield fullpath     
                 
 def allsub(ws):

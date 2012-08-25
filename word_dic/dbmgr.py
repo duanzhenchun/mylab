@@ -11,8 +11,8 @@ class dbmanager:
 
   def saveall(self,dic):
     for k,v in dic.iteritems():
-        self.con.execute(
-        "insert or replace into %s values ('%s','%d')" % (self.tablename, k, v))
+        cmd = "insert or replace into %s values ('%s','%d')" % (self.tablename, k, v)
+        self.con.execute(cmd)
     self.con.commit()   
 
   def clean(self):
