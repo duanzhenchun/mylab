@@ -260,4 +260,32 @@ class Singleton(object):
                                 cls, *args, **kwargs)
         return cls._instance
 
+import mmap
+def allpos(pattern, fname):
+    size = os.stat(fname).st_size
+    f = open(fname,'r')
+    data = mmap.mmap(f.fileno(), size, access=mmap.ACCESS_READ)
+    return [m.start() for m in re.finditer(pattern, data)]
 
+def plot_diff(lsts):
+    import matplotlib.pyplot as plt
+#    plt.plot(range(len(lsts[0])),lsts[0],'g-',range(len(lsts[1])),lsts[1],'b*')
+    lenx = min(len(lsts[0]), len(lsts[1]))
+    Y=[lsts[0][i]*1.0/lsts[1][i] for i in xrange(lenx)]
+    plt.plot(Y)
+    plt.show()
+    
+
+def sim_distance(lst1, lst2):
+  si = {}
+  for item in prefs[person1]:
+    if item in prefs[person2]: si[item] = 1
+
+  # if they have no ratings in common, return 0
+  if len(si) == 0: return 0
+
+  # Add up the squares of all the differences
+  sum_of_squares = sum([pow(prefs[person1][item] - prefs[person2][item], 2)
+                      for item in prefs[person1] if item in prefs[person2]])
+
+  return 1 / (1 + sum_of_squares)

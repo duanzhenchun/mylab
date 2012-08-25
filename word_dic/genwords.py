@@ -81,7 +81,7 @@ def stats(out, iter_fn=sortk_iter_bylen):
     sum_len,sum_freq=0,0
     dic=load_dic(out)
     dic_out(dic,out, iter_fn )
-    plot_w(dic,out)    
+#    plot_w(dic,out)    
     print '%s words length: %d, sum feqence: %d' %(out, len(dic),sum(dic.values()))
 
 def load_dics(out,high):
@@ -115,9 +115,9 @@ def gen_whole_merge_save(ppath, wcthold = Fwc_threshold, high=9 ):
         for i in xrange(high):
             ls_merge[i]= merged((ls_merge[i],dic_ls[i]))    
         save_ws(ls_merge, out)
-        stats(out)
+        stats(out, sortv_iter)
 
-def gen_eng(ppath,wcthold):
+def gen_eng(ppath):
     if ppath.endswith(os.sep):
         ppath=ppath[:-1]
     out = rela_name(ppath) +'_en'
@@ -137,11 +137,22 @@ def main():
     targpath = sys.argv[1]
     logging.basicConfig(level=logging.DEBUG, filename=targpath+'.log')
     
-    gen_whole_merge_save(targpath, 10**5)
-#    gen_eng(targpath,10**5)
+#    gen_whole_merge_save(targpath, 10**5)
+    gen_eng(targpath)
 
     print get_dulps()
 
+def test_encs_match():
+    inputs='Seldon','谢东'
+    fnames=('en','cs')
+    path='match_sample'
+    lsts=[[],]*2
+    for i in range(2):
+        print inputs[i],path+os.sep+fnames[i]+'.txt'
+        lsts[i]=allpos(inputs[i],path+os.sep+fnames[i]+'.txt')
+    plot_diff(lsts)
+
 if __name__ == "__main__":
-    sys.exit(main())
+    test_encs_match()
+#    sys.exit(main())
     
