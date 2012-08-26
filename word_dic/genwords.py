@@ -77,10 +77,10 @@ def gen_whole(blk_lst, high):
         dic_ls[i]=gen_high(dic_ls[i-1], blk_lst)
     return dic_ls  
     
-def stats(out, iter_fn=sortk_iter_bylen):
+def stats(path,out, iter_fn=sortk_iter_bylen):
     sum_len,sum_freq=0,0
     dic=load_dic(out)
-    dic_out(dic,out, iter_fn )
+    dic_out(dic,path+os.sep+out, iter_fn )
 #    plot_w(dic,out)    
     print '%s words length: %d, sum feqence: %d' %(out, len(dic),sum(dic.values()))
 
@@ -115,7 +115,7 @@ def gen_whole_merge_save(ppath, wcthold = Fwc_threshold, high=9 ):
         for i in xrange(high):
             ls_merge[i]= merged((ls_merge[i],dic_ls[i]))    
         save_ws(ls_merge, out)
-        stats(out, sortv_iter)
+        stats(ppath, out, sortv_iter)
 
 def gen_eng(ppath):
     if ppath.endswith(os.sep):
@@ -124,16 +124,15 @@ def gen_eng(ppath):
     logging.info(out)
     pre_dic = load_dic(out)
     logging.info('existed dic len:%s' %len(pre_dic))
-    raw_input()
     for sens in iter_en_sens(ppath):
         for w in sens:
             incr(pre_dic,w)
     saveall(pre_dic, out)
-    stats(out, sortv_iter)
+    stats(ppath, out, sortv_iter)
 
 def main():
     if len(sys.argv) < 2:
-        sys.exit('Usage: %s *.har' % sys.argv[0])
+        sys.exit('Usage: %s PATH' % sys.argv[0])
     targpath = sys.argv[1]
     logging.basicConfig(level=logging.DEBUG, filename=targpath+'.log')
     
@@ -142,17 +141,6 @@ def main():
 
     print get_dulps()
 
-def test_encs_match():
-    inputs='Seldon','谢东'
-    fnames=('en','cs')
-    path='match_sample'
-    lsts=[[],]*2
-    for i in range(2):
-        print inputs[i],path+os.sep+fnames[i]+'.txt'
-        lsts[i]=allpos(inputs[i],path+os.sep+fnames[i]+'.txt')
-    plot_diff(lsts)
-
 if __name__ == "__main__":
-    test_encs_match()
-#    sys.exit(main())
+    sys.exit(main())
     
