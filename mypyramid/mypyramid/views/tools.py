@@ -13,10 +13,10 @@ def to_unicode(s):
     return s
     
 def txt2html(txt):
-    return re.sub('(^.*?$)', '<p>\\1</p>', txt, flags=re.MULTILINE)
+    #for python2.6 
+    return re.sub(re.compile('(^.*?$)', re.MULTILINE), '<p>\\1</p>', txt)
+#    return re.sub('(^.*?$)', '<p>\\1</p>', txt, flags=re.MULTILINE)
         
-def txt2html2(txt):
-    return re.sub('(^.*?$)', '\\1<br/>', txt, flags=re.MULTILINE)
     
 def find_key(dic, val):
     res=None
