@@ -27,7 +27,7 @@ def dic_out(dic,fname, iter_fn=sortk_iter, overide=False):
 
 g_char = u'[\+\-a-zA-Z0-9\u4e00-\u9fa5]'
 g_div = u'[^(\+\-a-zA-Z0-9\u4e00-\u9fa5)]+'
-g_noncsdiv = u'[^(\u4e00-\u9fa5)]+'
+g_noncsdiv = u'[^\u4e00-\u9fa5]+'
 g_nonendiv = u'[^\w]+'
 
 def is_cs(word):

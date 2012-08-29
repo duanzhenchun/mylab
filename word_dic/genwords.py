@@ -82,7 +82,7 @@ def stats(path,out, iter_fn=sortk_iter_bylen):
     dic=load_dic(out)
     dic_out(dic,path+os.sep+out, iter_fn )
 #    plot_w(dic,out)    
-    print '%s words length: %d, sum feqence: %d' %(out, len(dic),sum(dic.values()))
+#    print '%s words length: %d, sum feqence: %d' %(out, len(dic),sum(dic.values()))
 
 def load_dics(out,high):
     return load_dic(out)
@@ -120,7 +120,7 @@ def gen_whole_merge_save(ppath, wcthold = Fwc_threshold, high=9 ):
 def gen_eng(ppath):
     if ppath.endswith(os.sep):
         ppath=ppath[:-1]
-    out = rela_name(ppath) +'_en'
+    out = rela_name(ppath)
     logging.info(out)
     pre_dic = load_dic(out)
     logging.info('existed dic len:%s' %len(pre_dic))
@@ -136,7 +136,7 @@ def main():
     targpath = sys.argv[1]
     logging.basicConfig(level=logging.DEBUG, filename=targpath+'.log')
     
-#    gen_whole_merge_save(targpath, 10**5)
+    gen_whole_merge_save(targpath, 10**5)
     gen_eng(targpath)
 
     print get_dulps()
