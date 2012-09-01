@@ -1,6 +1,6 @@
 #encoding:utf-8
-import os,re,sys,logging
-import mmap
+import os,re,sys,logging,math
+#import mmap
 import matplotlib.pyplot as plt
 from tools import *
 
@@ -19,31 +19,6 @@ def allpos(pattern, data):
     res = [m.start() for m in re.finditer(pattern, data)]
     return res
 
-
-def cal_diff(x,y, show=False, label=''):
-    """return average of residuals"""
-    adjust_miss(x,y)
-    import numpy as np
-    x=np.array(x)
-    y=np.array(y)
-    A = np.vstack([x, np.ones(len(x))]).T
-    (m,c), residuals = np.linalg.lstsq(A, y)[:2]
-    if len(residuals)<1:
-        logging.error('residuals is None')
-        return 999999
-    if show:
-        plt.plot(x, y, 'o', label=label)
-        plt.plot(x, m*x + c, 'r', label='Fitted line')
-        plt.legend()
-        plt.show()          
-    return (residuals[0]/len(x))**0.5/len(x)
-
-def plot_diff(lsts):
-    plt.plot(range(len(lsts[0])),map(lambda x:x-lsts[0][0],lsts[0]),'g-',
-             range(len(lsts[1])),map(lambda x:x-lsts[1][0],lsts[1]),'b+'
-             )
-    plt.show()
-    
 
 def sim_distance(X, Y):
   si = {}
@@ -66,35 +41,6 @@ def notgood(lst1,lst2):
         return True
     return  False
             
-def adjust_miss(X,Y):
-    if len(X)==len(Y):
-        return
-    newlen=min(len(X),len(Y))  
-    if len(Y)-len(X)<0:
-        aim=X
-    else:
-        aim=Y
-    difflen=abs(len(Y)-len(X))
-    roughk=slope(X,Y,newlen-1)
-    for i in xrange(1,newlen):
-        if difflen==0:
-            break
-        k=slope(X,Y,i)
-        if (len(Y)<len(X) and k>slope_thold*roughk) or (len(Y)>len(X) and k<1.0/(slope_thold*roughk)):
-            aim.pop(i)
-            difflen-=1
-    if difflen>0:
-        for i in xrange(difflen):
-            aim.pop(-1) 
-    assert len(X) == len(Y)
-
-def test_adjust():
-    X=range(10)
-    Y=range(10)
-    Y.pop(3)
-    adjust_miss(X,Y)
-    print X,Y
-    
 def decode_line(line):
     word,count=line.split(':')
     count=int(count)
@@ -118,11 +64,11 @@ def find_allmatch(path):
     enfile = open(enfname ,'r')  
     csfile = open(csfname,'r')
     res={}
-    count_thold = max(os.stat(enfname).st_size/40000,10)
+    count_thold = 5# max(os.stat(enfname).st_size/80000,10)
     for line in enfile:   
         en,count=decode_line(line)  
         if aimed_en(en,count,count_thold):
-            for info in encs_match(allpos(en,endata),posdic_cs,csdata,csfile,en,count):
+            for info in encs_match(posdic_cs,endata,csdata,csfile,en,count):
                 res[en]= info    
     return res
 
@@ -134,9 +80,9 @@ def find_dicmatch(endic,csdic,enf,csf):
     posdic_cs={} 
     res={}
     count_thold = max(getfsize(enf)/40000,10)
-    for en, count in endic.iteritems():
+    for en, count in iter(sorted(endic.iteritems())):
         if aimed_en(en,count,count_thold):
-            for info in encs_match(allpos(en,endata),posdic_cs,csdata,csdic,en,count):
+            for info in encs_match(posdic_cs,endata,csdata,csdic,en,count):
                 res[en]=info
     return res
     
@@ -152,7 +98,9 @@ def get_iterfn(data):
     else:
         raise Exception('data type not supported')     
     
-def encs_match(poslst_en,posdic_cs,csdata, csfile,en_w,en_count):
+def encs_match(posdic_cs,endata,csdata, csfile,en_w,en_count):
+    scale = 1.0*len(csdata)/len(endata)
+    poslst_en = allpos(en_w,endata)
     cs_range=[int(i*en_count) for i in (1-len_thold, 1.0/(1-len_thold))]
     candidates={}
     iter_fn=get_iterfn(csfile)
@@ -161,25 +109,44 @@ def encs_match(poslst_en,posdic_cs,csdata, csfile,en_w,en_count):
             if cs_w not in posdic_cs: 
                 posdic_cs[cs_w] = allpos(cs_w,csdata)
             x=poslst_en[:]
-            update_candi(cs_w,x,posdic_cs[cs_w], candidates)
+            update_candi(scale,en_w,cs_w,x,posdic_cs[cs_w], candidates)
     for info in match_res(candidates,en_w,en_count):
         yield info
 
         
-def update_candi(cs_w,x,y,candidates):
+def update_candi(scale,en_w,cs_w,x,y,candidates):
     if notgood(x,y):
         return
 #    show =False
 #    label=to_unicode('%s_%s' %(en_w,cs_w))
     # longer the cs word, more precious, so divide the length for distance
-    distance = cal_diff(x,y)/len(cs_w)**0.5
-    if distance < 40:
+    distance = cal_diff1(scale,x,y)/len(cs_w)**0.5
+#    distance = cal_diff(x,y)*abs(count_vowel(en_w)-len(to_unicode(cs_w)))
+    if distance < 55:
         candidates[cs_w] = distance 
             
+def cal_diff1(scale,x,y):
+#    torture=2**abs(len(y)-len(x))
+    adjust_miss1(x,y)
+    residuals = 0
+    for i in range(len(x)):
+        residuals += (x[i]*scale - y[i])**2
+    return (residuals/len(x))**0.5/len(x)    
+            
+def adjust_miss1(X,Y):
+    if len(X)==len(Y):
+        return
+    newlen=min(len(X),len(Y))  
+    for aim in (X,Y):
+        for i in range(newlen,len(aim)):
+            aim.pop(-1)
+    return
+
+
 def match_res(candidates, en_w,en_count, num=3):  
     if not candidates:
         return
-    res = dict_nmin(candidates,3)
+    res = dict_nmin(candidates,num)
     info = "%s:%d:   " %(en_w, en_count)
     for k in res:
         info += "%s:%d" %(k,candidates[k])
