@@ -68,7 +68,7 @@ def reader_view(config):
     config.add_route('reader', '/reader')
     config.add_route('worddict','/worddict')
     config.add_route('worddict.del','/worddict/{en}')
-
+    config.add_route('upload', '/upload')
     
 def login_view(config):
     for i in ('login','logout','signup'):

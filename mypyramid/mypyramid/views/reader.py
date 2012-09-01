@@ -1,3 +1,5 @@
+#encoding:utf-8
+
 import os
 import logging
 from pyramid.response import Response

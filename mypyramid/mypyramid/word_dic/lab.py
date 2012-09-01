@@ -46,4 +46,5 @@ kafka 28.7465955189
 
 """  
 
-test_spread()
+if __name__ == "__main__":
+    test_spread()

@@ -1,3 +1,5 @@
+#encoding:utf-8
+
 import os
 import logging
 from pyramid.response import Response
@@ -6,20 +8,39 @@ from pyramid.security import authenticated_userid
 from pyramid.httpexceptions import (HTTPFound, HTTPForbidden)
 from tools import *
 
+#import  mypyramid.word_dic
+from mypyramid.word_dic.auto_index  import find_dicmatch
+from mypyramid.word_dic.genwords import gen_single_enf, gen_singlef
+#from mypyramid.word_dic.tools import to_unicode
+
 filestore='store'
 g_worddic=getdic(filestore +'/sorted_en')
 
-@view_config(route_name='file.upload', request_method='GET',renderer="file/upload.jinja2")
+@view_config(route_name='upload', http_cache=3600, request_method='GET', renderer="upload.jinja2")
 def get_upload(request):
-    owner = authenticated_userid(request)
-    if owner is None:
-        raise HTTPForbidden()
+#    owner = authenticated_userid(request)
+#    if owner is None:
+#        raise HTTPForbidden()
     return {}
     
-@view_config(route_name='file.upload', permission='create', request_method='POST')
+#@view_config(route_name='upload', permission='create', request_method='POST')
+@view_config(route_name='upload', request_method='POST', renderer="upload.jinja2")
 def upload(request):
-    fname = request.POST['text'].filename
-    fin = request.POST['text'].file
+    name='enfile'
+    fname = request.POST[name].filename
+    enf = request.POST[name].file
+    endic=gen_single_enf(enf)
+    name='csfile'
+    fname = request.POST[name].filename
+    csf = request.POST[name].file
+    csdic=gen_singlef(csf) 
+#    upload_file(fname,fin)
+    res = find_dicmatch(endic,csdic,enf,csf)
+    return res      
+
+#    return HTTPFound(location = request.route_url('file.show', filename=fname))
+        
+def upload_file(fname,fin):
     fpath = getabspath(safe_join(filestore, fname))
     fout = open(fpath, 'wb')
     # write file
@@ -30,7 +51,7 @@ def upload(request):
             break
         fout.write(data)
     fout.close()
-    return HTTPFound(location = request.route_url('file.show', filename=fname))
+    return {}
 
      
 @view_config(route_name='file.list', renderer="file/list.jinja2")        

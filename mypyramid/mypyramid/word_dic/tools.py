@@ -47,8 +47,7 @@ def split_sens(txt ):
     return lst, u''
     
 def iter_block(ppath,wc_threshold, target='.txt'):
-    """neglect tail < threshold
-    """
+    """neglect tail < threshold"""
     blk_lst,wc=[],0
     for fname in iter_fname(ppath,target):
         logging.info(fname)
@@ -67,6 +66,20 @@ def iter_block(ppath,wc_threshold, target='.txt'):
             yield blk_lst
             blk_lst,wc=[],0    
 
+def get_singlefile(f):
+    blk_lst = []
+    remain=u''
+    for line in f:
+        line = line.replace(' ','').replace('　','')
+        sens,tail = split_sens(line)
+        if sens:
+            sens[0]=remain+sens[0]
+            blk_lst += sens
+        remain=tail
+    if remain:
+        blk_lst.append(remain)
+    return blk_lst
+
 def split_sens_en(txt ):
   txt = to_unicode(txt.strip())
   lst = re.split(g_nonendiv, txt)
@@ -76,11 +89,17 @@ def split_sens_en(txt ):
 def iter_en_sens(ppath, target='.txt'):
     for fname in iter_fname(ppath,target):
         logging.info(fname)
-        for line in open(fname,'r'):
-            line = line.replace('　','') #chinese space
-            sens = split_sens_en(line)
-            if sens:
-                yield sens
+        sens = []
+        for sen in iter_single_en(open(fname,'r')):
+            yield sen
+
+ 
+def iter_single_en(f):
+    for line in f:
+        line = line.replace('　','') #chinese space
+        sens = split_sens_en(line)
+        if sens:
+            yield sens
             
 def count_cs(ppath):
     count=0
@@ -138,6 +157,10 @@ def load_dic(out):
     return db.getall()
     del db
 
+def clean_dic(out):
+    db=dbmanager(to_unicode(out))
+    return db.clean()
+    
 import pylab
 def plot_w(dic,name):
     X=pylab.frange(0,len(dic)-1)
@@ -227,7 +250,6 @@ def dulp_dec(iter_f):
     global g_rec,g_md5rec,g_dulps
     def _(*a, **kw):         # func args
         for fname in iter_f(*a, **kw):
-            print fname
             if not _is_dulp(fname,g_rec,g_md5rec,g_dulps):
                 yield fname
     return _

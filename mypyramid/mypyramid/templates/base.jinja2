@@ -5,6 +5,21 @@
     {% block head %}
     <link rel="stylesheet" href="{{request.static_url('mypyramid:static/pylons.css')}}" />
     <title>{% block title %}{% endblock %} - whille</title>
+    <link rel="stylesheet"  href="{{request.static_url('mypyramid:static/themes/base/jquery.ui.all.css')}}" type="text/css" />
+	<script src="{{request.static_url('mypyramid:static/js/jquery-1.8.0.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.core.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.widget.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.mouse.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.button.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.position.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/jquery.ui.dialog.js')}}"></script>
+    
+    <link rel="stylesheet" href="{{request.static_url('mypyramid:static/css/fixedlayout.css')}}" />
+	<style>
+		input.text { margin-bottom:12px; width:95%; padding: .4em; }
+		fieldset { padding:0; border:0; margin-top:25px; }
+		h1 { font-size: 1.2em; margin: .6em 0; }
+    </style>
     {% endblock %}
     <link rel="shortcut icon" href="{{request.static_url('mypyramid:static/favicon.ico')}}" />
 </head>

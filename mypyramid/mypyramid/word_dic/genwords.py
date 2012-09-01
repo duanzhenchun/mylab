@@ -95,14 +95,18 @@ def ave_pre(pre_dic,dic):
         if k not in pre_dic:
             pre_dic[k]=v
             
-def save_ws(dic_ls, out):
-    pre_dic = load_dic(out)
-    logging.info('dic len:%s' %dic_ls)
+
+def gen_cs(dic_ls,pre_dic):
     for i in xrange(len(dic_ls)):
         if i > 0:
             dic_ls[i] = gen_true(dic_ls[:i],dic_ls[i])
         ave_pre(pre_dic,dic_ls[i])    
-    saveall(pre_dic, out)
+    return pre_dic
+                            
+def save_ws(dic_ls, out):
+    pre_dic = load_dic(out)
+    gen_cs(dic_ls,pre_dic)
+    saveall(pre_dic, out)  
         
 def gen_whole_merge_save(ppath, wcthold = Fwc_threshold, high=9 ):
     if ppath.endswith(os.sep):
@@ -117,18 +121,33 @@ def gen_whole_merge_save(ppath, wcthold = Fwc_threshold, high=9 ):
         save_ws(ls_merge, out)
         stats(ppath, out, sortv_iter)
 
+def gen_singlef(f, high=9 ):
+    blk_lst = get_singlefile(f)
+    ls_merge=[{}]*high
+    dic_ls = gen_whole(blk_lst,high)
+    for i in xrange(high):
+        ls_merge[i]= merged((ls_merge[i],dic_ls[i]))    
+    pre_dic = {}
+    gen_cs(dic_ls,pre_dic)
+    return pre_dic
+            
+def gen_single_enf(f):
+    pre_dic={}
+    for sen in iter_single_en(f):
+        for w in sen:
+            incr(pre_dic,w)
+#    dic_out(pre_dic,path+os.sep+out, sortv_iter )   
+    return pre_dic   
+
 def gen_eng(ppath):
     if ppath.endswith(os.sep):
         ppath=ppath[:-1]
     out = rela_name(ppath)
-    logging.info(out)
-    pre_dic = load_dic(out)
-    logging.info('existed dic len:%s' %len(pre_dic))
+    pre_dic = {}
     for sens in iter_en_sens(ppath):
         for w in sens:
             incr(pre_dic,w)
-    saveall(pre_dic, out)
-    stats(ppath, out, sortv_iter)
+    dic_out(pre_dic,ppath+os.sep+out, sortv_iter )    
 
 def main():
     if len(sys.argv) < 2:
@@ -138,7 +157,6 @@ def main():
     
     gen_whole_merge_save(targpath, 10**5)
     gen_eng(targpath)
-
     print get_dulps()
 
 if __name__ == "__main__":
