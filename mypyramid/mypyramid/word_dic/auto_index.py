@@ -78,12 +78,12 @@ def find_dicmatch(endic,csdic,enf,csf):
     csdata = to_unicode(csf.read())
     endata=enf.read()
     posdic_cs={} 
-    res={}
+    res=''
     count_thold = max(getfsize(enf)/40000,10)
     for en, count in iter(sorted(endic.iteritems())):
         if aimed_en(en,count,count_thold):
             for info in encs_match(posdic_cs,endata,csdata,csdic,en,count):
-                res[en]=info
+                res += '%s: %s\n' %(en,info)
     return res
     
 def get_iterfn(data):

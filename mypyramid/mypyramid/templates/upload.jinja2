@@ -1,23 +1,43 @@
 {% extends "base.jinja2" %}
-{% block title %}iRead{% endblock %}
+{% block title %}upload{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <script src="{{request.static_url('mypyramid:static/js/jquery.form.js')}}"></script>
+    <script src="{{request.static_url('mypyramid:static/js/upload.js')}}"></script>
+    <link rel="stylesheet" href="{{request.static_url('mypyramid:static/css/bookstyle.css')}}" />
+    
+    <style>
+        .progress { position:relative; width:200px; border: 1px solid #ddd; padding: 1px; border-radius: 3px; }
+        .bar { background-color: #B4F5B4; width:0%; height:20px; border-radius: 3px; }
+        .percent { position:absolute; display:inline-block; top:3px; left:48%; }
+    </style>
+
+{% endblock %}
 
 {% block content %}
 <div id="leftCol">
 <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-<form action="upload" method="post" accept-charset="utf-8" enctype="multipart/form-data">
+<form action="upload" id='uploadform' method="post" accept-charset="utf-8" enctype="multipart/form-data">
     <label>English file:</label>
     <input type="file" id="enfile" name='enfile' class="ui-widget"  style= "width: 100%;"/>
     <label>Chinese file</label>
     <input type="file" id="csfile" name='csfile' class="ui-widget"  style= "width: 100%;"/>
     </br></br>
-    <input type="submit" class="ui-widget"  value="上传" />
+    <input type="submit" id="upComplete" class="ui-widget"  value="上传" />
+        
+    <div class="progress">
+        <div class="bar"></div >
+        <div class="percent">0%</div >
+    </div>
 </form>
 </div>
 
-
 <div id="rightCol">
     <div id="center_div">
-
+        <div id="text_div">
+<!--        {{result|safe}}-->
+        </div>
     </div>
 </div>
 {% endblock %}

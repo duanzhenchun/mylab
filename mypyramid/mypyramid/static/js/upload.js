@@ -1,29 +1,28 @@
 $(function() {
-    var maxtxt=1000000; 
-    $("#enf_input").change(function(evt){
-          var f = evt.target.files[0]; 
-          if (!f) {
-            return;
-          }
-          console.log(f.name);
-          var r = new FileReader();
-          r.onload = function(e){
-            var contents = e.target.result;
-            console.log('len of contents:', contents.length);
-            if (contents.length > maxtxt){
-                alert('max txt length reached!');
-                return;
-            }
-            $.ajax({
-              type: "POST",
-              url: 'upload_enfile',
-              data: {fname:f.name,"txt":contents},
-              success: function(data){
-                ;  
-              }
-            });
-          }
-          r.readAsText(f);
-        });
-    });
-});
+    
+var bar = $('.bar');
+var percent = $('.percent');
+var status = $('#status');
+   
+$('#uploadform').ajaxForm({
+    beforeSend: function() {
+        status.empty();
+        var percentVal = '0%';
+        bar.width(percentVal)
+        percent.html(percentVal);
+		$("#text_div").html('waiting for response...');
+    },
+    uploadProgress: function(event, position, total, percentComplete) {
+        var percentVal = percentComplete + '%';
+        bar.width(percentVal)
+        percent.html(percentVal);
+		//console.log(percentVal, position, total);
+    },
+//	complete: function(xhr) {
+//	},
+	success: function( data) { 
+	    $("#text_div").html(data);
+    } 
+}); 
+
+});  
