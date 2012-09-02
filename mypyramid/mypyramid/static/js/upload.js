@@ -18,8 +18,6 @@ $('#uploadform').ajaxForm({
         percent.html(percentVal);
 		//console.log(percentVal, position, total);
     },
-//	complete: function(xhr) {
-//	},
 	success: function( data) { 
 	    $("#text_div").html(data);
     } 

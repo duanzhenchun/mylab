@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from tools import *
 
 len_thold=0.15
-slope_thold=1.1
     
 def getfsize(f):
     f.seek(0,2)
@@ -17,23 +16,6 @@ def allpos(pattern, data):
 #    data = f.read() #mmap.mmap(f.fileno(), size, access=mmap.ACCESS_READ)
     res=None
     res = [m.start() for m in re.finditer(pattern, data)]
-    return res
-
-
-def sim_distance(X, Y):
-  si = {}
-  for item in prefs[person1]:
-    if item in prefs[person2]: si[item] = 1
-  # if they have no ratings in common, return 0
-  if len(si) == 0: return 0
-  # Add up the squares of all the differences
-  sum_of_squares = sum([pow(prefs[person1][item] - prefs[person2][item], 2)
-                      for item in prefs[person1] if item in prefs[person2]])
-  return 1 / (1 + sum_of_squares)
- 
- 
-def slope(X,Y,i):
-    res = (Y[i]-Y[0])*1.0/(X[i]-X[0])
     return res
     
 def notgood(lst1,lst2):
@@ -50,7 +32,9 @@ def dict_nmin(dic,n):
     import heapq
     return heapq.nsmallest(n ,dic, key = lambda k: dic[k])
     
-def aimed_en(en,count,count_thold):
+def aimed_en(en,count):
+#    max(os.stat(enfname).st_size/80000,10)
+    count_thold = 8 
     return count >count_thold and en[0].isupper() and len(en)>1 and (is_peoplename(en) or not iseng(en))
     
 def find_allmatch(path):
@@ -63,27 +47,28 @@ def find_allmatch(path):
     csfname=os.sep.join((path, 'cs', 'cs_out'))
     enfile = open(enfname ,'r')  
     csfile = open(csfname,'r')
-    res={}
-    count_thold = 5# max(os.stat(enfname).st_size/80000,10)
-    for line in enfile:   
-        en,count=decode_line(line)  
-        if aimed_en(en,count,count_thold):
-            for info in encs_match(posdic_cs,endata,csdata,csfile,en,count):
-                res[en]= info    
-    return res
+    res=''
+    return words_match(posdic_cs,endata,csdata,enfile,csfile)
 
 def find_dicmatch(endic,csdic,enf,csf):
+#    for k in csdic:
+#        if u'洛克' in k: print k
+    
     enf.seek(0)
     csf.seek(0)
-    csdata = to_unicode(csf.read())
     endata=enf.read()
+    csdata = to_unicode(csf.read())
     posdic_cs={} 
+    return words_match(posdic_cs,endata,csdata,endic,csdic)
+    
+def words_match(posdic_cs,endata,csdata,enfile,csfile):
     res=''
-    count_thold = max(getfsize(enf)/40000,10)
-    for en, count in iter(sorted(endic.iteritems())):
-        if aimed_en(en,count,count_thold):
-            for info in encs_match(posdic_cs,endata,csdata,csdic,en,count):
-                res += '%s: %s\n' %(en,info)
+    iter_fn=get_iterfn(enfile)
+    for en,count in iter_fn(enfile):
+#        if en !='Addam': continue
+        if aimed_en(en,count):
+            for info in encs_match(posdic_cs,endata,csdata,csfile,en,count):
+                res += '%s\n' %info
     return res
     
 def get_iterfn(data):
@@ -92,7 +77,7 @@ def get_iterfn(data):
         for line in data:
             yield decode_line(line)    
     if dict == type(data):
-        return lambda data: data.iteritems()
+        return lambda data: iter(sorted(data.iteritems())) # data.iteritems()
     elif file == type(data):
         return iter_f
     else:
@@ -105,6 +90,7 @@ def encs_match(posdic_cs,endata,csdata, csfile,en_w,en_count):
     candidates={}
     iter_fn=get_iterfn(csfile)
     for cs_w,cs_count in iter_fn(csfile):
+#        if cs_w == u'亚当': print en_w,en_count, cs_w, cs_count
         if cs_count in range(*cs_range):
             if cs_w not in posdic_cs: 
                 posdic_cs[cs_w] = allpos(cs_w,csdata)
@@ -117,20 +103,18 @@ def encs_match(posdic_cs,endata,csdata, csfile,en_w,en_count):
 def update_candi(scale,en_w,cs_w,x,y,candidates):
     if notgood(x,y):
         return
-#    show =False
-#    label=to_unicode('%s_%s' %(en_w,cs_w))
-    # longer the cs word, more precious, so divide the length for distance
-    distance = cal_diff1(scale,x,y)/len(cs_w)**0.5
-#    distance = cal_diff(x,y)*abs(count_vowel(en_w)-len(to_unicode(cs_w)))
-    if distance < 55:
+    distance = cal_diff(scale,x,y)/len(cs_w)
+    if distance < 500:
         candidates[cs_w] = distance 
             
-def cal_diff1(scale,x,y):
+def cal_diff(scale,x,y):
 #    torture=2**abs(len(y)-len(x))
     adjust_miss1(x,y)
     residuals = 0
+    #y=kx+c     k=scale,  c is tolarated  for certain amount
+    c=sum(y)/len(x) - sum(x)/len(x)*scale 
     for i in range(len(x)):
-        residuals += (x[i]*scale - y[i])**2
+        residuals += (x[i]*scale +c - y[i])**2
     return (residuals/len(x))**0.5/len(x)    
             
 def adjust_miss1(X,Y):

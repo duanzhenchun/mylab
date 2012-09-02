@@ -31,6 +31,15 @@ def gen_true(dic_lows,dic_i):
                     break
                 product *=dic_lows[len(i)-1][i]
             else:
+                if u'洛克' in k:    
+                    for c_w  in u'洛克': 
+                        print c_w,dic_lows[0][c_w]   
+#洛克 14 2 434705 = 383*1135
+#14**2*10/6 = 326    
+# it should be in small range dict
+
+                    print k,v, len(sub_ls), product
+                    raw_input('w')
                 if v**(len(sub_ls)*10/Word_threshold) < product:
                     break
         else:
@@ -127,9 +136,9 @@ def gen_singlef(f, high=9 ):
     dic_ls = gen_whole(blk_lst,high)
     for i in xrange(high):
         ls_merge[i]= merged((ls_merge[i],dic_ls[i]))    
-    pre_dic = {}
-    gen_cs(dic_ls,pre_dic)
-    return pre_dic
+    dic = {}
+    gen_cs(dic_ls,dic)
+    return dic
             
 def gen_single_enf(f):
     pre_dic={}
