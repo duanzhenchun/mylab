@@ -9,8 +9,8 @@ from pyramid.httpexceptions import (HTTPFound, HTTPForbidden)
 from tools import *
 
 #import  mypyramid.word_dic
-from mypyramid.word_dic.auto_index  import find_dicmatch
-from mypyramid.word_dic.genwords import gen_single_enf, gen_singlef
+from word_dic.auto_index  import find_dicmatch
+from word_dic.genwords import gen_single_enf, gen_singlef
 #from mypyramid.word_dic.tools import to_unicode
 
 filestore='store'

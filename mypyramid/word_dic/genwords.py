@@ -31,15 +31,14 @@ def gen_true(dic_lows,dic_i):
                     break
                 product *=dic_lows[len(i)-1][i]
             else:
-                if u'洛克' in k:    
-                    for c_w  in u'洛克': 
-                        print c_w,dic_lows[0][c_w]   
+#                if u'洛克' in k:    
+#                    for c_w  in u'洛克': 
+#                        print c_w,dic_lows[0][c_w]   
 #洛克 14 2 434705 = 383*1135
 #14**2*10/6 = 326    
 # it should be in small range dict
-
-                    print k,v, len(sub_ls), product
-                    raw_input('w')
+#                    print k,v, len(sub_ls), product
+#                    raw_input('w')
                 if v**(len(sub_ls)*10/Word_threshold) < product:
                     break
         else:
@@ -146,7 +145,13 @@ def gen_single_enf(f):
         for w in sen:
             incr(pre_dic,w)
 #    dic_out(pre_dic,path+os.sep+out, sortv_iter )   
-    return pre_dic   
+#    return pre_dic
+    en_dic={}
+    for en,count in pre_dic.iteritems():
+        if aimed_en(en,count):
+            en_dic[en]=count
+    print 'aimed en dic len:', len(en_dic)
+    return en_dic
 
 def gen_eng(ppath):
     if ppath.endswith(os.sep):

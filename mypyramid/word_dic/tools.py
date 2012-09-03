@@ -283,3 +283,59 @@ class Singleton(object):
                                 cls, *args, **kwargs)
         return cls._instance
 
+import enchant
+
+def endicmaker(lang):
+    dic=enchant.Dict(lang)
+    def wrapper(word):
+        return dic.check(word)
+    return wrapper
+iseng=endicmaker('en_US')
+
+def pnamemaker(fname):
+    f=open(fname,'r')
+    pname=set()
+    for line in f:
+        pname.add(line.strip('\n'))
+    def wrapper(word):
+        return word.upper() in pname
+    return  wrapper
+is_peoplename=pnamemaker(os.path.join(os.path.dirname(__file__), 'people.name'))
+              
+def aimed_en(en,count):
+#    max(os.stat(enfname).st_size/80000,10)
+    count_thold = 8 
+    return count >count_thold and en[0].isupper() and len(en)>1 and (is_peoplename(en) or not iseng(en))
+    
+    
+import matplotlib.pyplot as plt
+
+def plotxy(x,y):
+    import numpy as np
+    x=np.array(x)
+    y=np.array(y)
+    A = np.vstack([x, np.ones(len(x))]).T
+    (m,c), residuals = np.linalg.lstsq(A, y)[:2]
+    plt.plot(x, y, 'o')
+    plt.plot(x, m*x + c, 'r', label='Fitted line')
+    plt.legend()
+    plt.show()     
+    return residuals[0]     
+
+def plot_diff(X,Y):
+    plt.plot(range(len(X)),map(lambda x:x-X[0],X),'g-',
+             range(len(Y)),map(lambda y:y-Y[0],Y),'b+'
+            )
+    plt.show()
+    
+"""
+x=[1855, 3703, 3753, 27889, 29522, 46153, 75929, 77632, 133482, 150157, 162140]
+y=[7, 710, 1356, 1385, 10563, 11138, 16986, 28180, 28754, 50055, 56744, 61520]
+
+y=kx+c  k~=0.38
+for i in range(1,len(x)):
+    if abs((y[i]-y[i-1] ) -2.6*(x[i]-x[i-1])) < 10:
+                        
+for i in range(1,len(y)-1):
+    print plotxy(x,y[:i]+y[i+1:])
+"""    

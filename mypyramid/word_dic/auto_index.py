@@ -1,7 +1,6 @@
 #encoding:utf-8
 import os,re,sys,logging,math
 #import mmap
-import matplotlib.pyplot as plt
 from tools import *
 
 len_thold=0.15
@@ -32,11 +31,6 @@ def dict_nmin(dic,n):
     import heapq
     return heapq.nsmallest(n ,dic, key = lambda k: dic[k])
     
-def aimed_en(en,count):
-#    max(os.stat(enfname).st_size/80000,10)
-    count_thold = 8 
-    return count >count_thold and en[0].isupper() and len(en)>1 and (is_peoplename(en) or not iseng(en))
-    
 def find_allmatch(path):
     enfname=os.sep.join((path, 'en', 'en_out'))
 
@@ -51,13 +45,11 @@ def find_allmatch(path):
     return words_match(posdic_cs,endata,csdata,enfile,csfile)
 
 def find_dicmatch(endic,csdic,enf,csf):
-#    for k in csdic:
-#        if u'洛克' in k: print k
-    
     enf.seek(0)
     csf.seek(0)
-    endata=enf.read()
+    endata=to_unicode(enf.read())
     csdata = to_unicode(csf.read())
+#    wratio = len(csdata)*1.0/len(endata)   #cs2en ratio
     posdic_cs={} 
     return words_match(posdic_cs,endata,csdata,endic,csdic)
     
@@ -65,7 +57,13 @@ def words_match(posdic_cs,endata,csdata,enfile,csfile):
     res=''
     iter_fn=get_iterfn(enfile)
     for en,count in iter_fn(enfile):
-#        if en !='Addam': continue
+#        if en !='Eto': continue
+        #find start,end pos in en
+#        en_range=(endata.find(en), endata.rfind(en))
+#        cs_range=(max(int(en_range[0]*wratio)-50,0), min(int(en_range[1]*wratio)+50,len(endata)))
+#        
+#        from genwords import gen_singlef
+#        csfile=gen_singlef(csdata[cs_range[0]:cs_range[1]]) 
         if aimed_en(en,count):
             for info in encs_match(posdic_cs,endata,csdata,csfile,en,count):
                 res += '%s\n' %info
@@ -87,10 +85,11 @@ def encs_match(posdic_cs,endata,csdata, csfile,en_w,en_count):
     scale = 1.0*len(csdata)/len(endata)
     poslst_en = allpos(en_w,endata)
     cs_range=[int(i*en_count) for i in (1-len_thold, 1.0/(1-len_thold))]
+    cs_range[1]+=1
     candidates={}
     iter_fn=get_iterfn(csfile)
     for cs_w,cs_count in iter_fn(csfile):
-#        if cs_w == u'亚当': print en_w,en_count, cs_w, cs_count
+#        if cs_w != u'伊图': continue
         if cs_count in range(*cs_range):
             if cs_w not in posdic_cs: 
                 posdic_cs[cs_w] = allpos(cs_w,csdata)
@@ -137,25 +136,6 @@ def match_res(candidates, en_w,en_count, num=3):
     print info
     yield info
         
-import enchant
-
-def endicmaker(lang):
-    dic=enchant.Dict(lang)
-    def wrapper(word):
-        return dic.check(word)
-    return wrapper
-iseng=endicmaker('en_US')
-
-def pnamemaker(fname):
-    f=open(fname,'r')
-    pname=set()
-    for line in f:
-        pname.add(line.strip('\n'))
-    def wrapper(word):
-        return word.upper() in pname
-    return  wrapper
-is_peoplename=pnamemaker(os.path.join(os.path.dirname(__file__), 'people.name'))
-          
 def rehearsal():
     from genwords import gen_whole_merge_save, gen_eng
 
