@@ -24,7 +24,7 @@ def get_upload(request):
     return {}
     
 #@view_config(route_name='upload', permission='create', request_method='POST')
-@view_config(route_name='upload', request_method='POST', renderer="string")
+@view_config(route_name='upload', request_method='POST', renderer="upload.jinja2")
 def upload(request):
     name='enfile'
     fname = request.POST[name].filename
@@ -36,8 +36,7 @@ def upload(request):
     csdic=gen_singlef(csf) 
 #    upload_file(fname,fin)
     res = find_dicmatch(endic,csdic,enf,csf)
-    print res
-    return txt2html(res)     
+    return {'result': txt2html(res)}     
 
 #    return HTTPFound(location = request.route_url('file.show', filename=fname))
         

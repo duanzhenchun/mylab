@@ -11,7 +11,7 @@ class dbmanager:
 
   def saveall(self,dic):
     for k,v in dic.iteritems():
-        cmd = "insert or replace into %s values ('%s','%d')" % (self.tablename, k, v)
+        cmd = "insert or replace into %s values ('%s','%s')" % (self.tablename, k, v)
         self.con.execute(cmd)
     self.con.commit()   
 
@@ -23,7 +23,7 @@ class dbmanager:
     dic={}
     cur = self.con.execute("select * from %s" %self.tablename)
     for row in cur:
-        dic[row[0]]=int(row[1])
+        dic[row[0]]=eval(row[1])
     return dic    
         
   def createtable(self,name):

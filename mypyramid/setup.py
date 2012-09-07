@@ -17,6 +17,8 @@ requires = [
     'pyramid_beaker',
     'pyramid_mailer',
     'pyramid_jinja2',
+    'inflect',
+    'pyenchant',
     ]
 
 setup(name='mypyramid',

@@ -4,7 +4,7 @@
 {% block head %}
     {{ super() }}
     <script src="{{request.static_url('mypyramid:static/js/jquery.form.js')}}"></script>
-    <script src="{{request.static_url('mypyramid:static/js/upload.js')}}"></script>
+<!--    <script src="{{request.static_url('mypyramid:static/js/upload.js')}}"></script>-->
     <link rel="stylesheet" href="{{request.static_url('mypyramid:static/css/bookstyle.css')}}" />
     
     <style>
@@ -36,7 +36,7 @@
 <div id="rightCol">
     <div id="center_div">
         <div id="text_div">
-<!--        {{result|safe}}-->
+        {{result|safe}}
         </div>
     </div>
 </div>

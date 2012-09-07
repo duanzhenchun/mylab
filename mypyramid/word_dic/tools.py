@@ -1,8 +1,15 @@
 #encoding:utf-8
 import logging
 
-def incr(dic,w):
-    dic[w]=dic.setdefault(w,0)+1
+# v: [count,start,end]
+def incr(dic,w,curpos):
+    if len(w)>1 and w in dic:   # e.g.: 嘶嘶,阿朵阿多
+        if curpos - dic[w][2]+1 <6: # neglect too near
+            return
+    dic.setdefault(w,[0,curpos,curpos])
+    dic[w][0] += 1
+    dic[w][2] = curpos
+    
     
 def sortk_iter(dic):
     return sorted(dic.iteritems())
@@ -308,6 +315,24 @@ def aimed_en(en,count):
     return count >count_thold and en[0].isupper() and len(en)>1 and (is_peoplename(en) or not iseng(en))
     
     
+def singularmaker():
+    import inflect
+    p = inflect.engine()
+    def wrapper(word):
+        return p.singular_noun(word)
+    return wrapper
+singular_teller = singularmaker()    
+
+def merge_pluralname(en_dic):
+    for k,v in en_dic.items():
+        sig = singular_teller(k)
+        if sig and sig != k and sig in en_dic:
+            logging.info('plural name: %s -> %s' %(k,sig))
+            v1=en_dic[sig]
+            #merge
+            en_dic[sig]=[v[0]+ v1[0], min(v[1],v1[1]), max(v[2],v1[2])]
+            en_dic.pop(k) 
+    
 import matplotlib.pyplot as plt
 
 def plotxy(x,y):
@@ -328,6 +353,11 @@ def plot_diff(X,Y):
             )
     plt.show()
     
+debug = True  
+t_en=u'Tywin'
+t_cs=u'泰温'
+
+
 """
 x=[1855, 3703, 3753, 27889, 29522, 46153, 75929, 77632, 133482, 150157, 162140]
 y=[7, 710, 1356, 1385, 10563, 11138, 16986, 28180, 28754, 50055, 56744, 61520]
@@ -338,4 +368,12 @@ for i in range(1,len(x)):
                         
 for i in range(1,len(y)-1):
     print plotxy(x,y[:i]+y[i+1:])
+    
+    
+巴 [401, 54, 599356]
+利 [1757, 185, 597768]
+斯 [3044, 963, 598806]
+坦 [411, 21412, 595323]
+巴利斯坦 [35, 88810, 547425] 458615 3.17336455192e+11  4 1.69662466791e+11
+
 """    
