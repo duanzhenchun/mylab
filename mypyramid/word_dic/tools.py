@@ -9,7 +9,12 @@ def incr(dic,w,curpos):
     dic.setdefault(w,[0,curpos,curpos])
     dic[w][0] += 1
     dic[w][2] = curpos
-    
+
+def getfsize(f):
+    f.seek(0,2)
+    size=f.tell()
+    f.seek(0)
+    return size    
     
 def sortk_iter(dic):
     return sorted(dic.iteritems())
@@ -73,7 +78,7 @@ def iter_block(ppath,wc_threshold, target='.txt'):
             yield blk_lst
             blk_lst,wc=[],0    
 
-def get_singlefile(f):
+def getsents(f):
     blk_lst = []
     remain=u''
     for line in f:
@@ -353,7 +358,7 @@ def plot_diff(X,Y):
             )
     plt.show()
     
-debug = True  
+debug = False  
 t_en=u'Tywin'
 t_cs=u'泰温'
 

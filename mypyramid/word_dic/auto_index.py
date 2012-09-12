@@ -4,13 +4,7 @@ import os,re,sys,logging,math
 from tools import *
 
 len_thold=0.15
-    
-def getfsize(f):
-    f.seek(0,2)
-    size=f.tell()
-    f.seek(0)
-    return size    
-        
+
 def allpos(pattern, data):
 #    data = f.read() #mmap.mmap(f.fileno(), size, access=mmap.ACCESS_READ)
     res=None
@@ -139,7 +133,7 @@ def update_candi(scale,en_w,cs_w,x,y,candidates):
         return
     if debug and t_cs == cs_w:
         print x,'\n', y
-    distance = cal_diff(scale,x,y)/(2**len(cs_w))
+    distance = cal_diff(scale,x,y)/(len(cs_w))
     if distance < 250:
         candidates[en_w] = distance 
             
