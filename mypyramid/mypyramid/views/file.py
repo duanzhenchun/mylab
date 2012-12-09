@@ -29,13 +29,13 @@ def upload(request):
     name='enfile'
     fname = request.POST[name].filename
     enf = request.POST[name].file
-    endic=gen_single_enf(enf)
+    endic,modi_ens=gen_single_enf(enf)
     name='csfile'
     fname = request.POST[name].filename
     csf = request.POST[name].file
     csdic=gen_singlef(csf) 
 #    upload_file(fname,fin)
-    res = find_dicmatch(endic,csdic,enf,csf)
+    res = find_dicmatch(endic,modi_ens,csdic,enf,csf)
     return {'result': txt2html(res)}     
 
 #    return HTTPFound(location = request.route_url('file.show', filename=fname))
@@ -100,5 +100,3 @@ def file_view(request):
 def sample(request):
     return redirectpage(request,'sample.txt',0)
 
-
-    

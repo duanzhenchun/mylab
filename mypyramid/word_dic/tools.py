@@ -173,8 +173,9 @@ def clean_dic(out):
     db=dbmanager(to_unicode(out))
     return db.clean()
     
-import pylab
 def plot_w(dic,name):
+    import pylab
+    
     X=pylab.frange(0,len(dic)-1)
     Y=list(sorted(dic.values(),reverse=True))
     Y=map(lambda y:pylab.log(y), Y)
@@ -183,6 +184,8 @@ def plot_w(dic,name):
     pylab.savefig(name+'.png')  
 
 def plot_dic_cmp(dic,imgname,firstnum):
+    import pylab
+    
     X=pylab.frange(0,len(dic)-1)
     Ys=list(sorted(dic.values(),key=lambda lis:sum(lis), reverse=True))
     for i in xrange(len(Ys[0])):
@@ -295,15 +298,6 @@ class Singleton(object):
                                 cls, *args, **kwargs)
         return cls._instance
 
-import enchant
-
-def endicmaker(lang):
-    dic=enchant.Dict(lang)
-    def wrapper(word):
-        return dic.check(word)
-    return wrapper
-iseng=endicmaker('en_US')
-
 def pnamemaker(fname):
     f=open(fname,'r')
     pname=set()
@@ -315,6 +309,7 @@ def pnamemaker(fname):
 is_peoplename=pnamemaker(os.path.join(os.path.dirname(__file__), 'people.name'))
               
 def aimed_en(en,count):
+    from eng import iseng
 #    max(os.stat(enfname).st_size/80000,10)
     count_thold = 8 
     return count >count_thold and en[0].isupper() and len(en)>1 and (is_peoplename(en) or not iseng(en))
@@ -328,19 +323,31 @@ def singularmaker():
     return wrapper
 singular_teller = singularmaker()    
 
-def merge_pluralname(en_dic):
-    for k,v in en_dic.items():
-        sig = singular_teller(k)
-        if sig and sig != k and sig in en_dic:
-            logging.info('plural name: %s -> %s' %(k,sig))
-            v1=en_dic[sig]
-            #merge
-            en_dic[sig]=[v[0]+ v1[0], min(v[1],v1[1]), max(v[2],v1[2])]
-            en_dic.pop(k) 
+def ispluralw(k):
+    to = singular_teller(k)
+    if to and to != k: 
+        return to
+    return None   
     
-import matplotlib.pyplot as plt
-
+def isupperw(k):
+    if k.isupper():
+        to = k[0]+k[1:].lower()
+        return to    
+    return None
+       
+def merge_upper(en_dic):
+    for k,v in en_dic.items():
+        if k.isupper():
+            to = k[0]+k[1:].lower()
+            if to in en_dic:
+                logging.info('upser word: %s -> %s' %(k,to))
+                v1=en_dic[to]
+                #merge
+                en_dic[to]=[v[0]+ v1[0], min(v[1],v1[1]), max(v[2],v1[2])]
+                en_dic.pop(k) 
+    
 def plotxy(x,y):
+    import matplotlib.pyplot as plt
     import numpy as np
     x=np.array(x)
     y=np.array(y)
@@ -353,15 +360,15 @@ def plotxy(x,y):
     return residuals[0]     
 
 def plot_diff(X,Y):
+    import matplotlib.pyplot as plt
     plt.plot(range(len(X)),map(lambda x:x-X[0],X),'g-',
              range(len(Y)),map(lambda y:y-Y[0],Y),'b+'
             )
     plt.show()
     
-debug = False  
-t_en=u'Tywin'
-t_cs=u'泰温'
-
+debug = False
+t_en=[u'Baratheon',u'Theon']
+t_cs=[u'拜拉席恩',u'席恩']
 
 """
 x=[1855, 3703, 3753, 27889, 29522, 46153, 75929, 77632, 133482, 150157, 162140]

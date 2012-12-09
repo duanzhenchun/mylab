@@ -18,8 +18,14 @@ def get_text(request):
     fname='sample.txt'
     fpath = getabspath(safe_join(filestore, fname))
     txt=open(fpath,'r').read()    
+    userid=None
+    print request.session
+    if 'userid' in request.session:
+        userid = request.session['userid']
+    print 'aaa', authenticated_userid(request)
     return {
-        'file':{'name':fname, 'text':trans(txt,request),}
+        'file':{'name':fname, 'text':trans(txt,request),},
+        'logged_in': userid #authenticated_userid(request),
         }
 
 def trans(txt,request):
@@ -47,10 +53,15 @@ def wordict_view(request):
         txt += '%s:\t%s\n' %(k,v)
     txt = txt2html(txt)
     return {
-        'file':{'name':'worddict', 'text':txt}
+        'file':{'name':'worddict', 'text':txt},
+        'logged_in': authenticated_userid(request),
         }
         
-@view_config(route_name='worddict',request_method='POST',renderer='string') 
+@view_config(route_name='worddict',
+    request_method='POST',
+    permission='edit',
+    renderer='string'
+) 
 def edit_word(request):
     logging.debug(request.client_addr)
     cs, en = (request.params[i] for i in ('cs','en'))
@@ -64,7 +75,12 @@ def edit_word(request):
         g_worddic[en]=cs
     return "OK"
     
-@view_config(route_name='worddict.del',request_method='DELETE',renderer='string') 
+@view_config(
+    route_name='worddict.del',
+    request_method='DELETE',
+    permission='edit',
+    renderer='string'
+) 
 def delete_word(request):
     en = request.matchdict['en']
     global g_worddic

@@ -37,12 +37,8 @@ def gen_true(dic_lows,dic_i):
                 if not i in dic_lows[len(i)-1]:
                     break
                 subv=dic_lows[len(i)-1][i]
-                if debug and t_cs==k:
-                    print i, subv
                 product *=subv[0]*vrange*1.0/max((subv[2]-subv[1]),1)
             else:
-                if debug and t_cs==k:
-                    print k,v,vrange, product, v[0]**(len(sub_ls)*Word_Thold)
                 if v[0]**(2**len(sub_ls)) < product:
                     break
         else:   #no break occurs
@@ -147,7 +143,8 @@ def gen_singlef(f, high=9 ):
     gen_cs(dic_ls,dic)
     logging.info('cs dict len:%d' %len(dic))
     if debug:
-        print t_cs in dic
+        for i in t_cs:
+            print '%s is in dict? %s ' %(i,i in dic)
     return dic
             
 def gen_single_enf(f):
@@ -158,14 +155,33 @@ def gen_single_enf(f):
             incr(pre_dic,w,curpos)
             curpos+=1    
     en_dic={}
+    modi_ens={}
     for en,v in pre_dic.iteritems():
-        if debug and t_en not in en: continue
+        if debug and en not in t_en: continue
+        to = ispluralw(en)
+        if to:
+            modi_ens.setdefault(to,[])
+            modi_ens[to].append(en)
         if aimed_en(en,v[0]):
             en_dic[en]=v
-    merge_pluralname(en_dic) 
-    logging.info('aimed en dic len:%d' %len(en_dic))                          
-    return en_dic
+    for k,v in en_dic.items():
+        if k.upper() in en_dic and k != k.upper():
+            k1,v1=k.upper(), en_dic[k.upper()]
+            if debug: 
+                print k,v, k1,v1
+            #merge
+            en_dic[k]=[v[0]+ v1[0], min(v[1],v1[1]), max(v[2],v1[2])]
+            del en_dic[k1]
+    logging.info('aimed en dic len:%d' %len(en_dic))  
+        
+    for k,v in modi_ens.items():
+        if k not in en_dic:     #Daenery -> [u'Daenerys']
+            del modi_ens[k]    
+        else:        
+            logging.info('%s -> %s' %(k,v)) 
+    return en_dic,modi_ens
 
+            
 def gen_eng(ppath):
     if ppath.endswith(os.sep):
         ppath=ppath[:-1]

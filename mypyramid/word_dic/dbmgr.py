@@ -1,4 +1,5 @@
-from pysqlite2 import dbapi2 as sqlite
+#from pysqlite2 import dbapi2 as sqlite
+import sqlite3 as sqlite
 
 class dbmanager:
   def __init__(self, out, dbname='word_dic.db'):

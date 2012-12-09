@@ -5,6 +5,9 @@ from pyramid import testing
 
 from .models import DBSession
 
+TEST_NAME = 'douban_123'
+TEST_TOKEN = 'token=abc&secret=edf'
+
 class TestMyView(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
@@ -12,21 +15,22 @@ class TestMyView(unittest.TestCase):
         engine = create_engine('sqlite://')
         from .models import (
             Base,
-            MyModel,
+            OauthUser,
             )
         DBSession.configure(bind=engine)
         Base.metadata.create_all(engine)
         with transaction.manager:
-            model = MyModel(name='one', value=55)
-            DBSession.add(model)
+            user = OauthUser(name=TEST_NAME, token=TEST_TOKEN)
+            DBSession.add(user)
 
     def tearDown(self):
         DBSession.remove()
         testing.tearDown()
 
-    def test_it(self):
-        from .views import my_view
+    def test_oauthuser_list(self):
+        from mypyramid.views.oauthuser import user_list
         request = testing.DummyRequest()
-        info = my_view(request)
-        self.assertEqual(info['one'].name, 'one')
-        self.assertEqual(info['project'], 'mypyramid')
+        info = user_list(request)
+        self.assertEqual(len(info['users']), 1)
+        self.assertEqual(info['users'][0].name, TEST_NAME)
+        self.assertEqual(info['users'][0].token, TEST_TOKEN)

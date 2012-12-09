@@ -19,6 +19,9 @@ requires = [
     'pyramid_jinja2',
     'inflect',
     'pyenchant',
+    'velruse',
+	'pyramid_persona',
+#    'pysqlite2',
     ]
 
 setup(name='mypyramid',

@@ -10,7 +10,15 @@
 
 {% block content %}
 <div id="leftCol">
-    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+    <br/><br/><br/>
+    <a href="{{request.static_url('mypyramid:static/about.me.html')}}" >背景介绍</a>
+    <br/><br/><br/><br/><br/>
+    {% if logged_in %} 
+     <a href="{{request.application_url}}/logout">Logout</a>
+    {% endif %}
+    <br/><br/><br/><br/><br/>
+    打开要看的文件
+    <br/>
     <input type="file" id="fileinput" class="ui-widget"  style= "width: 100%;"/>
 </div>
 
