@@ -3,10 +3,10 @@ import logging
 
 # v: [count,start,end]
 def incr(dic, w, curpos):
-    if len(w) > 1 and w in dic:   # e.g.: 嘶嘶,阿朵阿多
-        if curpos - dic[w][2] + 1 < 6: # neglect too near
+    if len(w) > 1 and w in dic:   
+        if curpos - dic[w][2] + 1 < 3 * len(w): # neglect too near, e.g.: 嘶嘶嘶嘶, 阿多阿多
             return
-    dic.setdefault(w, [0, curpos, curpos])
+    dic.setdefault(w, [0, curpos, curpos, {}, {}])  # count,first,last,left_1,right_1
     dic[w][0] += 1
     dic[w][2] = curpos
 
@@ -26,14 +26,12 @@ def sortv_iter(dic):
     for key, value in sorted(dic.iteritems(), reverse=True, key=lambda (k, v): (v, k)):
         yield key, value
 
-def dic_out(dic, fname, iter_fn=sortk_iter, overide=False, nosingle=False):
+def dic_out(dic, fname, iter_fn=sortk_iter, overide=False):
     if not overide:
         fname = fname + '_out'
     with open(fname, 'w') as f:
-        f.write('#k:[freq, l, r]\n')
+        f.write('#k:freq\n')
         for k, v in iter_fn(dic):  
-            if nosingle and len(k) < 2:
-                continue
             out_line = "%s:%s\r\n" % (k, v)
             if type(out_line) == unicode:
                 out_line = out_line.encode('utf-8')
@@ -75,11 +73,11 @@ def iter_block(ppath, wc_threshold, target='.txt'):
                 sens[0] = remain + sens[0]
                 blk_lst += sens
             remain = tail
+            if wc >= wc_threshold:
+                yield blk_lst
+                blk_lst, wc = [], 0    
         if remain:
             blk_lst.append(remain)
-        if wc >= wc_threshold:
-            yield blk_lst
-            blk_lst, wc = [], 0    
 
 def getsents(f):
     blk_lst = []
@@ -272,7 +270,7 @@ def dulp_dec(iter_f):
                 yield fname
     return _
     
-@dulp_dec
+#@dulp_dec
 def iter_fname(ppath, target):
     if ppath.find(os.sep) < 0:
         yield ppath
@@ -282,6 +280,17 @@ def iter_fname(ppath, target):
             fullpath = os.path.join(path, filename)
             suffix = filename[filename.rfind('.'):].lower()
             if suffix == target.lower():
+                logging.info(fullpath)
+                yield fullpath     
+
+def iter_fname_end(ppath,end):
+    if ppath.find(os.sep) < 0:
+        yield ppath
+        return
+    for path, dirs, files in os.walk(ppath):
+        for filename in files:
+            fullpath = os.path.join(path, filename)
+            if filename.endswith(end):
                 logging.info(fullpath)
                 yield fullpath     
                 

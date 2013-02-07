@@ -10,7 +10,6 @@ from tools import *
 
 #import  mypyramid.word_dic
 from word_dic.auto_index  import find_dicmatch
-from word_dic.genwords import gen_single_enf, gen_singlef
 #from mypyramid.word_dic.tools import to_unicode
 
 filestore='store'
@@ -26,6 +25,7 @@ def get_upload(request):
 #@view_config(route_name='upload', permission='create', request_method='POST')
 @view_config(route_name='upload', request_method='POST', renderer="upload.jinja2")
 def upload(request):
+    from word_dic.genwords import gen_single_enf, gen_singlef
     name='enfile'
     fname = request.POST[name].filename
     enf = request.POST[name].file
