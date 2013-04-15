@@ -1,22 +1,17 @@
 #coding=utf-8
-
 import re
 import math
+from t_viterbi import viterbi
 
-
+Train_file = '../icwb2-data/gold/pku_test_gold.utf8'
 re_han, re_skip = re.compile(ur"([\u4E00-\u9FA5]+)"), re.compile(ur"[^a-zA-Z0-9+#\r\n]")
 STATES = 'BMES'
 trans, obs, emiss = {}, {}, {}
 TAG = u'|'
 
 
-#trans = dict(zip('BMES', (dict(zip('BMES', (0,)*4)),)*4))
-#obs = dict(zip('BMES', (0,)*4))
-#emiss = dict(zip('BMES', ({},)*4))
-
-
 def gen_line():
-    with open('../icwb2-data/gold/pku_test_gold.utf8', 'r') as f:
+    with open(Train_file, 'r') as f:
         for line in f:
             yield line
 
@@ -68,10 +63,14 @@ def build(wordmodel=False):
     norm(emiss)
     return obs, trans, emiss
 
+samples = [
+     u'改判被告人死刑立即执行',
+     u'检察院鲍绍坤检察长',
+     u'小明硕士毕业于中国科学院计算所',
+     u'工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作',
+     ]
 
-def test_seg():
-    from t_viterbi import viterbi
-
+def t_wordseg():
     PI, A, B = build(True)
     for k in B.keys():
         if '|' == k[-1]:
@@ -82,16 +81,22 @@ def test_seg():
     for k in S:
         if k not in PI:
             PI[k] = 0.0
-    samples = [
-     u'改判被告人死刑立即执行',
-     u'检察院鲍绍坤检察长',
-     u'小明硕士毕业于中国科学院计算所',
-     ]
     for sen in samples:
         Y = tuple(sen)
         prob, X = viterbi(Y, S, PI, A, B)
-        print prob, u''.join(X)
+        print u''.join(X)
+
+def t_BMES():
+    PI, A, B = build()
+    S = B.keys()
+    for k in S:
+        if k not in PI:
+            PI[k] = 0.0
+    for sen in samples:
+        Y = tuple(sen)
+        prob, X = viterbi(Y, S, PI, A, B)
+        print u''.join(sen[i] + (X[i] in 'ES' and '|' or '') for i in xrange(len(sen)))
 
 if __name__ == '__main__':
-    test_seg()
-
+    t_BMES()
+    t_wordseg()

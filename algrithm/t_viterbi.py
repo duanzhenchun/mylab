@@ -41,8 +41,6 @@ def viterbi(obs, states, start_p, trans_p, emit_p):
                     V[t - 1][y0] = 1.0 / 8000
                 lst.append((V[t - 1][y0] * trans_p[y0][y] * emit_p[y][obs[t]], y0))
             (prob, state) = max(lst)
-            if state not in path:
-                continue
             V[t][y] = prob
             newpath[y] = path[state] + [y]
         # Don't need to remember the old paths
