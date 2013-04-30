@@ -31,6 +31,7 @@ def need_view(request):
 def need_over(request):
     info = businfo(request)
     DB.Cli.remove(info)
+    #log 
     return HttpResponse('OK')
 
 def feed_over(request):
