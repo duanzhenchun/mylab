@@ -1,0 +1,46 @@
+产品名： 待定
+
+
+HTTP API:
+feed: 
+    POST, parameter: uid, busnum, direct, location
+	response: need list: [uid, location]
+
+need: 
+	POST, parameter same as need
+    response: feed list: [uid, location]
+	
+init:
+	POST,
+	response: new uid
+	
+DB(redis):
+	busroute: (hash) 
+	    name: busroute:busnum:direction
+	    key: uid
+	    value: location
+    uid: 'busuid':current num
+
+plus:
+	app id should be added for all API, to avoid mass request, such as init
+	   			
+
+Client design:
+	mobile: 
+		iOS 
+		android
+	考虑因素:
+		电量
+		网络流量
+	feed： 可用蓝点表示
+		要方便选择和输入，
+		根据当前GPS位置，在一定范围内提供可选的bus num
+		定期更新位置
+			先用1min做间隔，需要调研	
+	need：可用红点表示
+		请求服务，得到一些分散在bus 路线上的蓝点
+		
+
+badge：
+	满足心理成就感
+				
