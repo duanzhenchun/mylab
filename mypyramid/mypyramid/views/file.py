@@ -23,7 +23,7 @@ def get_upload(request):
     return {}
 
 #@view_config(route_name='upload', permission='create', request_method='POST')
-@view_config(route_name='upload', request_method='POST', renderer="upload.jinja2")
+@view_config(route_name='upload', request_method='POST', renderer="upload.html")
 def upload(request):
     from word_dic.genwords import gen_single_enf, gen_singlef
     name = 'enfile'
