@@ -4,10 +4,9 @@ local optimum value is reached
 """
 import random
 from util import *
-import math
 
-
-def fwd_bkw(Y, S):
+ 
+def fwd_bkw(Y, S, iter_limit=100, threshold=1e-5):
     def rand_prob(keys):
         n = len(keys)
         lst = [random.randint(1, 10) for i in xrange(n)]
@@ -16,7 +15,7 @@ def fwd_bkw(Y, S):
         return dic
     
     def init_model(states):
-        PI = dict(zip(states, (1.0 / len(states),) * len(states)))  # equal probability
+        PI = dict(zip(states, (one / len(states),) * len(states)))  # equal probability
         A, B = {}, {}
         for i in states:
             A[i] = rand_prob(states)
@@ -89,11 +88,11 @@ def fwd_bkw(Y, S):
         for i in S:
             A_e[i] = {}
             for j in S:
-                f1, f2 = (0.0,) * 2
+                f1, f2 = (zero,) * 2
                 for t in xrange(T - 1):
                     f1 += xi[t][i][j]
                     f2 += gamma[t][i]
-                A_e[i][j] = f2 and 1.0 * f1 / f2 or 0.0
+                A_e[i][j] = f2 and one * f1 / f2 or zero
             norm_dict(A_e[i])
         return A_e
 
@@ -102,15 +101,16 @@ def fwd_bkw(Y, S):
         for j in S:
             B_e[j] = {}
             for k in set(Y):
-                f1, f2 = (0.0,) * 2
+                f1, f2 = (zero,) * 2
                 for t in xrange(T):
                     if Y[t] == k:
-                        f1 += gamma[t].get(j, 0.0)
-                    f2 += gamma[t].get(j, 0.0)
-                B_e[j][k] = f2 and 1.0 * f1 / f2 or 0.0
+                        f1 += gamma[t].get(j, zero)
+                    f2 += gamma[t].get(j, zero)
+                B_e[j][k] = f2 and one * f1 / f2 or zero
         return B_e
 
-    def iteration(PI, A, B, iter_limit=1000, threshold=1e-5):
+    @benchmark
+    def iteration(PI, A, B):
         for i in xrange(iter_limit):
             # E steps
             gamma, xi = Gamma_Xi(PI, A, B)
@@ -124,7 +124,7 @@ def fwd_bkw(Y, S):
         return PI, A, B
     
     def diff(M, M0):
-        dif = 0.0
+        dif = zero
         for i in M:
             for j in M[i]:
                 dif += (M[i][j] - M0[i][j]) ** 2
@@ -135,11 +135,15 @@ def fwd_bkw(Y, S):
     xT = S[0]
     return iteration(PI, A, B)
     
+ 
 def example():
     observations = ('normal', 'dizzy', 'cold', 'cold', 'normal')
     observations = tuple([random.randint(0, 9) for i in range(100)])
     states = ('Healthy', 'Fever')
-    print fwd_bkw(observations, states)
+    print observations
+    print fwd_bkw(observations, states, 10)
+    print fwd_bkw(observations, states, 100)
+    print fwd_bkw(observations, states, 1000)
 
 if __name__ == '__main__':
     example()
