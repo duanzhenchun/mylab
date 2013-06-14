@@ -1,12 +1,11 @@
 # coding=utf-8
 import re
 import math
-from t_viterbi import viterbi
+from viterbi import viterbi
 
 Train_file = '../../icwb2-data/gold/pku_test_gold.utf8'
 re_han, re_skip = re.compile(ur"([\u4E00-\u9FA5]+)"), re.compile(ur"[^a-zA-Z0-9+#\r\n]")
 STATES = 'BMES'
-trans, obs, emiss = {}, {}, {}
 TAG = u'|'
 
 
@@ -39,6 +38,7 @@ def norm(dic):
             dic[k][w] = v * 1.0 / all
 
 def build(wordmodel=False):
+    trans, PI, emiss = {}, {}, {}
     first = True
     for w, s in gen_w():
         if w == None:
@@ -46,7 +46,7 @@ def build(wordmodel=False):
             continue
         if wordmodel:
             s = (w + (s in 'SE' and TAG or ''))
-        obs[s] = obs.get(s, 0) + 1
+        PI[s] = PI.get(s, 0) + 1
         emiss.setdefault(s, {})
         emiss[s][w] = emiss[s].get(w, 0) + 1
         if first:
@@ -56,12 +56,12 @@ def build(wordmodel=False):
             trans.setdefault(pre, {})
             trans[pre][s] = trans[pre].get(s, 0) + 1
         pre = s
-    all = sum(obs.values())
-    for k, v in obs.iteritems():
-        obs[k] = v * 1.0 / all
+    all = sum(PI.values())
+    for k, v in PI.iteritems():
+        PI[k] = v * 1.0 / all
     norm(trans)
     norm(emiss)
-    return obs, trans, emiss
+    return PI, trans, emiss
 
 samples = [
      u'改判被告人死刑立即执行',
