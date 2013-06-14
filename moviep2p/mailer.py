@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding=utf-8
+# coding=utf-8
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -16,17 +16,17 @@ html = """\
 """
 
 Subject = "高分电影P2P"
-From = ME +"@gmail.com"
+From = ME + "@gmail.com"
 Server = 'smtp.gmail.com:587'
 password = PASSWORD
 
-def send(infos, tolist):
+def send(infos, tolist, sub=Subject):
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = Subject
+    msg['Subject'] = sub
     msg['From'] = From
     msg['To'] = ','.join(tolist)
 
-    part2 = MIMEText(html %infos, 'html', _charset='utf-8')
+    part2 = MIMEText(html % infos, 'html', _charset='utf-8')
     msg.attach(part2)
 
     svr = smtplib.SMTP(Server)

@@ -1,4 +1,4 @@
-#encoding:utf-8
+# encoding:utf-8
 import logging
 import os
 import re
@@ -13,13 +13,13 @@ u_space = u'[ 　]+'
 
 
 def split_sens(txt):
-  txt = to_unicode(txt.strip())
-  lst = re.split(g_noncsdiv, txt)
-  lst = filter(None, lst)
-  if lst and is_cs(txt[-1]):
-    return lst[:-1], lst[-1]
-  else:
-    return lst, u''
+    txt = to_unicode(txt.strip())
+    lst = re.split(g_div, txt)
+    lst = filter(None, lst)
+    if lst and is_cs(txt[-1]):
+        return lst[:-1], lst[-1]
+    else:
+        return lst, u''
 
 
 def is_cs(word):
@@ -42,7 +42,7 @@ def head_n(dic, n):
 # v: [count,start,end]
 def incr(dic, w, curpos):
     if len(w) > 1 and w in dic:
-        if curpos - dic[w][2] + 1 < 3 * len(w): # neglect too near, e.g.: 嘶嘶嘶嘶, 阿多阿多
+        if curpos - dic[w][2] + 1 < 3 * len(w):  # neglect too near, e.g.: 嘶嘶嘶嘶, 阿多阿多
             return
     dic.setdefault(w, [0, curpos, curpos, {}, {}])  # count,first,last,left_1,right_1
     dic[w][0] += 1
@@ -105,7 +105,7 @@ def rela_name(fname):
     return fname[fname.rfind(os.sep) + 1:]
 
 
-#@dulp_dec
+# @dulp_dec
 def iter_fname(ppath, target):
     if ppath.find(os.sep) < 0:
         yield ppath

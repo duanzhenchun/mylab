@@ -5,6 +5,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 import json, itertools, urlparse
 import DB
 
+def home(request):
+    return HttpResponse('OK')
+
 def init_view(request):
     return HttpResponse(DB.Cli.new_uid())
     

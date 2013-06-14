@@ -4,7 +4,7 @@
 import zlib
 import json
 import re
-import urllib2,urllib
+import urllib2, urllib
 from BeautifulSoup import BeautifulSoup
 import mailer
 from conf import *
@@ -12,30 +12,30 @@ from conf import *
 
 def getpage(urlstr):
     opener = urllib2.build_opener()
-    opener.addheaders = [('User-agent', 'Mozilla/5.0'),('Accept-Encoding', 'gzip,deflate,sdch')]
+    opener.addheaders = [('User-agent', 'Mozilla/5.0'), ('Accept-Encoding', 'gzip,deflate')]
     page = opener.open(urlstr)
-    data=zlib.decompress(page.read(), 16+zlib.MAX_WBITS)
+    data = zlib.decompress(page.read(), 16 + zlib.MAX_WBITS)
     return data
 
 
 def bestmovie(title, thold=7):
-    dic={'q':title.split(u'-人')[0].encode('utf8'),'count':3}
-    qstr=urllib.urlencode(dic)
-    urlstr = "http://api.douban.com/v2/movie/search?%s" %qstr
+    dic = {'q':title.split(u'-人')[0].encode('utf8'), 'count':3}
+    qstr = urllib.urlencode(dic)
+    urlstr = "http://api.douban.com/v2/movie/search?%s" % qstr
     page = urllib2.urlopen(urlstr)
     res = urllib.urlopen(urlstr).read()
     dic = json.loads(res)
-    best=None
+    best = None
     for sub in dic['subjects']:
         score = sub['rating']['average']
         if score < thold:
             continue
-        if not best or best['rating']['average']< score:
+        if not best or best['rating']['average'] < score:
             best = sub
     return best
 
 def getinfo(red):
-    dic={}
+    dic = {}
     best = bestmovie(red.text)
     if not best:
         return None
@@ -44,9 +44,9 @@ def getinfo(red):
     for i in ('title', 'original_title', 'year', 'alt'):
         dic[i] = best[i]
     dic['img'] = best['images']['large']
-    dow=red.findParent('tbody').findAll('td',{'class':'dow'})
-    ed2k=dow[0](ed2k=re.compile("ed2k"))
-    dic['ed2k'] =ed2k[0].get('ed2k') 
+    dow = red.findParent('tbody').findAll('td', {'class':'dow'})
+    ed2k = dow[0](ed2k=re.compile("ed2k"))
+    dic['ed2k'] = ed2k[0].get('ed2k') 
     return dic
     
 def main():
@@ -54,20 +54,20 @@ def main():
     data = getpage(urlstr)
     soup = BeautifulSoup(data)
     #print soup.prettify()
-    toplist=soup.findAll('div', {"class" : "toplist"})
-    reds=toplist[0].findAll('a',{'class':'red'})
+    toplist = soup.findAll('div', {"class" : "toplist"})
+    reds = toplist[0].findAll('a', {'class':'red'})
     
-    infos='<ul>'
+    infos = '<ul>'
     for red in reds:
         infos += movieinfo(getinfo(red))
-    infos +='</ul>'
+    infos += '</ul>'
     
     with open(CUR_MOVIES, 'w') as f:
         f.write(infos.encode('utf8'))
         f.close()
 #    mailer.send(infos)    
 
-MOVIE_FMT="""<li>
+MOVIE_FMT = """<li>
 <a href="%s" target="_blank"><img src="%s" width="150px"></a>
 <p>score: %s</p>
 <p>title: %s</p>
@@ -80,7 +80,7 @@ MOVIE_FMT="""<li>
 def movieinfo(dic):
     if not dic:
         return ''
-    return MOVIE_FMT %(dic['alt'], dic['img'], dic['score'], dic['title'], dic['original_title'], dic['year'], dic['ed2k'], dic['text'] )
+    return MOVIE_FMT % (dic['alt'], dic['img'], dic['score'], dic['title'], dic['original_title'], dic['year'], dic['ed2k'], dic['text'])
     
 if __name__ == '__main__':  
      main()

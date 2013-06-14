@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     # (r'^admin/', include(admin.site.urls)),
 )
 urlpatterns += patterns(mainpath,
+    (r'^$', 'dealer.home'),
     (r'^need/$', 'dealer.need_view'),
     (r'^feed/$', 'dealer.feed_view'),
     (r'^init/$', 'dealer.init_view'),
