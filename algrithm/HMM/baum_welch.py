@@ -138,7 +138,7 @@ def fwd_bkw(Y, S, iter_limit=100, threshold=1e-5):
  
 def example():
     observations = ('normal', 'dizzy', 'cold', 'cold', 'normal')
-    observations = tuple([random.randint(0, 9) for i in range(100)])
+    observations = tuple([random.randint(0, 9) for i in range(1000)])
     states = ('Healthy', 'Fever')
     print observations
     print fwd_bkw(observations, states, 10)

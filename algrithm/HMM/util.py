@@ -1,7 +1,10 @@
-from decimal import Decimal
 import time
+import gmpy2
 
-zero, one = 0.0, 1.0
+# zero, one = 0.0, 1.0
+# make fast and precious multiplication of small probability
+zero, one = gmpy2.mpfr(0), gmpy2.mpfr(1)
+# from decimal import Decimal
 # zero, one = Decimal(0), Decimal(1)
 
 def norm_dict(dic):
