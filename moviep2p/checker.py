@@ -8,6 +8,14 @@ from email.header import decode_header
 from conf import *
 import os
 
+HOTWORD = 'hotword'
+SAE_DOMAIN = 'hotupload'
+SAE_STORAGEUPLOAD = '%s && swift -A https://auth.sinas3.com/v1.0 -U y54xynw0yn -K 1x2jx3l2xj4ww1lhmm2jx5zxx5m225ljmlk3h4zm upload %s text.txt' % (ipY, SAE_DOMAIN)
+HOTWORD_RESULT = '<a href="http://2.weiboexposure.sinaapp.com/hotresult">result</a>'
+ERROR_UPLOAD = 'error upload'
+ipY = '. ~/my_env/bin/activate'
+
+
 def check_new(user, password):
     pop_conn = poplib.POP3_SSL('pop.gmail.com')
     pop_conn.user(user)

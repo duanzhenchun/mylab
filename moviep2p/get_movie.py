@@ -1,22 +1,7 @@
 #!/usr/bin/env python
 #coding=utf-8
-
-import zlib
-import json
-import re
-import urllib2, urllib
-from BeautifulSoup import BeautifulSoup
-import mailer
 from conf import *
-
-
-def getpage(urlstr):
-    opener = urllib2.build_opener()
-    opener.addheaders = [('User-agent', 'Mozilla/5.0'), ('Accept-Encoding', 'gzip,deflate')]
-    page = opener.open(urlstr)
-    data = zlib.decompress(page.read(), 16 + zlib.MAX_WBITS)
-    return data
-
+from utils import *
 
 def bestmovie(title, thold=7):
     dic = {'q':title.split(u'-人')[0].encode('utf8'), 'count':3}
@@ -57,15 +42,12 @@ def main():
     toplist = soup.findAll('div', {"class" : "toplist"})
     reds = toplist[0].findAll('a', {'class':'red'})
     
-    infos = '<ul>'
-    for red in reds:
-        infos += movieinfo(getinfo(red))
-    infos += '</ul>'
-    
+    lst = [movieinfo(getinfo(red)) for red in reds]
+    infos = htmlinfo(lst)
+        
     with open(CUR_MOVIES, 'w') as f:
         f.write(infos.encode('utf8'))
         f.close()
-#    mailer.send(infos)    
 
 MOVIE_FMT = """<li>
 <a href="%s" target="_blank"><img src="%s" width="150px"></a>
