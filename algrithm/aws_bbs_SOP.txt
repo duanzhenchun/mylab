@@ -1,0 +1,3 @@
+rsync -avz -e ssh bbs.py ec2-user@54.250.166.126:src/
+crontab -e
+@hourly . /home/ec2-user/env/bin/activate && cd /home/ec2-user/src/ && python bbs.py && deactivate

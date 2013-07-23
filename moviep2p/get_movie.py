@@ -1,15 +1,33 @@
 #!/usr/bin/env python
-#coding=utf-8
+# coding=utf-8
 from conf import *
 from utils import *
 
-def bestmovie(title, thold=7):
-    dic = {'q':title.split(u'-人')[0].encode('utf8'), 'count':3}
-    qstr = urllib.urlencode(dic)
-    urlstr = "http://api.douban.com/v2/movie/search?%s" % qstr
-    page = urllib2.urlopen(urlstr)
-    res = urllib.urlopen(urlstr).read()
-    dic = json.loads(res)
+douban_token = 'da4c85360f205570'
+
+
+def douban_cli():
+    from douban_client import DoubanClient
+    API_KEY = '09e7e2ad76917ac81db7a80863b47058'
+    API_SECRET = '42764a7149130882'
+    redirect_uri = 'http://54.250.166.126/spam/auth'
+    SCOPE = 'douban_basic_common,movie_basic_r'
+    client = DoubanClient(API_KEY, API_SECRET, redirect_uri, SCOPE)
+    if not douban_token:
+        print client.authorize_url
+        # manually get auth code
+    client.auth_with_code(douban_token)
+    return client
+
+def bestmovie(title, doubancli, thold=7):
+    title = title.split(u'.1080p.')[0]
+#     dic = {'q':title.encode('utf8'), 'count':3}
+#     qstr = urllib.urlencode(dic)
+#     urlstr = "http://api.douban.com/v2/movie/search?%s" % qstr
+#     page = urllib2.urlopen(urlstr)
+#     res = urllib.urlopen(urlstr).read()
+#     dic = json.loads(res)
+    dic = doubancli.movie.search(q=title, count=3)
     best = None
     for sub in dic['subjects']:
         score = sub['rating']['average']
@@ -19,9 +37,9 @@ def bestmovie(title, thold=7):
             best = sub
     return best
 
-def getinfo(red):
+def getinfo(red, doubancli):
     dic = {}
-    best = bestmovie(red.text)
+    best = bestmovie(red.text, doubancli)
     if not best:
         return None
     dic['text'] = red.text
@@ -30,19 +48,20 @@ def getinfo(red):
         dic[i] = best[i]
     dic['img'] = best['images']['large']
     dow = red.findParent('tbody').findAll('td', {'class':'dow'})
-    ed2k = dow[0](ed2k=re.compile("ed2k"))
+    ed2k = dow[0].findAll('a', attrs={'class' : re.compile("ed2k.*")})
     dic['ed2k'] = ed2k[0].get('ed2k') 
     return dic
     
 def main():
-    urlstr = 'http://oabt.org/?cid=6'
+    doubancli = douban_cli()
+    urlstr = 'http://oabt.org/?cid=11'  # 1080P
     data = getpage(urlstr)
     soup = BeautifulSoup(data)
-    #print soup.prettify()
-    toplist = soup.findAll('div', {"class" : "toplist"})
-    reds = toplist[0].findAll('a', {'class':'red'})
-    
-    lst = [movieinfo(getinfo(red)) for red in reds]
+    # print soup.prettify()
+    aims = []
+    for toplist in soup.findAll('div', {"class" : "toplist"}):
+        aims += toplist.findAll('a', href=re.compile(u'show\.php\?tid=\d+?'))
+    lst = [movieinfo(getinfo(aim, doubancli)) for aim in aims]
     infos = htmlinfo(lst)
         
     with open(CUR_MOVIES, 'w') as f:

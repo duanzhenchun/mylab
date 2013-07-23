@@ -16,16 +16,15 @@ LISTS_TIMEBREAK = 60
 LASTFILE = './last.log'
 
 
-def loginBBS():
-    user = "whille02"
-    password = "whille7"
+def loginBBS(passwd):
+    user = "whille"
     tn = telnetlib.Telnet("bbs.newsmth.net")
     # tn.set_debuglevel(1)
     tn.read_until("请输入代号:")
     tn.write(user + RET)
     tn.read_until("请输入密码:")
-    tn.write(password + RET)
-    for i in range(3):
+    tn.write(passwd + RET)
+    for i in range(4):  # according to login parameter set i (I)
         tn.write(RET)
     time.sleep(3)
 #     tn.write("eq")
@@ -36,6 +35,7 @@ def loginBBS():
 def readBoard(tn, last, first, board='SecondMarket'):
     tn.write('s')
     if first:
+        tn.read_lazy()
         tn.write(RET)  # select discussion
     tn.read_until("讨论区")
     tn.write(board + RET)
@@ -54,10 +54,6 @@ def readBoard(tn, last, first, board='SecondMarket'):
         return None
 #     lst.reverse()
     newlast = lst[-1][-1]
-    with codecs.open(LASTFILE, 'a', encoding='utf-8') as f: 
-        if last != newlast:
-            f.write((newlast + u'\r\n'))
-            f.close()
     for (n, title) in reversed(lst):
         if title == last:
             return
@@ -72,7 +68,7 @@ def readBoard(tn, last, first, board='SecondMarket'):
     return newlast
     
 def search(txt):
-    target = u'(\d+).*\u25cf(.*[转出].*卡.*)\\x1b\[K\n'
+    target = u'(\d+) .+?(\S*[转出].+皮.*)\n'
     for i in re.findall(target, txt):
         print i[0], i[1]
         yield i
@@ -83,9 +79,15 @@ def mail2(tn):
         tn.read_until("转寄给:")
         tn.write(rec + RET)
     #     tn.read_until("(Y/N):")
-        for i in range(5):
-            tn.write("" + RET)
-            tn.read_eager()
+        for i in range(8):
+            tmp = tn.read_very_eager().decode('gbk')
+            tn.write(RET)
+            if u'转寄完成' in tmp:
+                break
+        try:
+            tn.read_lazy()
+        except:
+            print tn
     # tn.set_debuglevel(0)
     
 def logout(tn):
@@ -99,7 +101,7 @@ def logout(tn):
     tn.read_all
     tn.close()
     
-def loop():
+def loop(passwd):
     last = None
     try:
         with codecs.open(LASTFILE, encoding='utf-8') as f:
@@ -110,15 +112,24 @@ def loop():
             last = f.readlines()[-1]
     except IOError:
         pass
-    tn = loginBBS()
+    tn = loginBBS(passwd)
     first = True
     for i in range(2):
-        new = readBoard(tn, last, first)
+        newlast = readBoard(tn, last, first)
         first = False
-        print tn.read_very_eager()
+        tn.read_very_eager()
+        if newlast:
+            with codecs.open(LASTFILE, 'a', encoding='utf-8') as f: 
+                if last != newlast:
+                    f.write((newlast + u'\r\n'))
+                    f.close()
         time.sleep(LISTS_TIMEBREAK)
-        last = new
+        last = newlast
     logout(tn)
     
 if __name__ == '__main__':
-    loop()
+    if len(sys.argv) < 2:
+        sys.exit("""
+Usage:
+    %s bbs_pwd  """ % sys.argv[0])
+    loop(sys.argv[1])

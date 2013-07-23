@@ -6,9 +6,12 @@ from BeautifulSoup import BeautifulSoup
 
 def getpage(urlstr):
     opener = urllib2.build_opener()
-    opener.addheaders = [('User-agent', 'Mozilla/5.0'), ('Accept-Encoding', 'gzip,deflate')]
+    opener.addheaders = [('User-agent', 'Mozilla/5.0'), ('Accept-Encoding', 'gzip')]
     page = opener.open(urlstr)
-    data = zlib.decompress(page.read(), 16 + zlib.MAX_WBITS)
+    if page.headers.get('Content-Encoding', '') == 'gzip':
+        data = zlib.decompress(page.read(), 16 + zlib.MAX_WBITS)
+    else:
+        data = page.read()
     return data
     
 def htmlinfo(lst):
