@@ -3,7 +3,7 @@
 from conf import *
 from utils import *
 
-douban_token = 'da4c85360f205570'
+douban_token = '26813bd953cdac9e'
 
 
 def douban_cli():
