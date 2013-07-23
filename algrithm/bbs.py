@@ -8,6 +8,7 @@ import codecs
 import sys
 sys.stdout = codecs.lookup('utf-8')[-1](sys.stdout)
 
+target = u'(\d+) .+?(\S*[转出].+卡.*)\n'
 RECEIVERS = ('meng3r@qq.com', 'whille@163.com')
 # RECEIVERS = ('whille@163.com',)
 RET = "\r"
@@ -27,8 +28,6 @@ def loginBBS(passwd):
     for i in range(4):  # according to login parameter set i (I)
         tn.write(RET)
     time.sleep(3)
-#     tn.write("eq")
-#     print tn.read_very_eager()
     tn.read_until("S) 选择阅读讨论区")
     return tn
     
@@ -68,7 +67,6 @@ def readBoard(tn, last, first, board='SecondMarket'):
     return newlast
     
 def search(txt):
-    target = u'(\d+) .+?(\S*[转出].+皮.*)\n'
     for i in re.findall(target, txt):
         print i[0], i[1]
         yield i
@@ -80,14 +78,12 @@ def mail2(tn):
         tn.write(rec + RET)
     #     tn.read_until("(Y/N):")
         for i in range(8):
-            tmp = tn.read_very_eager().decode('gbk')
+            time.sleep(2)
+            tmp = tn.read_eager()
             tn.write(RET)
-            if u'转寄完成' in tmp:
+            if '转寄完成' in tmp:
                 break
-        try:
-            tn.read_lazy()
-        except:
-            print tn
+        tn.read_lazy()
     # tn.set_debuglevel(0)
     
 def logout(tn):
