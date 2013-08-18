@@ -7,11 +7,13 @@ def main():
     x0, y = load_sample(('ex5Logx.dat', 'ex5Logy.dat'), ',')
     x = prepare(x0)
     MAX_ITR = 7
-    lam = 5  # lambda
-    theta, Js = logistic_regression(x,y,MAX_ITR, lam)
+    Lambda = 5 
+    theta, Js = logistic_regression(x,y,MAX_ITR, Lambda)
     print theta
-    test = prepare(x0[-1].reshape(1, x0.shape[1]))
-    print predict(theta, test)
+    test=x0[-1]
+    test.shape=1, test.size
+    test = prepare(test)
+    print predict_logistic(theta, test, False)
     
     plt.plot(Js)
     plt.xlabel('iterations')
@@ -42,12 +44,6 @@ def boundary(x, y, theta):
 def prepare(x):
     return map_feature(x[:, 0], x[:, 1])
     
-def predict(theta, test):
-    """
-    prob that class=1.0
-    """
-    return sigmoid(np.mat(test) * theta).item()
-
 if __name__ == '__main__':
     main()
     

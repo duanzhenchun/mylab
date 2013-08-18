@@ -29,19 +29,18 @@ def main():
         plt.show()
 
     print 'best theta in alpha:\n ', theta_best
-    predict(theta_best, x0[-1])
+    test = x0[-1]
+    test.shape=test.size,1
+    test = polynomial_linear(test)
+    print 'predict of %s is %s' %(test, predict_linear(theta, test))
 
 def plot_fitting(theta):
     x0 = np.arange(-1,1,0.05)
-    x0 = x0.reshape(x0.shape[0],1)
+    x0.shape = x0.size,1
     x = polynomial_linear(x0)
     y= x * theta
     plt.plot(x0,y,'--')
 
-def predict(theta, test):
-    test.shape=test.size,1
-    test = polynomial_linear(test)
-    print 'predict of %s is %s' %(test, np.dot(test, theta).item())
 
 if __name__ == '__main__':
     main()
