@@ -36,15 +36,14 @@ def NNpredict(x, theta0, theta1):
 def nerualnetwork(X, y, Steps=400, Lambda=0.01):
     # Layers = 3
     s1 = 25 + 1
-    s2 = unique(y).size
+    s2 = np.unique(y).size
     m, n = X.shape
-    epsilon = 6 ** .5 / (n ** .5 + s2 ** .5)
     # transpose y to matrix
     Y = np.zeros((y.size, s2))  # 5000 * 10
     for i in xrange(y.size):
         Y[i, y[i][0] - 1] = 1.0 
     
-    
+    epsilon = 6 ** .5 / (n ** .5 + s2 ** .5)
     theta0 = rand_Eps(s1, X.shape[1], epsilon)  # 26 * 401
     theta1 = rand_Eps(s2, s1, epsilon)  # 10 *  26    
         
@@ -59,9 +58,8 @@ def nerualnetwork(X, y, Steps=400, Lambda=0.01):
         
         D1 = (delta2.T * A1 + Lambda * theta1) / m  # save as theta1
         D0 = (delta1.T * A0 + Lambda * theta0) / m 
-        theta1 -= D1  # * epsilon
-        theta0 -= D0  # * epsilon
-    
+        theta1 -= D1  
+        theta0 -= D0 
     test(X, y, NNpredict, theta0, theta1)
 
 # logistic_predict(X, y)
