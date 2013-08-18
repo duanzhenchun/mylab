@@ -114,7 +114,7 @@ def loop(passwd):
         newlast = readBoard(tn, last, first)
         first = False
         tn.read_very_eager()
-        if newlast:
+        if newlast and newlast != last:
             with codecs.open(LASTFILE, 'a', encoding='utf-8') as f: 
                 if last != newlast:
                     f.write((newlast + u'\r\n'))
