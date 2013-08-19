@@ -3,17 +3,27 @@ import matplotlib.pylab as plt
 from util import *
 
 def main():   
-    x, y = load_sample(('ex4x.dat', 'ex4y.dat'))
-    x = np.mat(np.concatenate((np.ones((x.shape[0], 1)), x), axis=1))
-    theta, Js = logistic_regression(x, y, 10)
-
-    print predict_logistic(theta, np.array([20, 80]))
+    x0, y0 = load_sample(('ex4x.dat', 'ex4y.dat'))
+    train_errs, cv_errs=[],[]    
+    ts = np.dot(x0.shape[0]/8,range(1,8))
+    for t in ts:
+        print t
+        X, X_cv = np.split(x0,(t,))
+        y, y_cv = np.split(y0,(t,))
+        X = addOne(X)
+        X_cv = addOne(X_cv)
+        theta, Js = logistic_regression(X, y, 4)
+        train_errs.append(Js[-1])
+        cv_errs.append(logist_cost(X_cv,y_cv, theta))
+        #print predict_logistic(theta, np.array([20, 80]))
     
-    plt.plot(Js)
+    plt.plot(ts, train_errs)
+    plt.plot(ts, cv_errs)
     plt.xlabel('iterations')
     plt.ylabel('cost: J')
+    plt.legend(('train_errs','cv_errs'))
     plt.show()
-    boundary(x, y, theta)
+    boundary(X, y, theta)
 
 def boundary(x, y, theta):
     y_ = y.reshape(y.size,)

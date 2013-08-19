@@ -7,7 +7,7 @@ import numpy as np
 
 data = loadmat('/home/whille/machine.learning/Andrew.Ng/ml-class/ex3/ex3data1.mat')
 X, y = data['X'], data['y']
-X = mat(np.concatenate((np.ones((X.shape[0], 1)), X), axis=1))
+X = addOne(X)
 
 def logistic_predict(X, y):
     thetas = oneVsAll(X, y)

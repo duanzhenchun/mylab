@@ -10,85 +10,98 @@ def load_sample(fnames, delimiter=None):
         samples.append(array([[float(j.strip()) for j in i.split(delimiter)] for i in f.readlines()]))
     return samples
     
-    
-def z_scale(x):
-    mns = mean(x, axis=0)
-    sstd = std(x, axis=0)
-    return (x - mns) / sstd, mns, sstd
+def addOne(X):
+	return mat(concatenate((ones((X.shape[0], 1)), X), axis=1))
+	    
+def z_scale(X):
+    mns = mean(X, axis=0)
+    sstd = std(X, axis=0)
+    return (X - mns) / sstd, mns, sstd
     
 def sigmoid(z):
     return 1.0 / (1 + exp(-z))
 
 
-def cost_logistic(y, h):
+def logist_cost(X, y,theta, Lambda = 0.0):
     """
-    cost function of logistic
+    cost function of logistic regression
     """
+    h = sigmoid(X * theta)
     t1 = multiply(y, log(h))
     t2 = multiply(1 - y, log(1 - h))
     cost = t1 + t2
-    return -sum(cost) / cost.size
+    m = X.shape[0]
+    return -sum(cost) / cost.size + Lambda / (2 * m) * linalg.norm(theta[1:])
 
-def linear_regression(x, y, steps=STEPS, alpha=ALPHA, Lambda=0.0):
-    m, n = x.shape
+def linear_cost(X, y, theta, Lambda = 0.0):
+    """
+    cost function of linear regression
+    """	
+    delta = X * theta - y
+    m = X.shape[0]
+    J = (linalg.norm(delta) + Lambda * linalg.norm(theta[1:])) / (2 * m)
+    return J	
+	
+def linear_regression(X, y, steps=STEPS, alpha=ALPHA, Lambda=0.0):
+    m, n = X.shape
     theta = zeros((n, 1))
     Js = [] 
+    alter = ones((theta.size,1)); alter[0] = 0	# theta0 should not be regularized
     for i in range(steps):   
-        delta = x * theta - y
-        theta = theta * (1 - alpha * Lambda / m) - (delta.T * x * alpha / m).T
-        J = (linalg.norm(delta) + linalg.norm(theta[1:]) * Lambda) / (2 * m)
-        Js.append(J)
+        delta = X * theta - y
+        theta = multiply(theta, 1 - alpha * Lambda * alter / m) - (delta.T * X * alpha / m).T
+        Js.append(linear_cost(X, y, theta))
     return theta, Js
                 
-def logistic_regression(x, y, steps=STEPS, Lambda=0.0):
+def logistic_regression(X, y, steps=STEPS, Lambda=0.0):
     """
     using Newton's method
     """
-    m, n = x.shape
+    m, n = X.shape
     theta = zeros((n, 1))
     Js = []  
     for i in range(steps):   
-        z = x * theta
+        z = X * theta
         h = sigmoid(z)
         G = theta * (1.*Lambda / m); G[0] = 0  # extra term for gradient
         L = eye(n) * (1.*Lambda / m); L[0] = 0  # extra term for Hessian
-        grad = x.T * (h - y) / m + G
-        H = x.T * x * (diag(h) * diag(1 - h) / m).item() + L
+        grad = X.T * (h - y) / m + G
+        H = X.T * X * (diag(h) * diag(1 - h) / m).item() + L
         theta -= linalg.inv(H) * grad
-        J = cost_logistic(y, h) + Lambda / (2 * m) * linalg.norm(theta[1:])
+        J = logist_cost(X, y, theta, Lambda)
         print J
         Js.append(J)
     return theta, Js
                     
-def logis_fmin(x, y):
-    def f(x, *args):
+def logis_fmin(X, y):
+    def f(X, *args):
         y, h, m = args
-        return cost_logistic(y, h)
-    def gradf(x, *args):
+        return logist_cost(y, h)
+    def gradf(X, *args):
         y, h, m = args
-        x.shape = m, x.size / m
-        grad = x.T * (h - y) / m 
+        X.shape = m, X.size / m
+        grad = X.T * (h - y) / m 
         return grad    
     from scipy import optimize
-    m, n = x.shape
+    m, n = X.shape
     theta = zeros((n, 1))
-    z = x * theta
+    z = X * theta
     h = sigmoid(z)
     args = (y, h, m)
-    res = optimize.fmin_cg(f, x, fprime=gradf, args=args)
+    res = optimize.fmin_cg(f, X, fprime=gradf, args=args)
     print res
     
-def linear_normal_equation(x, y, Lambda=0.0):
-    n = x.shape[1]
-    theta = linalg.inv(x.T * x + Lambda * diag([0] + [1, ] * (n - 1))) * x.T * y
+def linear_normal_equation(X, y, Lambda=0.0):
+    n = X.shape[1]
+    theta = linalg.inv(X.T * X + Lambda * diag([0] + [1, ] * (n - 1))) * X.T * y
     return theta
     
-def polynomial_linear(x, n=6):
+def polynomial_linear(X, n=6):
     """
     x+x^2+x^3+... => x1,x2,x3,...
     """
-    x = power(x, range(1, n))
-    return mat(concatenate((ones((x.shape[0], 1)), x), axis=1))
+    X = power(X, range(1, n))
+    return addOne(X)
 
 def map_feature(x1, x2, degree=6):
     '''
@@ -107,9 +120,7 @@ def map_feature(x1, x2, degree=6):
         for j in range(i + 1):
             r = (x1 ** (i - j)) * (x2 ** j)
             x = append(x, r, axis=1)
-    x = mat(concatenate((ones((x.shape[0], 1)), x), axis=1))
-    return x
-    
+    return addOne(x)
 
 def predict_linear(theta, test):
     return dot(test, theta).item()
@@ -123,17 +134,17 @@ def predict_logistic(theta, test, unbias=True):
     test.shape = 1, test.size
     return sigmoid(dot(test, theta)).item()
     
-def oneVsAll(x, y):
+def oneVsAll(X, y):
     """
     k-classification
     """
     steps = 10
-    Lambda = x.shape[0]
+    Lambda = X.shape[0]
     kclass = unique(y)
     thetas = []
     for k in kclass:
         yk = 1.0 * (y == k)
-        theta, Js = logistic_regression(x, yk, steps, Lambda)
+        theta, Js = logistic_regression(X, yk, steps, Lambda)
         thetas.append(theta)
     return thetas
     
