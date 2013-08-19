@@ -63,4 +63,4 @@ def nerualnetwork(X, y, Steps=400, Lambda=0.01):
     test(X, y, NNpredict, theta0, theta1)
 
 # logistic_predict(X, y)
-nerualnetwork(X, y)
+nerualnetwork(X, y, 1000)

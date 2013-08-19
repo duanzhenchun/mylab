@@ -20,7 +20,7 @@ def sigmoid(z):
     return 1.0 / (1 + exp(-z))
 
 
-def J_logistic(y, h):
+def cost_logistic(y, h):
     """
     cost function of logistic
     """
@@ -55,11 +55,28 @@ def logistic_regression(x, y, steps=STEPS, Lambda=0.0):
         grad = x.T * (h - y) / m + G
         H = x.T * x * (diag(h) * diag(1 - h) / m).item() + L
         theta -= linalg.inv(H) * grad
-        J = J_logistic(y, h) + Lambda / (2 * m) * linalg.norm(theta[1:])
+        J = cost_logistic(y, h) + Lambda / (2 * m) * linalg.norm(theta[1:])
         print J
         Js.append(J)
     return theta, Js
                     
+def logis_fmin(x, y):
+    def f(x, *args):
+        y, h, m = args
+        return cost_logistic(y, h)
+    def gradf(x, *args):
+        y, h, m = args
+        x.shape = m, x.size / m
+        grad = x.T * (h - y) / m 
+        return grad    
+    from scipy import optimize
+    m, n = x.shape
+    theta = zeros((n, 1))
+    z = x * theta
+    h = sigmoid(z)
+    args = (y, h, m)
+    res = optimize.fmin_cg(f, x, fprime=gradf, args=args)
+    print res
     
 def linear_normal_equation(x, y, Lambda=0.0):
     n = x.shape[1]
