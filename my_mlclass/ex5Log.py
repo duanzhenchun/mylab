@@ -35,8 +35,7 @@ def boundary(x, y, theta):
     for i in range(len(u)):
         for j in range(len(v)):
             z[i, j] = (map_feature(np.array(u[i]), np.array(v[j])).dot(theta))
-    z = z.T
-    plt.contour(u, v, z)
+    plt.contour(u, v, z.T)
     
     plt.legend(['y=%s' % i for i in classes] + ['Decision boundary'])
     plt.show()    

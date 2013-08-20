@@ -5,7 +5,7 @@ from util import *
 import numpy as np
 
 
-data = loadmat('/home/whille/machine.learning/Andrew.Ng/ml-class/ex3/ex3data1.mat')
+data = loadmat(DATA_FOLDER+'/ex3/ex3data1.mat')
 X, y = data['X'], data['y']
 X = addOne(X)
 

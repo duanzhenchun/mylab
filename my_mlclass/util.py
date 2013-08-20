@@ -2,6 +2,7 @@ from numpy import *
 
 STEPS = 100
 ALPHA = 0.05
+DATA_FOLDER = '/home/whille/machine.learning/Andrew.Ng/ml-class/'
 
 def load_sample(fnames, delimiter=None):
     samples = []
@@ -31,7 +32,7 @@ def logist_cost(X, y,theta, Lambda = 0.0):
     t2 = multiply(1 - y, log(1 - h))
     cost = t1 + t2
     m = X.shape[0]
-    return -sum(cost) / cost.size + Lambda / (2 * m) * linalg.norm(theta[1:])
+    return -sum(cost) / cost.size + Lambda * linalg.norm(theta[1:])**2 / (2 * m)
 
 def linear_cost(X, y, theta, Lambda = 0.0):
     """
@@ -39,7 +40,7 @@ def linear_cost(X, y, theta, Lambda = 0.0):
     """	
     delta = X * theta - y
     m = X.shape[0]
-    J = (linalg.norm(delta) + Lambda * linalg.norm(theta[1:])) / (2 * m)
+    J = (linalg.norm(delta)**2 + Lambda * linalg.norm(theta[1:])**2) / (2 * m)
     return J	
 	
 def linear_regression(X, y, steps=STEPS, alpha=ALPHA, Lambda=0.0):
@@ -157,3 +158,10 @@ def kclass_predict(test, thetas, unbias=False):
 
 def rand_Eps(m, n, eps):
     return (random.rand(m, n) * 2 - 1) * eps
+
+def rand_samples(x):
+    """
+    random arrange x, so that train and test will not be affected by x's order
+    """
+    random.shuffle(x)
+    
