@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+
+#ref: https://bitbucket.org/tebeka/ml-class/src/a03c2ba7f4d6?at=default
+
 from scipy.io import loadmat
 import matplotlib.pyplot as plt
 import numpy as np
@@ -108,20 +111,20 @@ def spam_train():
     return solve('ex6/spamTrain.mat',ftest= 'ex6/spamTest.mat')
     
     
-def test_email():
+def test_email(C=1, gamma=0.01):
     raw = loadmat(DATA_FOLDER+ 'ex6/spamTrain.mat')
-    X,y = raw['X'], raw['y']
-    C,gamma=0.1, 0.01
+    X,y = raw['X'], raw['y'].ravel()>0
     clf=svm.SVC(C=C,gamma=gamma)
-    clf.fit(X,y.ravel()>0)
-    print clf
+    clf.fit(X,y)
+    print clf.score(X,y)
     
     voc = load_voc(DATA_FOLDER+'ex6/vocab.txt')
     for ftest in ('emailSample1.txt', 'emailSample2.txt', 'spamSample1.txt','spamSample2.txt'):
         with open(DATA_FOLDER+'ex6/'+ ftest) as f:
-            txt = f.read()
-            x = vectorize(voc, txt)  
-            print ftest, clf.predict(x.reshape(1,x.size))
+            text = f.read()
+            x = vectorize(voc, text)  
+            print ftest, clf.predict(x)
+
         
 if __name__ == '__main__':
 #    solve('ex6/ex6data2.mat')
