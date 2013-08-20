@@ -42,8 +42,6 @@ def find_best(raw, **kw):
     values = [.01, .03, .1, .3, 1, 3, 10, 30]
     best, best_score = None, 0
     best_score = 0
-    def p(score, C, gamma):
-        return 'score={} C={} gamma={}'.format(score, C, gamma)
 
     for C in values:
         for gamma in values:
@@ -54,7 +52,7 @@ def find_best(raw, **kw):
             if score > best_score:
                 best, best_score = clf, score
 
-    plot(raw['X'], raw['y'], clf, title=p(score, C, gamma))
+    plot(raw['X'], raw['y'], clf, title='score=%s C=%s gamma=%s' %(score, C, gamma))
     return clf
 
 
