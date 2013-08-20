@@ -165,3 +165,20 @@ def rand_samples(x):
     """
     random.shuffle(x)
     
+    
+def shuffle_data(X, y):
+    """
+    return new data arrrays
+    """
+    data = append(X, y, axis=1)
+    random.shuffle(data)
+    X,y= split(data,(-y.shape[1],), axis=1)
+    return X,y
+
+def self_test(X,y,cutratio=0.6):    
+    cut=int(X.shape[0] * cutratio)
+    X,y=shuffle_data(X,y)
+    X, Xtest = split(X,(cut,))
+    y, ytest = split(y,(cut,)) 
+    return X,y,Xtest,ytest
+    

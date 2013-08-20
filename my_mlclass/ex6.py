@@ -1,36 +1,131 @@
-from util import *
+#!/usr/bin/env python
+
+from scipy.io import loadmat
+import matplotlib.pyplot as plt
 import numpy as np
+from sklearn import svm
+import re
+from Stemmer import Stemmer
+from util import *
 
-def cost_svm(F, y, theta, C):
-    z = F * theta
-    Zeros = zeros((z.size,1))
+stem = Stemmer('en').stemWord
+
+
+def plot(X, y, clf, title=''):
+    data = np.append(X, y, 1)
+    pos = data[data[:,2]==1]
+    neg = data[data[:,2]==0]
+    plt.scatter(pos[:,0], pos[:,1], marker='+', color='black')
+    plt.scatter(neg[:,0], neg[:,1], marker='o', facecolor='yellow')
     
-    cost1 = np.max(append(Zeros, 1-z, axis=1), axis=1)  # max(0, 1-z), hinge loss# max(0, 1-z), hinge loss
-    cost0 = np.max(append(Zeros, 1+z, axis=1), axis=1)  
-    cost = multiply(y, cost1) + multiply(1-y, cost0)
-    J = sum(cost) *C  + 0.5 * linalg.norm(theta[1:])**2
-    return J
+    plot_contour(data,clf)
+    plt.title(title)
+    plt.show()    
     
-def gaussian(x, mu, sigma):
-    return exp(-linalg.norm(x-mu)**2/(2*sigma**2))
     
-def lin_kernel(x,l):
-    return multiply(x,l)
+def plot_contour(data, clf): 
+    u = np.linspace(data[:,0].min(), data[:,0].max(), 100)
+    v = np.linspace(data[:,1].min(), data[:,1].max(), 100)
+    z = np.zeros(shape=(len(u), len(v)))
+    for i in range(len(u)):
+        for j in range(len(v)):
+            z[i, j] = clf.predict([u[i], v[j]])[0]
+    plt.contour(u, v, z.T)
+
+
+def info(score, C, gamma):
+    return 'score=%s C=%s gamma=%s' %(score, C, gamma)
         
-def kernel(X, sim=gaussian, sigma=2.0):
-    m = X.shape[0]
-    F=zeros((m,m))
-    for i in range(m):
-        F[i]=apply_along_axis(lambda x:gaussian(x,X[i],sigma),1,X)
-    return mat(F)    # m*m
+def svm_best(X,y,Xtest,ytest, params=None, **kw):
+    """
+    return best params of svm:  score, C, gamma
+    """
+    params = params or (0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30)
+    results=[]
+    for C in params:
+        for gamma in params:  # gamma= 1 / sigma
+            clf=svm.SVC(C=C,gamma=gamma, **kw)
+            clf.fit(X,y.ravel()>0)  #y to vector
+            res = clf.score(Xtest,ytest.ravel()>0), C, gamma
+            print info(*res)
+            results.append(res)  
+    return max(results)
+    
+    
+def solve(fdata, ftest=None, kernel='rbf'):
+    """
+    kernels: 'rbf', 'linear', 'poly', ... doc in svm.SVC 
+    """
+    raw = loadmat(DATA_FOLDER+ fdata)
+    X,y = raw['X'], raw['y']
+    if ftest:
+        raw = loadmat(DATA_FOLDER+ ftest)
+        Xtest,ytest = raw['Xtest'], raw['ytest']
+    else:
+        X,y,Xtest,ytest = self_test(X,y)
+    best, C, gamma = svm_best(X,y,Xtest,ytest, kernel=kernel)   
+    clf=svm.SVC(C=C,gamma=gamma,kernel=kernel)
+    clf.fit(X,y.ravel()>0)
+    print clf
+    plot(X,y,clf, title=info(best, C, gamma))
+    return clf
+    
+    
+def load_voc(fname):
+    with open(fname) as fo:
+        kv = (line.split() for line in fo)
+        return dict((v.strip(), int(k)) for k, v in kv)
 
-X=array(range(6))
-X.shape=3,2
-X=addOne(X) 
-y=array([1,0,1])
-y.shape=3,1
-C=1
-theta = ones((X.shape[0],1))*.5
-F= kernel(X)
-cost_svm(F,y, theta, C)
+
+def normailze(text):
+    text = text.lower()
+    text = re.sub('<[^<>]+>', ' ', text)
+    text = re.sub('[0-9]+', 'number', text)
+    text = re.sub('(http|https)://[^\s]*', 'httpaddr', text)
+    text = re.sub('[^\s]+@[^\s]+', 'emailaddr', text)
+    text = re.sub('\$+', 'dollar', text)
+    return text
+
+
+def tokenize(text):
+    text = normailze(text)
+    tokens = re.split(r'[ @$/#.\-:&*+=\[\]?!(){},\'">_<;%\n\r]', text)
+    tokens = (re.sub('[^a-zA-Z]', '', token) for token in tokens)
+    return (stem(token) for token in tokens if token.strip())
+
+
+def vectorize(voc, text):
+    vec = np.zeros(len(voc))
+    for token in tokenize(text):
+        i = voc.get(token, -1)
+        if i == -1:
+            continue
+        vec[i] = 1
+    return vec
+
+
+def spam_train():
+    return solve('ex6/spamTrain.mat',ftest= 'ex6/spamTest.mat')
+    
+    
+def test_email():
+    raw = loadmat(DATA_FOLDER+ 'ex6/spamTrain.mat')
+    X,y = raw['X'], raw['y']
+    C,gamma=0.1, 0.01
+    clf=svm.SVC(C=C,gamma=gamma)
+    clf.fit(X,y.ravel()>0)
+    print clf
+    
+    voc = load_voc(DATA_FOLDER+'ex6/vocab.txt')
+    for ftest in ('emailSample1.txt', 'emailSample2.txt', 'spamSample1.txt','spamSample2.txt'):
+        with open(DATA_FOLDER+'ex6/'+ ftest) as f:
+            txt = f.read()
+            x = vectorize(voc, txt)  
+            print ftest, clf.predict(x.reshape(1,x.size))
+        
+if __name__ == '__main__':
+#    solve('ex6/ex6data2.mat')
+#    solve('ex6/ex6data3.mat', 'poly')
+#    spam_train()
+    test_email()
 
