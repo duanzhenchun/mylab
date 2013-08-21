@@ -7,17 +7,15 @@ from scipy.io import loadmat
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import svm
-import re
-from Stemmer import Stemmer
+import en_vec
 from util import *
 
-stem = Stemmer('en').stemWord
 
 
 def plot(X, y, clf, title=''):
     data = np.append(X, y, 1)
-    pos = data[data[:,2]==1]
-    neg = data[data[:,2]==0]
+    pos = data[data[:,-1]==1]
+    neg = data[data[:,-1]==0]
     plt.scatter(pos[:,0], pos[:,1], marker='+', color='black')
     plt.scatter(neg[:,0], neg[:,1], marker='o', facecolor='yellow')
     
@@ -73,39 +71,6 @@ def solve(fdata, ftest=None, kernel='rbf'):
     plot(X,y,clf, title=info(best, C, gamma))
     return clf
     
-    
-def load_voc(fname):
-    with open(fname) as fo:
-        kv = (line.split() for line in fo)
-        return dict((v.strip(), int(k)) for k, v in kv)
-
-
-def normailze(text):
-    text = text.lower()
-    text = re.sub('<[^<>]+>', ' ', text)
-    text = re.sub('[0-9]+', 'number', text)
-    text = re.sub('(http|https)://[^\s]*', 'httpaddr', text)
-    text = re.sub('[^\s]+@[^\s]+', 'emailaddr', text)
-    text = re.sub('\$+', 'dollar', text)
-    return text
-
-
-def tokenize(text):
-    text = normailze(text)
-    tokens = re.split(r'[ @$/#.\-:&*+=\[\]?!(){},\'">_<;%\n\r]', text)
-    tokens = (re.sub('[^a-zA-Z]', '', token) for token in tokens)
-    return (stem(token) for token in tokens if token.strip())
-
-
-def vectorize(voc, text):
-    vec = np.zeros(len(voc))
-    for token in tokenize(text):
-        i = voc.get(token, -1)
-        if i == -1:
-            continue
-        vec[i] = 1
-    return vec
-
 
 def spam_train():
     return solve('ex6/spamTrain.mat',ftest= 'ex6/spamTest.mat')
@@ -113,18 +78,17 @@ def spam_train():
     
 def test_email(C=1, gamma=0.01):
     raw = loadmat(DATA_FOLDER+ 'ex6/spamTrain.mat')
-    X,y = raw['X'], raw['y'].ravel()>0
+    X,y = raw['X'], raw['y']
     clf=svm.SVC(C=C,gamma=gamma)
-    clf.fit(X,y)
-    print clf.score(X,y)
-    
-    voc = load_voc(DATA_FOLDER+'ex6/vocab.txt')
+    clf.fit(X,y.ravel()>0)
+    score=clf.score(X,y.ravel()>0)
+    print score
+    voc = en_vec.load_voc(DATA_FOLDER+'ex6/vocab.txt')
     for ftest in ('emailSample1.txt', 'emailSample2.txt', 'spamSample1.txt','spamSample2.txt'):
         with open(DATA_FOLDER+'ex6/'+ ftest) as f:
             text = f.read()
-            x = vectorize(voc, text)  
+            x = en_vec.vectorize(voc, text)  
             print ftest, clf.predict(x)
-
         
 if __name__ == '__main__':
 #    solve('ex6/ex6data2.mat')
