@@ -5,8 +5,15 @@ from util import *
 import numpy as np
 
 
-data = loadmat(DATA_FOLDER+'/ex3/ex3data1.mat')
+data = loadmat('ex3/ex3data1.mat')
 X, y = data['X'], data['y']
+
+from pca import *
+from sklearn.preprocessing import scale
+X = scale(X)
+#weired, libPCA is slow in choosing K
+#k, Z, Xt = libPCA(X) 
+k, Z, Xt = myPCA(X) 
 X = addOne(X)
 
 def logistic_predict(X, y):
@@ -66,4 +73,4 @@ def neuralnetwork(X, y, Steps=400, Lambda=0.01):
 
 # logistic_predict(X, y)
 # given 4000 steps, accuracy reached nearly 100%
-neuralnetwork(X, y, 4000)
+neuralnetwork(X, y, 400)

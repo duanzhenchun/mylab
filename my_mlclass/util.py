@@ -2,7 +2,7 @@ from numpy import *
 
 STEPS = 100
 ALPHA = 0.05
-DATA_FOLDER = '/home/whille/machine.learning/Andrew.Ng/ml-class/'
+
 
 def load_sample(fnames, delimiter=None):
     samples = []
@@ -17,6 +17,8 @@ def addOne(X):
 def z_scale(X):
     mns = mean(X, axis=0)
     sstd = std(X, axis=0)
+    print X.shape
+    raw_input('w')
     return (X - mns) / sstd, mns, sstd
     
 def sigmoid(z):

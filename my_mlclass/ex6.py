@@ -11,7 +11,6 @@ import en_vec
 from util import *
 
 
-
 def plot(X, y, clf, title=''):
     data = np.append(X, y, 1)
     pos = data[data[:,-1]==1]
@@ -57,10 +56,10 @@ def solve(fdata, ftest=None, kernel='rbf'):
     """
     kernels: 'rbf', 'linear', 'poly', ... doc in svm.SVC 
     """
-    raw = loadmat(DATA_FOLDER+ fdata)
+    raw = loadmat(fdata)
     X,y = raw['X'], raw['y']
     if ftest:
-        raw = loadmat(DATA_FOLDER+ ftest)
+        raw = loadmat(ftest)
         Xtest,ytest = raw['Xtest'], raw['ytest']
     else:
         X,y,Xtest,ytest = self_test(X,y)
@@ -77,15 +76,15 @@ def spam_train():
     
     
 def test_email(C=1, gamma=0.01):
-    raw = loadmat(DATA_FOLDER+ 'ex6/spamTrain.mat')
+    raw = loadmat('ex6/spamTrain.mat')
     X,y = raw['X'], raw['y']
     clf=svm.SVC(C=C,gamma=gamma)
     clf.fit(X,y.ravel()>0)
     score=clf.score(X,y.ravel()>0)
     print score
-    voc = en_vec.load_voc(DATA_FOLDER+'ex6/vocab.txt')
+    voc = en_vec.load_voc('ex6/vocab.txt')
     for ftest in ('emailSample1.txt', 'emailSample2.txt', 'spamSample1.txt','spamSample2.txt'):
-        with open(DATA_FOLDER+'ex6/'+ ftest) as f:
+        with open('ex6/'+ ftest) as f:
             text = f.read()
             x = en_vec.vectorize(voc, text)  
             print ftest, clf.predict(x)
