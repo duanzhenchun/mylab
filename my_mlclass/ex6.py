@@ -18,21 +18,10 @@ def plot(X, y, clf, title=''):
     plt.scatter(pos[:,0], pos[:,1], marker='+', color='black')
     plt.scatter(neg[:,0], neg[:,1], marker='o', facecolor='yellow')
     
-    plot_contour(data,clf)
+    plt.contour(*calc_contour(data, clf.predict))
     plt.title(title)
     plt.show()    
     
-    
-def plot_contour(data, clf): 
-    u = np.linspace(data[:,0].min(), data[:,0].max(), 100)
-    v = np.linspace(data[:,1].min(), data[:,1].max(), 100)
-    z = np.zeros(shape=(len(u), len(v)))
-    for i in range(len(u)):
-        for j in range(len(v)):
-            z[i, j] = clf.predict([u[i], v[j]])[0]
-    plt.contour(u, v, z.T)
-
-
 def info(score, C, gamma):
     return 'score=%s C=%s gamma=%s' %(score, C, gamma)
         
@@ -90,8 +79,8 @@ def test_email(C=1, gamma=0.01):
             print ftest, clf.predict(x)
         
 if __name__ == '__main__':
-#    solve('ex6/ex6data2.mat')
+    solve('ex6/ex6data2.mat')
 #    solve('ex6/ex6data3.mat', 'poly')
 #    spam_train()
-    test_email()
+#    test_email()
 

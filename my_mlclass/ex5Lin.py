@@ -38,7 +38,7 @@ def plot_fitting(theta):
     x0 = np.arange(-1,1,0.05)
     x0.shape = x0.size,1
     x = polynomial_linear(x0)
-    y= x * theta
+    y= x.dot(theta)
     plt.plot(x0,y,'--')
 
 
