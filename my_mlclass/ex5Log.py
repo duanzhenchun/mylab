@@ -1,25 +1,19 @@
-import numpy as np
 import matplotlib.pylab as plt
 from util import *
 
     
 def main():   
-    X0 = np.loadtxt('ex5Logx.dat', delimiter=',')
-    y = np.loadtxt('ex5Logy.dat', delimiter=',')
+    X0 = np.loadtxt('ex/ex5Logx.dat', delimiter=',')
+    y = np.loadtxt('ex/ex5Logy.dat', delimiter=',')
     X = prepare(X0)
-    MAX_ITR = 7
     Lambda = 5 
-    theta, Js = logistic_regression(X,y,MAX_ITR, Lambda)
-    print theta
+    res = logistical_min(X, y, Lambda)
+    theta=res.x
     test=X0[-1]
     test.shape=1, test.size
     test = prepare(test)
     print predict_logistic(theta, test, False)
     
-    plt.plot(Js)
-    plt.xlabel('iterations')
-    plt.ylabel('cost: J')
-    plt.show()
     boundary(X0, y, theta)
 
 def boundary(X, y, theta):

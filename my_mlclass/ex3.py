@@ -3,8 +3,8 @@ import matplotlib.pylab as plt
 from util import *
 
 def main():   
-    X = np.loadtxt('ex3x.dat')
-    y = np.loadtxt('ex3y.dat')
+    X = np.loadtxt('ex/ex3x.dat')
+    y = np.loadtxt('ex/ex3y.dat')
     y.shape = y.size,1
     
     X,mns,sstd = z_scale(X)

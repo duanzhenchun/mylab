@@ -78,15 +78,14 @@ def logistic_regression(X, y0, steps=STEPS, Lambda=0.0):
     return theta, Js
                     
                     
-def logis_fmin(X, y, Lambda=0.0):
+def logistical_min(X, y, Lambda=0.0):
     def costJ(theta, X,y,m):
-        J= logist_cost(X, y, theta)
-        return J
+        return logist_cost(X, y, theta)
     
     def derivative(theta, X,y,m, Lambda):
         h = logist_h(X, theta)
-        G = theta * (1.*Lambda / m); G[0] = 0  # extra term for gradient
-        grad = X.T.dot(h - y).flatten() / m + G
+        G = theta * (float(Lambda) / m); G[0] = 0  # extra term for gradient
+        grad = X.T.dot(h-y).flatten() / m + G
         return grad
              
     def hessian(theta, X, Lambda):
@@ -96,12 +95,13 @@ def logis_fmin(X, y, Lambda=0.0):
         return H
             
     from scipy import optimize
-    X=np.array(X)
     m, n = X.shape
+    y.shape = y.size,1
     res = optimize.minimize(lambda t: costJ(t, X,y,m), np.zeros(n), 
                 method='Newton-CG',
                 jac=lambda t: derivative(t, X,y,m, Lambda),
-                hess=lambda t: hessian(t, X, Lambda))
+                hess=lambda t: hessian(t, X, Lambda),
+                options={'disp': True})
     return res
 
     

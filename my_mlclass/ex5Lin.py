@@ -3,8 +3,8 @@ import matplotlib.pylab as plt
 from util import *
 
 def main():   
-    x0 = np.loadtxt('ex5Linx.dat')
-    y = np.loadtxt('ex5Liny.dat')
+    x0 = np.loadtxt('ex/ex5Linx.dat')
+    y = np.loadtxt('ex/ex5Liny.dat')
     x0.shape=x0.size,1
     y.shape = y.size,1
     

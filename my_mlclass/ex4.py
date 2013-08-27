@@ -4,8 +4,8 @@ from util import *
 
 
 def main():   
-    x0 = np.loadtxt('ex4x.dat')
-    y0 = np.loadtxt('ex4y.dat')
+    x0 = np.loadtxt('ex/ex4x.dat')
+    y0 = np.loadtxt('ex/ex4y.dat')
     y0.shape = y0.size,1
     
     train_errs, cv_errs = [], []    
@@ -15,7 +15,7 @@ def main():
         y, y_cv = np.split(y0, (t,))
         X = addOne(X)
         X_cv = addOne(X_cv)
-        res = logis_fmin(X,y)
+        res = logistical_min(X,y)
 #         theta, Js = logistic_regression(X, y, 4)
         theta = res.x
         train_errs.append(res.fun)
