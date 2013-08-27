@@ -4,7 +4,10 @@ from util import *
 
 
 def main():   
-    x0, y0 = load_sample(('ex4x.dat', 'ex4y.dat'))
+    x0 = np.loadtxt('ex4x.dat')
+    y0 = np.loadtxt('ex4y.dat')
+    y0.shape = y0.size,1
+    
     train_errs, cv_errs = [], []    
     ts = np.dot(x0.shape[0] / 8, range(1, 8)).tolist()
     for t in ts:

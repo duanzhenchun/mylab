@@ -3,7 +3,11 @@ import matplotlib.pylab as plt
 from util import *
 
 def main():   
-    x0,y = load_sample(('ex5Linx.dat', 'ex5Liny.dat'))
+    x0 = np.loadtxt('ex5Linx.dat')
+    y = np.loadtxt('ex5Liny.dat')
+    x0.shape=x0.size,1
+    y.shape = y.size,1
+    
     plt.scatter(x0,y)
     x = polynomial_linear(x0)
 #    x,mns,sstd = z_scale(x)

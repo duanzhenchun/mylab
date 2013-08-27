@@ -4,7 +4,8 @@ from util import *
 
     
 def main():   
-    X0, y = load_sample(('ex5Logx.dat', 'ex5Logy.dat'), ',')
+    X0 = np.loadtxt('ex5Logx.dat', delimiter=',')
+    y = np.loadtxt('ex5Logy.dat', delimiter=',')
     X = prepare(X0)
     MAX_ITR = 7
     Lambda = 5 

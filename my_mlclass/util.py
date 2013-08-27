@@ -58,11 +58,12 @@ def linear_regression(X, y, steps=STEPS, alpha=ALPHA, Lambda=0.0):
         Js.append(linear_cost(X, y, theta))
     return theta, Js
                 
-def logistic_regression(X, y, steps=STEPS, Lambda=0.0):
+def logistic_regression(X, y0, steps=STEPS, Lambda=0.0):
     """
     using Newton's method
     """
     m, n = X.shape
+    y=y0.reshape(y0.size,1)
     theta = np.zeros((n, 1))
     Js = []  
     for _ in range(steps):   

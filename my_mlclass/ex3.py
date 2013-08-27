@@ -3,7 +3,10 @@ import matplotlib.pylab as plt
 from util import *
 
 def main():   
-    X,y = load_sample(('ex3x.dat', 'ex3y.dat'))
+    X = np.loadtxt('ex3x.dat')
+    y = np.loadtxt('ex3y.dat')
+    y.shape = y.size,1
+    
     X,mns,sstd = z_scale(X)
     X=addOne(X)
     alphas = [0.01, 0.03, 0.1, 0.3, 1, 1.3];    # if alpha >=1.3, no convergence result
