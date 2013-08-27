@@ -79,8 +79,8 @@ def logistic_regression(X, y0, steps=STEPS, Lambda=0.0):
                     
                     
 def logistical_min(X, y, Lambda=0.0):
-    def costJ(theta, X,y,m):
-        return logist_cost(X, y, theta)
+    def costJ(theta, X,y,m, Lambda):
+        return logist_cost(X, y, theta,Lambda)
     
     def derivative(theta, X,y,m, Lambda):
         h = logist_h(X, theta)
@@ -97,7 +97,7 @@ def logistical_min(X, y, Lambda=0.0):
     from scipy import optimize
     m, n = X.shape
     y.shape = y.size,1
-    res = optimize.minimize(lambda t: costJ(t, X,y,m), np.zeros(n), 
+    res = optimize.minimize(lambda t: costJ(t, X,y,m, Lambda), np.zeros(n), 
                 method='Newton-CG',
                 jac=lambda t: derivative(t, X,y,m, Lambda),
                 hess=lambda t: hessian(t, X, Lambda),

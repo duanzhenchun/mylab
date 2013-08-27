@@ -60,37 +60,35 @@ def neuralnetwork(X, y, Steps=400, Lambda=0.01):
     theta1 = rand_Eps(s2, s1, epsilon)  # 10 *  26    
         
     A0 = X  # 5000,401
-    res = nn_min(X,Y,theta0,theta1,Lambda)
-    return 
+    #theta0,theta1 = loop(A0,Y,theta0,theta1,Lambda,Steps)
+    res = nn_min(X,Y,theta0,theta1,Lambda=1)
+    print res.fun
+    theta0,theta1=reshape(res.x, A0,Y)
+    test(X, y, nnpredict, theta0, theta1)
+
+def reshape(Theta,A0,Y):
+    m,n=A0.shape
+    t = n + Y.shape[1]
+    theta0,theta1=np.vsplit(Theta.reshape(t,Theta.size/t),(n,)) 
+    theta0=theta0.T
+    return theta0, theta1
+
+def loop(A0,Y,theta0,theta1,Lambda, Steps):
+    m,n=A0.shape
     for _ in xrange(Steps):
         A1, A2 = nnforward(A0, theta0, theta1)
         delta2 = A2 - Y  #  5000 * 10  
         delta1 = np.multiply(delta2.dot(theta1), np.multiply(A1, 1.0 - A1))  # 5000 * 26 
-    
         print _, abs(delta2).sum()
         
         D1 = (delta2.T.dot(A1) + Lambda * theta1) / m  # save as theta1
         D0 = (delta1.T.dot(A0) + Lambda * theta0) / m 
         theta1 -= D1  
         theta0 -= D0 
-    test(X, y, nnpredict, theta0, theta1)
+    return theta0,theta1
 
 def nn_min(X,Y, theta0, theta1, Lambda):
-    def reshape(Theta,A0,Y):
-        m,n=A0.shape
-        t = n + Y.shape[1]
-        theta0,theta1=np.vsplit(Theta.reshape(t,Theta.size/t),(n,)) 
-        theta0=theta0.T
-        return theta0, theta1
-    
-    def costJ(Theta, A0, Y):
-        theta0,theta1 = reshape(Theta,A0,Y)
-        A1, A2 = nnforward(A0, theta0, theta1)
-        delta2 = A2 - Y  #  5000 * 10  
-        J= abs(delta2).sum()
-        return J
-
-    def derivative(Theta, A0, Y, Lambda):
+    def costJ(Theta, A0, Y,Lambda):
         m,n=A0.shape
         theta0,theta1 = reshape(Theta,A0,Y)
         A1, A2 = nnforward(A0, theta0, theta1)
@@ -98,18 +96,18 @@ def nn_min(X,Y, theta0, theta1, Lambda):
         delta1 = np.multiply(delta2.dot(theta1), np.multiply(A1, 1.0 - A1))  # 5000 * 26 
         D1 = (delta2.T.dot(A1) + Lambda * theta1) / m  # save as theta1
         D0 = (delta1.T.dot(A0) + Lambda * theta0) / m 
-        return np.vstack((D0.T, D1)).flatten() 
+        J= abs(delta2).sum()
+        return J, np.vstack((D0.T, D1)).flatten() 
     
     # merge thetas
-    Theta = np.vstack((theta0.T, theta1)).flatten()
-    print Theta.shape
+    Theta0 = np.vstack((theta0.T, theta1)).flatten()
     from scipy import optimize
-    res = optimize.minimize(lambda t: costJ(t,X,Y), Theta, 
+    res = optimize.minimize(lambda t: costJ(t,X,Y,Lambda), Theta0, 
                 method='CG',
-                jac=lambda t: derivative(t,X,Y,Lambda),
-                options={'disp': True})
+                jac=True, #lambda t: derivative(t,X,Y,Lambda),
+                options={'maxiter':100, 'disp': True})
     return res
     
 # logistic_predict(X, y)
 # given 4000 steps, accuracy reached nearly 100%
-neuralnetwork(X, y, 400)
+neuralnetwork(X, y, 50)
