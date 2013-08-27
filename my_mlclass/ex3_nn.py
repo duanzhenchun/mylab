@@ -32,8 +32,8 @@ def test(X, y, func, *args):
     print 'accuracy: %.2f' % (1.0 * nright / ntest)
 
 def nnforward(A0, theta0, theta1):
-    A1 = sigmoid(A0 * theta0.T)  # 5000 * 26 
-    A2 = sigmoid(A1 * theta1.T)  # 5000 * 10,  h = A2
+    A1 = sigmoid(A0.dot(theta0.T))  # 5000 * 26 
+    A2 = sigmoid(A1.dot(theta1.T))  # 5000 * 10,  h = A2
     return A1, A2
 
 def nnpredict(x, theta0, theta1):
@@ -61,12 +61,12 @@ def neuralnetwork(X, y, Steps=400, Lambda=0.01):
     for _ in xrange(Steps):
         A1, A2 = nnforward(A0, theta0, theta1)
         delta2 = A2 - Y  #  5000 * 10  
-        delta1 = np.multiply(delta2 * theta1, np.multiply(A1, 1.0 - A1))  # 5000 * 26 
+        delta1 = np.multiply(delta2.dot(theta1), np.multiply(A1, 1.0 - A1))  # 5000 * 26 
     
         print _, abs(delta2).sum()
         
-        D1 = (delta2.T * A1 + Lambda * theta1) / m  # save as theta1
-        D0 = (delta1.T * A0 + Lambda * theta0) / m 
+        D1 = (delta2.T.dot(A1) + Lambda * theta1) / m  # save as theta1
+        D0 = (delta1.T.dot(A0) + Lambda * theta0) / m 
         theta1 -= D1  
         theta0 -= D0 
     test(X, y, nnpredict, theta0, theta1)
