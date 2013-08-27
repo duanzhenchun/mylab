@@ -101,8 +101,7 @@ def logis_fmin(X, y, Lambda=0.0):
     res = optimize.minimize(lambda t: costJ(t, X,y,m), np.zeros(n), 
                 method='Newton-CG',
                 jac=lambda t: derivative(t, X,y,m, Lambda),
-                hess=lambda t: hessian(t, X, Lambda),
-                options={'disp': True})
+                hess=lambda t: hessian(t, X, Lambda))
     return res
 
     
