@@ -13,13 +13,21 @@ def GS(V):
             U[:,i] -= proj(U[:,j], V[:,i])
     # normalize column
     den=(U**2).sum(axis=0) **0.5
-    return U/den
- 
+    E = U/den
+    # assert np.allclose(E.T, np.linalg.inv(E))
+    return E
+    
 def test():
     V = np.array([[1.0, 1, 1], [1, 0, 2], [1, 0, 0]]).T
     V2=np.copy(V)
     V2[:,2]=[0,1,0]
     E, E2 = GS(V), GS(V2)
-    print E
-    print E2
+    print E, '\n', E2
     # see E[:,2] and E2[:,2] are in same line
+    
+    # QR decomposition
+    print np.linalg.qr(V)
+    print np.dot(E.T, V)
+    
+if __name__ == '__main__':
+    test()
