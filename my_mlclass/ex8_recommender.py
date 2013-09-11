@@ -49,7 +49,7 @@ def movie_recommend(fname, n, MIter, Lambda):
     
     p = X.dot(Theta.T)
     print 'err:  ', ((Y[idx]-p[idx])**2).sum()
-    predict = recommend(Ymean)
+    predict = recommend(meanY(p,np.ones((nm,nu),dtype=np.int)))
     
     movieList = loadMovieList()
     ix = sorted(enumerate(predict),key=lambda x:x[1],reverse=True)
