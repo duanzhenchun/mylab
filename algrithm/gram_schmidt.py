@@ -23,7 +23,7 @@ def test():
     V2[:,2]=[0,1,0]
     E, E2 = GS(V), GS(V2)
     print E, '\n', E2
-    # see E[:,2] and E2[:,2] are in same line
+    # see E[:,2] and E2[:,2] are parallel
     
     # QR decomposition
     print np.linalg.qr(V)

@@ -11,8 +11,7 @@ def loaddata(fname, Ylabels):
     startrow=2
     sh1 = data.sheets()[1]
     head = sh1.row_values(0)
-    start = 'Not Campaign'
-    end = 'Video'
+    start,end = 'Not Campaign','Video'
     missingrow=set()
     res = []
     for i in range(head.index(start), head.index(end) + 1):
