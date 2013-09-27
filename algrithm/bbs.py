@@ -101,12 +101,10 @@ def logout(tn):
 def loop(passwd, maxIter=2):
     last = None
     try:
-        with codecs.open(LASTFILE, encoding='utf-8') as f:
-            f.seek(0, 2)
-            leng = f.tell()
-            start = leng > 1024 and 1024 or leng
-            f.seek(-start, 2)
-            last = f.readlines()[-1].strip()
+        with codecs.open(LASTFILE) as f:
+            f.seek(-1024, 2)
+            txt=f.readlines()[-1].decode('utf-8')
+            last = txt.strip()
             logging.info('last: '+last)
             f.close()
     except IOError:
