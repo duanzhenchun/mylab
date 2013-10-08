@@ -8,12 +8,13 @@ import sys
 import logging
 sys.stdout = codecs.lookup('utf-8')[-1](sys.stdout)
 
-target = u'(\d+) .+?(\S*[转出].+卡.*)\n'
+TARGET = u'(\d+) .+?(\S*[转出].+卡.*)\n'
+FALSE_TARGET = (u'迪卡侬', u']卡', u'卡西欧')
 RECEIVERS = ('meng3r@qq.com', 'whille@163.com')
 # RECEIVERS = ('whille@163.com',)
 RET = "\r"
 PAGEUP = '\x1b[5~'
-LISTS_TIMEBREAK = 30
+LISTS_TIMEBREAK = 10
 LASTFILE = './last.log'
 LINE_END = u'\x1b[K'
 
@@ -26,14 +27,13 @@ def init_log():
     logger.addHandler(hdlr) 
     logger.setLevel(logging.INFO)
 
-def loginBBS(passwd):
-    user = "whille"
+def loginBBS(uname, passwd):
     tn = telnetlib.Telnet("bbs.newsmth.net")
     tn.read_until("请输入代号:")
-    tn.write(user + RET)
+    tn.write(uname + RET)
     tn.read_until("请输入密码:")
     tn.write(passwd + RET)
-    for i in range(4):  # according to login parameter set i (I)
+    for _ in range(4):  # according to login parameter set i (I)
         tn.write(RET)
     time.sleep(3)
     tn.read_until("S) 选择阅读讨论区")
@@ -70,8 +70,12 @@ def readBoard(tn, last, first, board='SecondMarket'):
     return newlast
 
 def search(txt):
-    for i in re.findall(target, txt):
-        yield i[0], i[1].strip(LINE_END)
+    for i in re.findall(TARGET, txt):
+        title = i[1].strip(LINE_END)
+        for j in FALSE_TARGET:
+            if j in title:
+                continue
+        yield i[0], title
 
 def mail2(tn):
     for rec in RECEIVERS:
@@ -79,7 +83,7 @@ def mail2(tn):
         tn.read_until("转寄给:")
         tn.write(rec)
         tn.write(RET)
-        for i in range(8):
+        for _ in range(8):
             tmp = tn.read_eager()
             time.sleep(3)
             tn.write(RET)
@@ -88,7 +92,7 @@ def mail2(tn):
         tn.read_eager()
 
 def logout(tn):
-    for i in range(3):
+    for _ in range(3):
         tn.write("e")
     tn.read_until("G) 离开水木")
     tn.write("g" + RET)
@@ -98,7 +102,7 @@ def logout(tn):
     tn.read_all
     tn.close()
 
-def loop(passwd, maxIter=2):
+def loop(uname, passwd, maxIter=3):
     last = None
     try:
         with codecs.open(LASTFILE) as f:
@@ -109,7 +113,7 @@ def loop(passwd, maxIter=2):
             f.close()
     except IOError:
         pass
-    tn = loginBBS(passwd)
+    tn = loginBBS(uname, passwd)
     first = True
     for _ in range(maxIter):
         newlast = readBoard(tn, last, first)
@@ -129,6 +133,6 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.exit("""
 Usage:
-    %s bbs_pwd  """ % sys.argv[0])
+    %s user, pwd  """ % sys.argv[0])
     init_log()
-    loop(sys.argv[1])
+    loop(sys.argv[1],sys.argv[2])
