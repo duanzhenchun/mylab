@@ -7,18 +7,18 @@ import urllib
 # Define the class that will parse the suggestion XML
 class PullSuggestions(SGMLParser):
 
-   def reset(self):
-      SGMLParser.reset(self)
-      self.suggestions = []
-      self.queries = []
+    def reset(self):
+        SGMLParser.reset(self)
+        self.suggestions = []
+        self.queries = []
 
-   def start_suggestion(self, attrs):
-      for a in attrs:
-         if a[0] == 'data': self.suggestions.append(a[1])
+    def start_suggestion(self, attrs):
+        for a in attrs:
+            if a[0] == 'data': self.suggestions.append(a[1])
 
-   def start_num_queries(self, attrs):
-      for a in attrs:
-         if a[0] == 'int': self.queries.append(a[1])
+    def start_num_queries(self, attrs):
+        for a in attrs:
+            if a[0] == 'int': self.queries.append(a[1])
 
 def read_q(q):
     query = urllib.urlencode({'q' : q})
@@ -29,12 +29,12 @@ def read_q(q):
     parser.close()
 
     for i in parser.suggestions:
-       print i.decode('gbk')
+        print i.decode('gbk')
    
 if __name__ == '__main__':
     import sys
-    if len(sys.argv) >1:
-        q= sys.argv[1]
+    if len(sys.argv) > 1:
+        q = sys.argv[1]
     else:
-        q='mengge'
+        q = 'mengge'
     read_q(q)

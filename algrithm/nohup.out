@@ -1,133 +1,0 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-2706
-[K
-[whille@163.com]:[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K
-[K[2B[K[4;19HÈ·¶¨½«ÎÄÕÂ¼Ä¸ø meng3r@qq.com Âğ? (Y/N) [Y]:[K [3A·¢ĞÅÈË: tx6968 (tx6968), ĞÅÇø: SecondMarket[K
-±ê  Ìâ: [×ªÈÃ]°®ÒåĞĞÏ´³µ¿¨44´Î£¬400×ª[K
-·¢ĞÅÕ¾: Ë®Ä¾ÉçÇø (Mon Jul  8 09:07:32 2013), Õ¾ÄÚ[K
-[K
-[1;32mÎïÆ·Ãû³Æ:[K
-[m°®ÒåĞĞÏ´³µ¿¨44´Î£¬400×ª[K[2B[1;32mÎïÆ·ÃèÊö:[K
-[m°®ÒåĞĞÏ´³µ¿¨44´Î£¬ÓĞĞ§ÆÚµ½2014Äê4ÔÂÖĞÑ®[K[2B[1;32m¼Û¸ñ:[K[3B[32mÁªÏµ·½Ê½:[K
-[mÕ¾ÄÚÁªÏµ[K[2B[1;32m½»Ò×µØµã:[K[3B[32mÆäËû:[K[4B[32;44mÏÂÃæ»¹ÓĞà¸ (88%) µÚ(1-23)ĞĞ [33m| g Ìø×ª | l n ÉÏÏÂÆª | / ? ËÑË÷ | s e ¿ªÍ·Ä©Î²|[K
-Traceback (most recent call last):
-  File "bbs.py", line 108, in <module>
-    loop()
-  File "bbs.py", line 100, in loop
-    new = readBoard(tn, last, first)
-  File "bbs.py", line 41, in readBoard
-    tn.read_until("Ò»°ãÄ£Ê½] ")
-  File "/usr/lib/python2.7/telnetlib.py", line 293, in read_until
-    return self._read_until_with_poll(match, timeout)
-  File "/usr/lib/python2.7/telnetlib.py", line 340, in _read_until_with_poll
-    return self.read_very_lazy()
-  File "/usr/lib/python2.7/telnetlib.py", line 452, in read_very_lazy
-    raise EOFError, 'telnet connection closed'
-EOFError: telnet connection closed

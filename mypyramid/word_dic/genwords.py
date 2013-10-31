@@ -108,11 +108,6 @@ def gen_whole(ppath, maxwlen=MAX_WORD_LEN):
     save_wdic(dic_1w, ppath + os.sep + '1w' + str(BLOCK_UNIT), sortv_iter)
 
 
-def show_result(path):
-    out = rela_name(path)
-    stats(path, out, sortv_iter)
-
-
 def test_out(ppath='./data2/'):
     g_dic = set([unicode(x.rstrip(), 'utf-8') for x in file("/home/whille/my_env/src/mywordsegment/worddic/main.dic") ])
     print len(g_dic)

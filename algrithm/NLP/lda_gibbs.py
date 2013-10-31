@@ -33,12 +33,12 @@ def log_multi_beta(alpha, K=None):
         return K * gammaln(alpha) - gammaln(K * alpha)
 
 class LDA(object):
-    def __init__(self, docs, topics_guess, alpha=.1, beta=0.01):
+    def __init__(self, docs, topics_guess):
         self.docs = docs
         self.M, self.V = self.docs.shape
         self.K = topics_guess
-        self.alpha = alpha
-        self.beta = beta
+        self.alpha = 1.0 / self.K
+        self.beta = 1.0 / self.V
         self.nmz = np.zeros((self.M, self.K))  # n( document m and topic z)
         self.nzw = np.zeros((self.K, self.V))  # n(topic z and word w)
         self.topics = {}
@@ -177,7 +177,7 @@ if __name__ == "__main__":
     width = N_TOPICS / 2
     vocab_size = width ** 2
     docs = gen_docs(N_TOPICS, vocab_size, DOC_NUM)
-    lda = LDA(docs, N_TOPICS, 50.0 / N_TOPICS, 1.0 / vocab_size)
+    lda = LDA(docs, N_TOPICS)
 
     for it, phi in enumerate(lda.train_gibbs()):
         print lda.loglikelihood()
