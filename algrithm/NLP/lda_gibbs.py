@@ -53,7 +53,7 @@ class LDA(object):
         left = (self.nzw[:, w] + self.beta) / \
                (self.nzw.sum(axis=1) + self.beta * self.V)
         right = (self.nmz[m, :] + self.alpha) / \
-                (self.nmz.sum(axis=0) + self.alpha * self.K)
+                (self.nmz.sum(axis=0) + self.alpha * self.K - 1)
         p_zi = left * right
         p_zi /= np.sum(p_zi)  # normalize to obtain probabilities
         return p_zi
@@ -73,10 +73,19 @@ class LDA(object):
         return lik
 
     def phi(self):
-        p_wz = self.nzw + self.beta
-        p_wz /= np.sum(p_wz, axis=1)[:, np.newaxis]
-        return p_wz
+        """
+        P(w|z)
+        """
+        self.p_zw = self.nzw + self.beta
+        self.p_zw /= np.sum(self.p_zw, axis=1)[:, np.newaxis]
+        return self.p_zw
 
+    def predict(self):
+        """
+        P(z|w), for all w in V
+        """
+        return self.nzw.argmax(axis=0)
+    
     def train_gibbs(self, maxiter=30):
         ms = range(self.M)
         for _ in xrange(maxiter):
@@ -125,21 +134,19 @@ if __name__ == "__main__":
         # imsave scales pixels between 0 and 255 automatically
         scipy.misc.imsave(filename, np.kron(doc, zoom))
 
-    def ini_phi(n_topics, doc_len):
+    def ini_phi(K, doc_len):
         """
-        Generate a word distribution for each of the n_topics.
+        Generate a word distribution for each of the K.
         """
-        width = n_topics / 2
-        vocab_size = width ** 2
-        phi = np.zeros((n_topics, vocab_size))
+        width = K / 2
+        V = width ** 2
+        Phi = np.zeros((K, V))
+        for k in range(K):
+            Phi[k, :] = gen_topic(width, k, doc_len)
+        Phi /= Phi.sum(axis=1)[:, np.newaxis]  # turn counts into probabilities
+        return Phi
 
-        for k in range(n_topics):
-            phi[k, :] = gen_topic(width, k, doc_len)
-
-        phi /= phi.sum(axis=1)[:, np.newaxis]  # turn counts into probabilities
-        return phi
-
-    def gen_doc(Phi, n_topics, vocab_size, doc_len, alpha=0.1):
+    def gen_doc(Phi, K, V, doc_len):
         """
         Generate a document:
             1) Sample topic proportions from the Dirichlet distribution.
@@ -151,23 +158,24 @@ if __name__ == "__main__":
         return :
             vector of lengh V, recording each v's count, sequence of words in doc is neglected 
         """
-        theta = np.random.mtrand.dirichlet([alpha] * n_topics)
-        v = np.zeros(vocab_size)
+        alpha = 1.0 / K
+        theta = np.random.mtrand.dirichlet([alpha] * K)
+        v = np.zeros(V)
         for _ in xrange(doc_len):
             z = sample_index(theta)
             w = sample_index(Phi[z, :])
             v[w] += 1
         return v
 
-    def gen_docs(n_topics, vocab_size, n):
+    def gen_docs(K, V, n):
         """
         Generate a document-term matrix.
         """
-        phi = ini_phi(N_TOPICS, AVE_DOC_LEN)
-        docs = np.zeros((n, vocab_size), dtype=int)
+        Phi = ini_phi(N_TOPICS, AVE_DOC_LEN)
+        docs = np.zeros((n, V), dtype=int)
         doclens = np.random.poisson(AVE_DOC_LEN, n)
         for i in xrange(n):
-            docs[i, :] = gen_doc(phi, n_topics, vocab_size, doclens[i])
+            docs[i, :] = gen_doc(Phi, K, V, doclens[i])
         return docs
 
     if os.path.exists(FOLDER):
@@ -175,13 +183,14 @@ if __name__ == "__main__":
     os.mkdir(FOLDER)
 
     width = N_TOPICS / 2
-    vocab_size = width ** 2
-    docs = gen_docs(N_TOPICS, vocab_size, DOC_NUM)
+    V = width ** 2
+    docs = gen_docs(N_TOPICS, V, DOC_NUM)
     lda = LDA(docs, N_TOPICS)
 
     for it, phi in enumerate(lda.train_gibbs()):
         print lda.loglikelihood()
-        if it % 10 == 0:
+        print lda.predict()
+        if it % 5 == 0:
             for z in range(N_TOPICS):
-                save_document_image("topicimg/topic%d-%d.png" % (it, z),
+                save_document_image("%s/topic%d-%d.png" % (FOLDER, it, z),
                                     phi[z, :].reshape(width, -1))
