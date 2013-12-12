@@ -1,0 +1,4 @@
+                  state space, belief,     efficiency, in robotic
+histogram filter: discrete,   multi-model,exponential,approximate
+kalman filter:    continuous, uni-model,  quadratic,  approximate
+particle filter:  continuous, multi-model,quadratic,  approximate
