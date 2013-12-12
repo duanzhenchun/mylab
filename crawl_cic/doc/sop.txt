@@ -1,0 +1,15 @@
+scrapy startproject crawl_cic
+
+cd crawl_cic
+#shell:
+	scrapy crawl familydoctor
+#pydev:
+	#module
+	/home/whille/env/lib/python2.7/site-packages/scrapy/cmdline.py
+	#argument: 
+	crawl familydoctor
+	
+scrapy shell "http://so.familydoctor.com.cn/kedafu.aspx?keyword=%u65E9%u6CC4"
+
+#store to json
+scrapy crawl familydoctor -o items.json -t json
