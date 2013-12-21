@@ -1,16 +1,27 @@
 from math import *
 import numpy as np
 import matplotlib.pyplot as plt
-path = [[0, 0],
-        [0, 1],
-        [0, 2],
-        [1, 2],
-        [2, 2],
-        [3, 2],
-        [4, 2],
-        [4, 3],
-        [4, 4]]
+
+path=[[0, 0], 
+      [1, 0],
+      [2, 0],
+      [3, 0],
+      [4, 0],
+      [5, 0],
+      [6, 0],
+      [6, 1],
+      [6, 2],
+      [6, 3],
+      [5, 3],
+      [4, 3],
+      [3, 3],
+      [2, 3],
+      [1, 3],
+      [0, 3],
+      [0, 2],
+      [0, 1]]
 path=np.array(path)
+fixed=(0,6,9,15)
 
 def smooth(path, weight_data = 0.5, weight_smooth = 0.1,tol = 1e-5):
     """
@@ -21,12 +32,17 @@ def smooth(path, weight_data = 0.5, weight_smooth = 0.1,tol = 1e-5):
     Y=X.copy()
     alpha, beta = weight_data, weight_smooth
     assert len(X)==len(Y)
+    N=len(X)
     Yold=np.ones(Y.shape)
     while abs(Yold-Y).sum()>tol:
         Yold=np.copy(Y)
-        for i in range(1, len(X)-1):
+        for i in range(N):
+            if i in fixed:
+                continue
+            #circulic smoothing
             Y[i] += alpha*(X[i] - Y[i])
-            Y[i] += beta*(Y[i+1] + Y[i-1] - 2* Y[i]) 
+            Y[i] -= 0.5*beta*(Y[(i-2)%N] + Y[i%N] - 2*Y[(i-1)%N]) 
+            Y[i] -= 0.5*beta*(Y[(i+2)%N] + Y[i%N] - 2*Y[(i+1)%N])
     return Y
     
 def visual(X,Y):
@@ -36,8 +52,5 @@ def visual(X,Y):
         plt.plot(A[:,0],A[:,1], 'o-')
     plt.show()
     
-newpath = smooth(path)
+newpath = smooth(path, 0.5, 0.1)
 visual(path, newpath)
-
-
-

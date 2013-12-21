@@ -53,17 +53,29 @@ class robot:
             self.x = cx + (sin(self.orientation) * radius)
             self.y = cy - (cos(self.orientation) * radius)
 
+    def cte(self, radius):
+        if self.x < radius:
+            cte = sqrt((self.x -radius) **2 +(self.y -radius) **2) - radius
+        elif self.x > 3.0* radius:
+            cte = sqrt((self.x -3.0 * radius) **2 +(self.y -radius) **2) -radius
+        elif self.y>radius:
+            cte = self.y - 2.0 * radius
+        else:
+            cte = -self.y
+        return cte
+
+
     def __repr__(self):
         return '[x=%.5f y=%.5f orient=%.5f]'  % (self.x, self.y, self.orientation)
 
-def pid_run((Kp,Ki,Kd), print_flag = False):
+def pid_run((Kp,Ki,Kd), start, print_flag = False):
     """
     Proportional: to achieve target
     Integral: to eliminate system err
     Derivative: to avoid oscillation
     """
     rob = robot()
-    rob.set_coordinate(0.0, 1.0, 0.0)
+    rob.set_coordinate(*start)
     rob.set_noise(0.1,0.1)
     rob.set_steering_drift(10./180*pi) #10 degree system erro
     speed = 1.0 
@@ -87,23 +99,22 @@ def pid_run((Kp,Ki,Kd), print_flag = False):
         plt.show()
     return err/N 
     
-def twiddle(tol=1e-2):
+def twiddle(start,tol=1e-2):
     n_params=3
     params = [0,] * n_params
     dparams = [1.,] * n_params
-    print params, dparams
-    best_err= pid_run(params)
+    best_err= pid_run(params,start)
     n=0
     while sum(dparams)>tol:
         for i in range(n_params):
             params[i]+=dparams[i]
-            err=pid_run(params)
+            err=pid_run(params,start)
             if err<best_err:
                 best_err=err
                 dparams[i]*=1.1
             else:
                 params[i] -=2.0*dparams[i]
-                err=pid_run(params)
+                err=pid_run(params,start)
                 if err<best_err:
                     best_err=err
                     dparams[i]*=1.1
@@ -111,9 +122,21 @@ def twiddle(tol=1e-2):
                     params[i]+=dparams[i]
                     dparams[i]*=0.9
         n+=1
-        print 'Twiddle #', n, params, ' --> ', best_err
-    print ' '
+        #print 'Twiddle #', n, params, ' --> ', best_err
     return params
 
-best=twiddle()
-pid_run(best,True)
+def t_twiddle():
+    start = (0.0, 1.0,0.0)
+    best=twiddle(start)
+    print best
+    pid_run(best, (0.0,1.0,0.0), True)
+    
+def t_cte():
+    radius = 25.0
+    params = [10.0, 15.0, 0]
+    err = pid_run(params,(0,radius, pi/2.0),True)
+    print '\nFinal paramaeters: ', params, '\n ->', err
+
+if __name__ == '__main__':
+    t_twiddle()
+    t_cte()
