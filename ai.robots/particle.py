@@ -87,7 +87,7 @@ class robot:
             #(cx, cy) are circle center of vehicle movement
             cx = self.x - sin(self.orientation)*radius
             cy = self.y + cos(self.orientation)*radius
-            res.orientation=(self.orientation+beta)%(2.0*pi)
+            res.orientation = (self.orientation + beta)%(2.0*pi)
             res.x = cx+(sin(self.orientation)*radius)
             res.y = cy-(cos(self.orientation)*radius) 
         return res
