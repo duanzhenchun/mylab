@@ -56,7 +56,12 @@ class robot:
     def __repr__(self):
         return '[x=%.5f y=%.5f orient=%.5f]'  % (self.x, self.y, self.orientation)
 
-def run(params, print_flag = False):
+def pid_run((Kp,Ki,Kd), print_flag = False):
+    """
+    Proportional: to achieve target
+    Integral: to eliminate system err
+    Derivative: to avoid oscillation
+    """
     rob = robot()
     rob.set_coordinate(0.0, 1.0, 0.0)
     rob.set_noise(0.1,0.1)
@@ -65,18 +70,18 @@ def run(params, print_flag = False):
     time_interval = 1.0
     N = 100
     err=0.0
-    int_err=0.0
-    crosstrack_err = rob.y
+    Ierr=0.0
+    Perr = rob.y
     data=[]
     for i in range(N*2):
-        dif_err = rob.y - crosstrack_err
-        crosstrack_err = rob.y
-        int_err += crosstrack_err
-        steer = -params[0]* crosstrack_err - params[1]* dif_err - params[2]* int_err
+        Derr = rob.y - Perr
+        Perr = rob.y
+        Ierr += Perr
+        steer = -Kp* Perr -Ki* Ierr -Kd* Derr
         rob.move(steer, speed*time_interval)
         data.append((rob.x, rob.y))
         if i>=N:
-            err += crosstrack_err **2
+            err += Perr **2
     if print_flag:
         plt.plot(*zip(*data))
         plt.show()
@@ -87,18 +92,18 @@ def twiddle(tol=1e-2):
     params = [0,] * n_params
     dparams = [1.,] * n_params
     print params, dparams
-    best_err= run(params)
+    best_err= pid_run(params)
     n=0
     while sum(dparams)>tol:
         for i in range(n_params):
             params[i]+=dparams[i]
-            err=run(params)
+            err=pid_run(params)
             if err<best_err:
                 best_err=err
                 dparams[i]*=1.1
             else:
                 params[i] -=2.0*dparams[i]
-                err=run(params)
+                err=pid_run(params)
                 if err<best_err:
                     best_err=err
                     dparams[i]*=1.1
@@ -111,4 +116,4 @@ def twiddle(tol=1e-2):
     return params
 
 best=twiddle()
-run(best,True)
+pid_run(best,True)
