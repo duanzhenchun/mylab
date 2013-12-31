@@ -35,7 +35,7 @@ def navigate(grid, goal, spath, params, printflag = False, speed = 0.1, timeout 
         
         diff_cte += cte
         steer = - params[0] * cte - params[1] * diff_cte 
-        rob = rob.move(steer, speed)
+        rob.move(steer, speed)
         filter.move( steer, speed)
 
         pos = rob.sense()

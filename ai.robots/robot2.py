@@ -96,16 +96,4 @@ class robot:
     def __repr__(self):
         return '[%.5f, %.5f, %5f]'  %(self.x, self.y, self.orientation)
 
-    # cross check error
-    def cte(self, radius):
-        if self.x < radius:
-            cte = sqrt((self.x -radius)**2 +(self.y -radius)**2) - radius
-        elif self.x > 3.0* radius:
-            cte = sqrt((self.x -3.0 * radius)**2 +(self.y -radius)**2) -radius
-        elif self.y>radius:
-            cte = self.y - 2.0 * radius
-        else:
-            cte = -self.y
-        return cte
-
-
+    

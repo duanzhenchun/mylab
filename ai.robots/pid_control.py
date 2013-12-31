@@ -3,7 +3,10 @@ import random
 import matplotlib.pyplot as plt
 from robot2 import robot
 
-def pid_run((Kp,Ki,Kd), start, speed=1.0, print_flag = False):
+def pid_run((Kp,Ki,Kd), start, 
+             speed=1.0, 
+             N=200,
+             print_flag = False):
     """
     Proportional: to achieve target
     Integral: to eliminate system err
@@ -13,15 +16,14 @@ def pid_run((Kp,Ki,Kd), start, speed=1.0, print_flag = False):
     rob.set_coordinate(*start)
     rob.set_noise(0.1,0.1)
     rob.set_steering_drift(10./180*pi) #10 degree system erro
-    N = 200
     radius = start[1]
-    Perr = rob.cte(radius)
+    Perr = racetrack_cte(rob.x, rob.y, radius)
     Ierr=0.0
     err=0.0
     data=[]
     for i in range(N*2):
         Derr = -Perr
-        Perr = rob.cte(radius)
+        Perr = racetrack_cte(rob.x, rob.y, radius)
         Derr += Perr
         Ierr += Perr
         steer = -Kp* Perr -Ki* Ierr -Kd* Derr
@@ -33,7 +35,20 @@ def pid_run((Kp,Ki,Kd), start, speed=1.0, print_flag = False):
         plt.plot(*zip(*data))
         plt.show()
     return err/N 
-    
+
+# racetrack cross check error
+def racetrack_cte(x, y, radius):
+    if x < radius:
+        cte = sqrt((x -radius)**2 +(y -radius)**2) - radius
+    elif x > 3.0* radius:
+        cte = sqrt((x -3.0 * radius)**2 +(y -radius)**2) -radius
+    elif y>radius:
+        cte = y - 2.0 * radius
+    else:
+        cte = -y
+    return cte
+
+
 def twiddle(start, tol=1e-5):
     n_params=3
     params = [0,] * n_params
@@ -69,8 +84,8 @@ def t_twiddle():
 def racetrack():
     radius = 25.0
     params = [5.0, 0.001, 20.0]
-    err = pid_run(params,(0,radius, pi/2.0),True)
-    print '\nFinal paramaeters: ', params, '\n ->', err
+    err = pid_run(params,(0,radius, pi/2.0),N=1000, print_flag=True)
+    print 'Final paramaeters: ', params, '\n ->', err
 
 if __name__ == '__main__':
     #t_twiddle()
