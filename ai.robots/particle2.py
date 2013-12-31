@@ -46,11 +46,11 @@ class particles:
             newrobs.append(copy.deepcopy(self.robs[i]))
         self.robs=newrobs
 
-    def run(self, motions, postions): 
-        for motion, pos in zip(motions, postions):
-            self.move(*motion)
-            self.resampling(pos)
-        return self.position()
+def run(filter, motions, postions): 
+    for motion, pos in zip(motions, postions):
+        filter.move(*motion)
+        filter.resampling(pos)
+    return filter.position()
 
 
 def weight_choice(w, lst):
@@ -91,7 +91,7 @@ def test():
     plt.show()
 
     filter = particles(car_length, start)
-    pos_e= filter.run(motions, measurements)
+    pos_e = run(filter, motions, measurements)
 
     print 'Ground truth:    ', final_robot
     print 'Particle filter: ', pos_e

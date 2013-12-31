@@ -2,63 +2,72 @@ from math import *
 import random
 from particle2 import particles
 from robot2 import robot
-from plan import plan
+import numpy as np
+import matplotlib.pyplot as plt
 
 
-def navigate(grid, goal, spath, params, printflag = False, speed = 0.1, timeout = 1000):
-    start=(x0,y0,orient0)=(0., 0., 0.)
+def trace_cte(spath, index, pos):
+    dx=spath[index+1][0] - spath[index][0]
+    dy=spath[index+1][1] - spath[index][1]
+    drx=pos[0] - spath[index][0]
+    dry=pos[1] - spath[index][1]
+    # u is the robot pos projectes onto the path segment
+    u = (drx*dx + dry*dy)/(dx**2 + dy**2)
+    # cte is the pos projected onto the normal of the path segment
+    cte = (dry*dx - drx*dy)/(dx**2 + dy**2)
+    return cte, u
+
+def navigate(grid, init, goal, spath,  
+             (Kp,Ki,Kd),
+             print_flag = False, 
+             speed = 0.1, 
+             N=1000):
+    start = (init[0], init[1], 0.0)
     car_length=1.0
-    rob = robot()
-    rob.set_coordinat(*start)
+    rob = robot(car_length)
+    rob.set_coordinate(*start)
     rob.set_noise()
     filter = particles(car_length, start)
 
-    cte  = 0.0
-    err  = 0.0
-    N    = 0
-    index = 0 # index into the path
-    while not rob.check_goal(goal) and N < timeout:
-        diff_cte = - cte
-        # compute the CTE
-        estimate = filter.get_position()
-        dx=spath[index+1][0] - spath[index][0]
-        dy=spath[index+1][1] - spath[index][1]
-        drx=estimate[0] - spath[index][0]
-        dry=estimate[1] - spath[indeex][1]
-        # u is the robot estimate projectes onto the path segment
-        u = (drx*dx + dry*dy)/(dx**2 + dy**2)
-        # cte is the estimate projected onto the normal of the path segment
-        cte =(dry*dx - drx*dy)/(dx**2 + dy**2)
-        # pick the next path sgement
-        if u>1.0:
+    Perr = Ierr = err= 0.0
+    data=[]
+    index = 0 
+    while not rob.reached(goal) and N>0:
+        N-=1
+        Derr = -Perr
+        Perr, u = trace_cte(spath, index, filter.position())
+        if u>1.0: # pick the next path sgement
             index+=1
-        
-        diff_cte += cte
-        steer = - params[0] * cte - params[1] * diff_cte 
+        Derr += Perr
+        Ierr += Perr
+        steer = -Kp* Perr -Ki* Ierr -Kd* Derr
         rob.move(steer, speed)
-        filter.move( steer, speed)
-
-        pos = rob.sense()
-        filter.resampling(pos)
-
+        filter.move(steer, speed)
+        filter.resampling(rob.sense())
+        data.append((rob.x, rob.y))
         if not rob.check_collision(grid):
             print '##### Collision ####'
-
-        err += (cte ** 2)
-        N += 1
-
-        if printflag:
-            print rob, cte, index, u
-
-    return [rob.check_goal(goal), rob.num_collisions, rob.num_steps]
+        err += (Perr**2)
+        if print_flag:
+            print rob, Perr, index, u
+    if print_flag:
+        plt.plot(*zip(*data))
+        plt.show()
+    return [rob.reached(goal), rob.num_collisions, N]
 
 def main(grid, init, goal, 
-     weight_data, weight_smooth, p_gain, d_gain):
+         weight_data, weight_smooth, p_gain, d_gain):
+    from search import find_path
+    import smooth_control
 
-    path = plan(grid, init, goal)
-    path.astar()
-    path.smooth(weight_data, weight_smooth)
-    return navigate(grid, goal, path.spath, [p_gain, d_gain])
+    grid=np.array(grid,dtype=int)
+    path = find_path(grid, init, goal)
+    spath = smooth_control.smooth(path, 0.5, 0.1)
+    smooth_control.visual(path, spath)
+
+    return navigate(grid, init, goal, spath, 
+            (p_gain, 0.0, d_gain),
+            print_flag=True)
 
 #   1 = occupied space
 grid = [[0, 1, 0, 0, 0, 0],

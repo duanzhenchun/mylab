@@ -23,7 +23,6 @@ class robot:
         self.bearing_noise = 0.0 
         self.steering_drift = 0.0
         self.num_collisions = 0
-        self.num_steps = 0
 
     def set_coordinate(self, x, y, orientation):
         self.x = float(x)
@@ -54,7 +53,7 @@ class robot:
                         return False
         return True
 
-    def check_goal(self, pos, threshold = 1.0):
+    def reached(self, pos, threshold = 1.0):
         dist =  sqrt((float(pos[0]) - self.x)**2 + (float(pos[1]) - self.y)**2)
         return dist < threshold
         
