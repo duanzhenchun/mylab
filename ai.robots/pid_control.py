@@ -1,6 +1,7 @@
 from math import *
 import random
 import matplotlib.pyplot as plt
+from robot2 import robot
 
 def pid_run((Kp,Ki,Kd), start, speed=1.0, print_flag = False):
     """

@@ -12,7 +12,7 @@ measurement_noise = 0.3
 
 
 def run(grid, goal, spath, params, printflag = False, speed = 0.1, timeout = 1000):
-    start=(0., 0., 0.)
+    start=(x0,y0,orient0)=(0., 0., 0.)
     myrobot = robot()
     myrobot.set(*start)
     myrobot.set_noise(steering_noise, distance_noise, measurement_noise)
@@ -26,9 +26,19 @@ def run(grid, goal, spath, params, printflag = False, speed = 0.1, timeout = 100
     while not myrobot.check_goal(goal) and N < timeout:
         diff_cte = - cte
         # compute the CTE
-        # start with the present robot estimate
         estimate = filter.get_position()
-
+        dx=spath[index+1][0] - spath[index][0]
+        dy=spath[index+1][1] - spath[index][1]
+        drx=estimate[0] - spath[index][0]
+        dry=estimate[1] - spath[indeex][1]
+        # u is the robot estimate projectes onto the path segment
+        u = (drx*dx + dry*dy)/(dx**2 + dy**2)
+        # cte is the estimate projected onto the normal of the path segment
+        cte =(dry*dx - drx*dy)/(dx**2 + dy**2)
+        # pick the next path sgement
+        if u>1.0:
+            index+=1
+        
         diff_cte += cte
         steer = - params[0] * cte - params[1] * diff_cte 
         myrobot = myrobot.move(grid, steer, speed)

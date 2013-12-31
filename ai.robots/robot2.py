@@ -1,3 +1,10 @@
+import random
+from math import *
+import numpy as np
+import scipy.stats
+
+
+max_steering_angle = pi / 4.0 
 
 class robot:
     def __init__(self, length = 0.5):
@@ -5,10 +12,10 @@ class robot:
         self.y = 0.0
         self.orientation = 0.0
         self.length = length
-        self.bearing_noise = 0.0 
         self.steering_noise = 0.0
         self.distance_noise = 0.0
         self.measurement_noise = 0.0
+        self.bearing_noise = 0.0 
         self.steering_drift = 0.0
         self.num_collisions = 0
         self.num_steps = 0
@@ -52,7 +59,7 @@ class robot:
         alpha = random.gauss(steering, self.steering_noise) # tyre steering angle
         d = random.gauss(distance, self.distance_noise) 
         # apply steering drift
-        steering2 += self.steering_drift
+        alpha += self.steering_drift
         # Execute motion
         beta = tan(alpha) * d/self.length # vehicle angle
         if abs(beta) < tolerance:
@@ -74,19 +81,14 @@ class robot:
         return [random.gauss(self.x, self.measurement_noise),
                 random.gauss(self.y, self.measurement_noise)]
 
-    def measurement_prob(self, pos):
-        error_x = pos[0] - self.x
-        error_y = pos[1] - self.y
-        # calculate Gaussian
-        error = exp(- (error_x ** 2) / (self.measurement_noise ** 2) / 2.0) \
-            / sqrt(2.0 * pi * (self.measurement_noise ** 2))
-        error *= exp(- (error_y ** 2) / (self.measurement_noise ** 2) / 2.0) \
-            / sqrt(2.0 * pi * (self.measurement_noise ** 2))
-        return error
+    def position_prob(self, pos):
+        probs = scipy.stats.norm.pdf([self.x,self.y], pos, self.measurement_noise)
+        return reduce(lambda a,b:a*b, probs)
 
     def __repr__(self):
-        return '[%.5f, %.5f, %5f]'  % (self.x, self.y. self.orientation)
+        return '[%.5f, %.5f, %5f]'  %(self.x, self.y, self.orientation)
 
+    # cross check error
     def cte(self, radius):
         if self.x < radius:
             cte = sqrt((self.x -radius)**2 +(self.y -radius)**2) - radius
