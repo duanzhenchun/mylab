@@ -1,29 +1,23 @@
 from math import *
 import random
-from particles2 import particles
+from particle2 import particles
 from robot2 import robot
 from plan import plan
 
-max_steering_angle = pi / 4.0 
-bearing_noise = 0.1 
-steering_noise = 0.1 
-distance_noise = 0.03
-measurement_noise = 0.3
 
-
-def run(grid, goal, spath, params, printflag = False, speed = 0.1, timeout = 1000):
+def navigate(grid, goal, spath, params, printflag = False, speed = 0.1, timeout = 1000):
     start=(x0,y0,orient0)=(0., 0., 0.)
-    myrobot = robot()
-    myrobot.set(*start)
-    myrobot.set_noise(steering_noise, distance_noise, measurement_noise)
-    filter = particles(*(start+(steering_noise, distance_noise, measurement_noise)))
+    car_length=1.0
+    rob = robot()
+    rob.set_coordinat(*start)
+    rob.set_noise()
+    filter = particles(car_length, start)
 
     cte  = 0.0
     err  = 0.0
     N    = 0
-
     index = 0 # index into the path
-    while not myrobot.check_goal(goal) and N < timeout:
+    while not rob.check_goal(goal) and N < timeout:
         diff_cte = - cte
         # compute the CTE
         estimate = filter.get_position()
@@ -41,30 +35,30 @@ def run(grid, goal, spath, params, printflag = False, speed = 0.1, timeout = 100
         
         diff_cte += cte
         steer = - params[0] * cte - params[1] * diff_cte 
-        myrobot = myrobot.move(grid, steer, speed)
-        filter.move(grid, steer, speed)
+        rob = rob.move(steer, speed)
+        filter.move( steer, speed)
 
-        pos = myrobot.sense()
+        pos = rob.sense()
         filter.resampling(pos)
 
-        if not myrobot.check_collision(grid):
+        if not rob.check_collision(grid):
             print '##### Collision ####'
 
         err += (cte ** 2)
         N += 1
 
         if printflag:
-            print myrobot, cte, index, u
+            print rob, cte, index, u
 
-    return [myrobot.check_goal(goal), myrobot.num_collisions, myrobot.num_steps]
+    return [rob.check_goal(goal), rob.num_collisions, rob.num_steps]
 
-def main(grid, init, goal, steering_noise, distance_noise, measurement_noise, 
+def main(grid, init, goal, 
      weight_data, weight_smooth, p_gain, d_gain):
 
     path = plan(grid, init, goal)
     path.astar()
     path.smooth(weight_data, weight_smooth)
-    return run(grid, goal, path.spath, [p_gain, d_gain])
+    return navigate(grid, goal, path.spath, [p_gain, d_gain])
 
 #   1 = occupied space
 grid = [[0, 1, 0, 0, 0, 0],
@@ -76,9 +70,6 @@ grid = [[0, 1, 0, 0, 0, 0],
 init = [0, 0]
 goal = [len(grid)-1, len(grid[0])-1]
 
-steering_noise    = 0.1
-distance_noise    = 0.03
-measurement_noise = 0.3
 
 weight_data       = 0.1
 weight_smooth     = 0.2
@@ -86,7 +77,7 @@ p_gain            = 2.0
 d_gain            = 6.0
 
     
-print main(grid, init, goal, steering_noise, distance_noise, measurement_noise, 
+print main(grid, init, goal, 
            weight_data, weight_smooth, p_gain, d_gain)
 
 def twiddle(init_params):
@@ -102,7 +93,6 @@ def twiddle(init_params):
     best_error = 0.0;
     for k in range(K):
         ret = main(grid, init, goal, 
-                   steering_noise, distance_noise, measurement_noise, 
                    params[0], params[1], params[2], params[3])
         if ret[0]:
             best_error += ret[1] * 100 + ret[2]
@@ -118,7 +108,6 @@ def twiddle(init_params):
             err = 0
             for k in range(K):
                 ret = main(grid, init, goal, 
-                           steering_noise, distance_noise, measurement_noise, 
                            params[0], params[1], params[2], params[3], best_error)
                 if ret[0]:
                     err += ret[1] * 100 + ret[2]
@@ -133,7 +122,6 @@ def twiddle(init_params):
                 err = 0
                 for k in range(K):
                     ret = main(grid, init, goal, 
-                               steering_noise, distance_noise, measurement_noise, 
                                params[0], params[1], params[2], params[3], best_error)
                     if ret[0]:
                         err += ret[1] * 100 + ret[2]

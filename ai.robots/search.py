@@ -94,6 +94,5 @@ if __name__=="__main__":
     road, path= track(expand,init,goal)
     print road
     import smooth_control
-    newpath = smooth_control.smooth(path, 0.5, 0.1)
-    smooth_control.visual(path, newpath)
-
+    spath = smooth_control.smooth(path, 0.5, 0.1)
+    smooth_control.visual(path, spath)

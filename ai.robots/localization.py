@@ -9,7 +9,7 @@ colors=np.array(
         ['red', 'red', 'green', 'green', 'red'],
         ['red', 'red', 'red', 'red', 'red']])
 obs = ['green', 'green', 'green' ,'green', 'green']
-motions = [[0,0],[0,1],[1,0],[1,0],[0,1]]
+motions = [[0,0],[0,1],[1,0],[1,0],[0,1]]  # by direction
 sensor_right = 0.7
 p_move = 0.8
 

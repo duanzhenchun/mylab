@@ -3,23 +3,18 @@ import numpy as np
 from robot2 import robot
 from math import *
 import matplotlib.pyplot as plt
-from conf import *
 
 
 class particles:
-    def __init__( self, L, x, y, orient, 
-              steering_noise, distance_noise, measurement_noise, 
-              N = 100):
+    def __init__( self, L, start, N=100):
         assert N>0
         self.N = N
-        self.steering_noise    = steering_noise
-        self.distance_noise    = distance_noise
-        self.measurement_noise = measurement_noise
+        x,y,orient = start
         self.robs = []
         for i in range(N):
             r = robot(L)
             r.set_coordinate(x, y, orient)
-            r.set_noise(steering_noise, distance_noise, measurement_noise)
+            r.set_noise()
             self.robs.append(r)
 
     def position(self):
@@ -77,7 +72,7 @@ def check(pos, pos_e, tol=2.0):
 def generate_path(L, start, motions):
     rob = robot(L)
     rob.set_coordinate(*start)
-    rob.set_noise(steering_noise, distance_noise, measurement_noise)
+    rob.set_noise()
     Z = []
     for motion in motions:
         rob.move(*motion)
@@ -89,13 +84,13 @@ def test():
     car_length=5.0
     Steps = 10
     motions = [[2.*pi /20, 2.],] * Steps 
-    start=(x0,y0,orient0)=(0., 0., 0.)
+    start=[x0,y0,orient0]=[0., 0., 0.]
 
     final_robot, measurements = generate_path(car_length, start, motions)
     plt.plot(*zip(*measurements))
     plt.show()
 
-    filter = particles(*([car_length]+ measurements[0]+[0.0]+[steering_noise, distance_noise, measurement_noise]))
+    filter = particles(car_length, start)
     pos_e= filter.run(motions, measurements)
 
     print 'Ground truth:    ', final_robot

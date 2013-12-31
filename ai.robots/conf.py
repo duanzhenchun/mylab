@@ -1,7 +1,3 @@
-steering_noise = 0.1 
-distance_noise = 0.03
-measurement_noise = 0.3
-bearing_noise = 0.1 
 
 # the "world" has 4 landmarks.
 # the robot's initial coordinates are somewhere in the square

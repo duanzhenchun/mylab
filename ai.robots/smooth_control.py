@@ -30,14 +30,12 @@ def smooth( path, weight_data = 0.5, weight_smooth = 0.1,
     return Y
     
 def visual(X,Y):
-#    for i in range(len(X)):
-#        print '['+ ', '.join('%.3f'%x for x in X[i]) +'] -> ['+ ', '.join('%.3f'%x for x in Y[i]) +']'
     for A in X,Y:
         A=np.array(A)
         plt.plot(A[:,0],A[:,1], 'o-')
     plt.show()
 
-if __name__ == '__main__':  
+def test_smooth():
     path=[[0, 0], 
       [1, 0],
       [2, 0],
@@ -58,3 +56,7 @@ if __name__ == '__main__':
       [0, 1]]
     newpath = smooth(path, 0.5, 0.1, circular=True)#, fixed=(0,6,9,15))
     visual(path, newpath)
+
+
+if __name__ == '__main__':  
+    test_smooth()

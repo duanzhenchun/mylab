@@ -6,6 +6,11 @@ import scipy.stats
 
 max_steering_angle = pi / 4.0 
 
+steering_noise = 0.1 
+distance_noise = 0.03
+measurement_noise = 0.3
+bearing_noise = 0.1 
+
 class robot:
     def __init__(self, length = 0.5):
         self.x = 0.0
@@ -25,7 +30,10 @@ class robot:
         self.y = float(y)
         self.orientation = float(orientation) % (2.0 * pi)
 
-    def set_noise(self, s_noise, d_noise, m_noise, b_noise=0.0):
+    def set_noise(self, s_noise=steering_noise, 
+                        d_noise=distance_noise, 
+                        m_noise=measurement_noise, 
+                        b_noise=0.0):
         self.steering_noise = float(s_noise)
         self.distance_noise = float(d_noise)
         self.measurement_noise = float(m_noise)
@@ -47,7 +55,7 @@ class robot:
         return True
 
     def check_goal(self, pos, threshold = 1.0):
-        dist =  sqrt((float(pos[0]) - self.x) ** 2 + (float(pos[1]) - self.y) ** 2)
+        dist =  sqrt((float(pos[0]) - self.x)**2 + (float(pos[1]) - self.y)**2)
         return dist < threshold
         
     # steering = front wheel steering angle, limited by max_steering_angle
