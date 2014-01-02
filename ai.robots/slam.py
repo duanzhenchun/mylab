@@ -1,4 +1,5 @@
 from math import *
+from utils import *
 import random
 from particle2 import particles
 from robot2 import robot
@@ -17,9 +18,9 @@ def trace_cte(spath, index, pos):
     cte = (dry*dx - drx*dy)/(dx**2 + dy**2)
     return cte, u
 
+
 def navigate(grid, init, goal, spath,  
              (Kp,Ki,Kd),
-             print_flag = False, 
              speed = 0.1, 
              N=1000):
     start = (init[0], init[1], 0.0)
@@ -48,12 +49,9 @@ def navigate(grid, init, goal, spath,
         if not rob.check_collision(grid):
             print '##### Collision ####'
         err += (Perr**2)
-        if print_flag:
-            print rob, Perr, index, u
-    if print_flag:
-        plt.plot(*zip(*data))
-        plt.show()
-    return [rob.reached(goal), rob.num_collisions, N]
+        #plt.plot(*zip(*data))
+    return rob.reached(goal), rob.num_collisions, N, data
+
 
 def main(grid, init, goal, 
          weight_data, weight_smooth, p_gain, d_gain):
@@ -63,11 +61,10 @@ def main(grid, init, goal,
     grid=np.array(grid,dtype=int)
     path = find_path(grid, init, goal)
     spath = smooth_control.smooth(path, 0.5, 0.1)
-    smooth_control.visual(path, spath)
+    res = navigate(grid, init, goal, spath, 
+            (p_gain, 0.0, d_gain),)
 
-    return navigate(grid, init, goal, spath, 
-            (p_gain, 0.0, d_gain),
-            print_flag=True)
+    visual2D(path, spath, res[-1])
 
 #   1 = occupied space
 grid = [[0, 1, 0, 0, 0, 0],

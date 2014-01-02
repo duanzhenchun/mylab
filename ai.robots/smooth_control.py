@@ -1,6 +1,6 @@
 from math import *
-import numpy as np
-import matplotlib.pyplot as plt
+from utils import *
+
 
 def smooth( path, weight_data = 0.5, weight_smooth = 0.1,
             fixed=[], circular=False, tol = 1e-5):
@@ -29,11 +29,7 @@ def smooth( path, weight_data = 0.5, weight_smooth = 0.1,
                 Y[i] += 0.5*beta*(2*Y[(i+1)%N] - Y[(i+2)%N] - Y[i%N])
     return Y
     
-def visual(X,Y):
-    for A in X,Y:
-        A=np.array(A)
-        plt.plot(A[:,0],A[:,1], 'o-')
-    plt.show()
+
 
 def test_smooth():
     path=[[0, 0], 
@@ -55,7 +51,7 @@ def test_smooth():
       [0, 2],
       [0, 1]]
     newpath = smooth(path, 0.5, 0.1, circular=True)#, fixed=(0,6,9,15))
-    visual(path, newpath)
+    visual2D(path, newpath)
 
 
 if __name__ == '__main__':  

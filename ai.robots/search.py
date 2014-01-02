@@ -1,4 +1,4 @@
-import numpy as np
+from utils import *
 
 delta = [[-1, 0 ], # go up
          [ 0, -1], # go left
@@ -95,7 +95,7 @@ def test():
     goal = [len(grid)-1, len(grid[0])-1]
     path = find_path(grid, start, goal)
     spath = smooth_control.smooth(path, 0.5, 0.1)
-    smooth_control.visual(path, spath)
+    visual2D(path, spath)
 
 
 if __name__=="__main__":
