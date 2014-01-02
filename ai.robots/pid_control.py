@@ -3,7 +3,8 @@ import random
 import matplotlib.pyplot as plt
 from robot2 import robot
 
-def pid_run((Kp,Ki,Kd), start, 
+def pid_run((Kp,Ki,Kd), 
+             start, 
              speed=1.0, 
              N=200,
              print_flag = False):
@@ -48,45 +49,47 @@ def racetrack_cte(x, y, radius):
         cte = -y
     return cte
 
-
-def twiddle(start, tol=1e-5):
-    n_params=3
-    params = [0,] * n_params
+def twiddle(fn, init_params, (args), tol=1e-5):
+    n_params = len(init_params)
+    params = init_params
     dparams = [1.,] * n_params
-    best_err= pid_run(params,start)
-    n=0
-    while sum(dparams)>tol:
+    best_err = fn(params, *args)
+    print 'best error:', best_err
+
+    n = 0
+    while sum(dparams) > tol:
         for i in range(n_params):
-            params[i]+=dparams[i]
-            err=pid_run(params,start)
-            if err<best_err:
-                best_err=err
-                dparams[i]*=1.1
+            params[i] += dparams[i]
+            err = fn(params, *args)
+            if err < best_err:
+                best_err = err
+                dparams[i] *= 1.1
             else:
-                params[i] -=2.0*dparams[i]
-                err=pid_run(params,start)
-                if err<best_err:
-                    best_err=err
-                    dparams[i]*=1.1
+                params[i] -= 2.0 * dparams[i]
+                err = fn(params, *args)
+                if err < best_err:
+                    best_err = err 
+                    dparams[i] *= 1.1
                 else:
-                    params[i]+=dparams[i]
-                    dparams[i]*=0.9
-        n+=1
-        #print 'Twiddle #', n, params, ' --> ', best_err
+                    params[i] += dparams[i]
+                    dparams[i] *= 0.9
+        n += 1
+        print 'Twiddle #%d' %n, params, ' --> ', best_err
     return params
 
 def t_twiddle():
     start = (0.0, 1.0,0.0)
-    best=twiddle(start)
+    init_params=[0,]*3
+    best=twiddle(pid_run, init_params, (start,))
     print best
     pid_run(best, (0.0,1.0,0.0), True)
     
 def racetrack():
     radius = 25.0
-    params = [5.0, 0.001, 20.0]
+    params = [5.0, 0.01, 20.0]
     err = pid_run(params,(0,radius, pi/2.0),N=1000, print_flag=True)
     print 'Final paramaeters: ', params, '\n ->', err
 
 if __name__ == '__main__':
-    #t_twiddle()
+    t_twiddle()
     racetrack()

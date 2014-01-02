@@ -5,6 +5,7 @@ from particle2 import particles
 from robot2 import robot
 import numpy as np
 import matplotlib.pyplot as plt
+from pid_control import twiddle
 
 
 def trace_cte(spath, index, pos):
@@ -53,98 +54,45 @@ def navigate(grid, init, goal, spath,
     return rob.reached(goal), rob.num_collisions, N, data
 
 
-def main(grid, init, goal, 
-         weight_data, weight_smooth, p_gain, d_gain):
+def run(grid, init, goal, 
+         (weight_data, weight_smooth, p_gain, d_gain),
+         show=True):
     from search import find_path
     import smooth_control
 
     grid=np.array(grid,dtype=int)
     path = find_path(grid, init, goal)
-    spath = smooth_control.smooth(path, 0.5, 0.1)
+    spath = smooth_control.smooth(path, weight_data, weight_smooth)
     res = navigate(grid, init, goal, spath, 
             (p_gain, 0.0, d_gain),)
+    if show:
+        visual2D(path, spath, res[-1])
+    return res
 
-    visual2D(path, spath, res[-1])
+def average_run(params, grid, init, goal):
+    K = 10
+    best_err = 0.0
+    for k in range(K):
+        ret = run(grid, init, goal, params, show=False)
+        if ret[0]:
+            best_err += ret[1] * 100 + ret[2]
+        else:
+            best_err += 99999
+    best_err /=  k+1
+    return best_err
 
+
+if __name__=="__main__":
 #   1 = occupied space
-grid = [[0, 1, 0, 0, 0, 0],
+    grid = [[0, 1, 0, 0, 0, 0],
         [0, 1, 0, 1, 1, 0],
         [0, 1, 0, 1, 0, 0],
         [0, 0, 0, 1, 0, 1],
         [0, 1, 0, 1, 0, 0]]
 
-init = [0, 0]
-goal = [len(grid)-1, len(grid[0])-1]
+    init = [0, 0]
+    goal = [len(grid)-1, len(grid[0])-1]
 
-
-weight_data       = 0.1
-weight_smooth     = 0.2
-p_gain            = 2.0
-d_gain            = 6.0
-
-    
-print main(grid, init, goal, 
-           weight_data, weight_smooth, p_gain, d_gain)
-
-def twiddle(init_params):
-    n_params   = len(init_params)
-    dparams    = [1.0 for row in range(n_params)]
-    params     = [0.0 for row in range(n_params)]
-    K = 10
-
-    for i in range(n_params):
-        params[i] = init_params[i]
-
-
-    best_error = 0.0;
-    for k in range(K):
-        ret = main(grid, init, goal, 
-                   params[0], params[1], params[2], params[3])
-        if ret[0]:
-            best_error += ret[1] * 100 + ret[2]
-        else:
-            best_error += 99999
-    best_error = float(best_error) / float(k+1)
-    print best_error
-
-    n = 0
-    while sum(dparams) > 0.0000001:
-        for i in range(len(params)):
-            params[i] += dparams[i]
-            err = 0
-            for k in range(K):
-                ret = main(grid, init, goal, 
-                           params[0], params[1], params[2], params[3], best_error)
-                if ret[0]:
-                    err += ret[1] * 100 + ret[2]
-                else:
-                    err += 99999
-            print float(err) / float(k+1)
-            if err < best_error:
-                best_error = float(err) / float(k+1)
-                dparams[i] *= 1.1
-            else:
-                params[i] -= 2.0 * dparams[i]            
-                err = 0
-                for k in range(K):
-                    ret = main(grid, init, goal, 
-                               params[0], params[1], params[2], params[3], best_error)
-                    if ret[0]:
-                        err += ret[1] * 100 + ret[2]
-                    else:
-                        err += 99999
-                print float(err) / float(k+1)
-                if err < best_error:
-                    best_error = float(err) / float(k+1)
-                    dparams[i] *= 1.1
-                else:
-                    params[i] += dparams[i]
-                    dparams[i] *= 0.5
-        n += 1
-        print 'Twiddle #', n, params, ' -> ', best_error
-    print ' '
-    return params
-
-
-#twiddle([weight_data, weight_smooth, p_gain, d_gain])
-
+    params = [weight_data, weight_smooth, p_gain, d_gain] = [0.1, 0.2, 2.0, 6.0]
+    #params = twiddle(average_run, params, (grid, init, goal))
+    run(grid, init, goal, params)
