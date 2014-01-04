@@ -1,3 +1,5 @@
+# SLAM: simutaneous localization and mapping
+
 from math import *
 from utils import *
 import random

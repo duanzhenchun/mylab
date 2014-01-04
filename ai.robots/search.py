@@ -46,7 +46,7 @@ def track(grid, expand, start, end):
                 road_grid.append(pos)
                 pos=newp
                 if pos == start:
-                   return road, list(reversed(road_grid))
+                   return road, list(reversed(road_grid + [start]))
                 else:
                    break 
     return road,road_grid
