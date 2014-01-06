@@ -1,6 +1,6 @@
 import copy
 import numpy as np
-from robot2 import robot
+from robot import robot
 from math import *
 import matplotlib.pyplot as plt
 

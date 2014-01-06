@@ -3,8 +3,8 @@
 from math import *
 from utils import *
 import random
-from particle2 import particles
-from robot2 import robot
+from particle import particles
+from robot import robot
 import numpy as np
 import matplotlib.pyplot as plt
 from pid_control import twiddle

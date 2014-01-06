@@ -1,7 +1,6 @@
 from math import *
 import random
 import matplotlib.pyplot as plt
-from robot2 import robot
 
 def pid_run((Kp,Ki,Kd), 
              start, 
@@ -13,6 +12,7 @@ def pid_run((Kp,Ki,Kd),
     Integral: to eliminate system err
     Derivative: to avoid oscillation
     """
+    from robot import robot
     rob = robot()
     rob.set_coordinate(*start)
     rob.set_noise(0.1,0.1)
