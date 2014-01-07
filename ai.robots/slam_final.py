@@ -115,7 +115,7 @@ def print_result(N, num_landmarks, result):
     X,Y=A[::2], A[1::2]
     print 'Estimated Landmarks:'
     for pos in zip(X,Y):
-        print pos
+        print '%.3f,%.3f' %(pos)
 
 def guess_trip(data, N, num_landmarks, motion_noise, measurement_noise):
     dim = 2* (N+num_landmarks) #2D
@@ -127,28 +127,30 @@ def guess_trip(data, N, num_landmarks, motion_noise, measurement_noise):
     for k,(measurement, motion) in enumerate(data):
         # n is motion index in matrix
         n = k*2
-         # update matrix by motion from i to (i+1)
-        for b in range(4):
-            Omega[n+b][n+b] += 1./motion_noise
-        for b in range(2):
-            Omega[n+b][n+b+2] -= 1.0/motion_noise
-            Omega[n+b+2][n+b] -= 1.0/motion_noise
-            Xi[n+b]           -= motion[b]/motion_noise
-            Xi[n+b+2]         += motion[b]/motion_noise
         for z in measurement:
             # m is landmark index in matrix
             m=2*(N+z[0])
             for b in range(2):
                 Omega[n+b][n+b] += 1.0/measurement_noise
                 Omega[m+b][m+b] += 1.0/measurement_noise
-                Omega[n+b][m+b] -= 1.0/measurement_noise
-                Omega[m+b][n+b] -= 1.0/measurement_noise
-                Xi[n+b]         -= z[1+b]/measurement_noise
+                Omega[n+b][m+b] += -1.0/measurement_noise
+                Omega[m+b][n+b] += -1.0/measurement_noise
+                Xi[n+b]         += -z[1+b]/measurement_noise
                 Xi[m+b]         += z[1+b]/measurement_noise
+        # update matrix by motion from i to (i+1)
+        for b in range(4):
+            Omega[n+b][n+b] += 1.0/motion_noise
+        for b in range(2):
+            Omega[n+b][n+b+2] += -1.0/motion_noise
+            Omega[n+b+2][n+b] += -1.0/motion_noise
+            Xi[n+b]           += -motion[b]/motion_noise
+            Xi[n+b+2]         += motion[b]/motion_noise
+
     #compute best estimate
     mu = np.linalg.inv(Omega).dot(Xi)
     return mu 
 
-data = make_trip(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
-result = guess_trip(data, N, num_landmarks, motion_noise, measurement_noise)
-print_result(N, num_landmarks, result)
+if __name__ == "__main__":
+    data = make_trip(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
+    result = guess_trip(data, N, num_landmarks, motion_noise, measurement_noise)
+    print_result(N, num_landmarks, result)
