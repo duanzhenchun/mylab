@@ -1,4 +1,4 @@
-from slam_final import *
+from slam import *
 import numpy as np
 
 
@@ -61,11 +61,11 @@ def solution_check(result, answer_mu, answer_omega):
 if __name__ =="__main__":
     data = make_trip(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
     result = guess_trip(data, num_landmarks, motion_noise, measurement_noise)
-    print_result(1, num_landmarks, result[0])
+    print_landmarks(1, num_landmarks, result[0])
 
     data = make_trip(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
     result = guess_trip(data, num_landmarks, motion_noise, measurement_noise)
-    print_result(1, num_landmarks, result[0])
+    print_landmarks(1, num_landmarks, result[0])
 
 """
 # -----------

@@ -1,100 +1,156 @@
-# SLAM: simutaneous localization and mapping
-
+# SLAM in a rectolinear world (we avoid non-linearities)
+#
+# 2 dimensional world. For example, 
+# if there were 2 poses and 2 landmarks, mu would look like:
+#  mu =  matrix([[Px0],
+#                [Py0],
+#                [Px1],
+#                [Py1],
+#                [Lx0],
+#                [Ly0],
+#                [Lx1],
+#                [Ly1]])
+#
 from math import *
-from utils import *
 import random
-from particle import particles
-from robot import robot
 import numpy as np
-import matplotlib.pyplot as plt
-from pid_control import twiddle
 
 
-def trace_cte(spath, index, pos):
-    dx=spath[index+1][0] - spath[index][0]
-    dy=spath[index+1][1] - spath[index][1]
-    drx=pos[0] - spath[index][0]
-    dry=pos[1] - spath[index][1]
-    # u is the robot pos projectes onto the path segment
-    u = (drx*dx + dry*dy)/(dx**2 + dy**2)
-    # cte is the pos projected onto the normal of the path segment
-    cte = (dry*dx - drx*dy)/(dx**2 + dy**2)
-    return cte, u
+num_landmarks      = 5        # number of landmarks
+N                  = 20       # time steps
+world_size         = 100.0    # size of world
+measurement_range  = 50.0     # range at which we can sense landmarks
+motion_noise       = 2.0      # noise in robot motion
+measurement_noise  = 2.0      # noise in the measurements
+distance           = 20.0     # distance by which robot (intends to) move each iteratation 
 
 
-def navigate(grid, init, goal, spath,  
-             (Kp,Ki,Kd),
-             speed = 0.1, 
-             N=1000):
-    start = (init[0], init[1], 0.0)
-    car_length=1.0
-    rob = robot(car_length)
-    rob.set_coordinate(*start)
-    rob.set_noise()
-    filter = particles(car_length, start)
+class robot:
+    def __init__(self, world_size = 100.0, measurement_range = 30.0,
+                 motion_noise = 1.0, measurement_noise = 1.0):
+        self.measurement_noise = 0.0
+        self.world_size = world_size
+        self.measurement_range = measurement_range
+        self.x = world_size / 2.0
+        self.y = world_size / 2.0
+        self.motion_noise = motion_noise
+        self.measurement_noise = measurement_noise
+        self.landmarks = []
+        self.num_landmarks = 0
 
-    Perr = Ierr = err= 0.0
-    data=[]
-    index = 0 
-    while not rob.reached(goal) and N>0:
-        N-=1
-        Derr = -Perr
-        Perr, u = trace_cte(spath, index, filter.position())
-        if u>1.0: # pick the next path sgement
-            index+=1
-        Derr += Perr
-        Ierr += Perr
-        steer = -Kp* Perr -Ki* Ierr -Kd* Derr
-        rob.move(steer, speed)
-        filter.move(steer, speed)
-        filter.resampling(rob.sense())
-        data.append((rob.x, rob.y))
-        if not rob.check_collision(grid):
-            print '##### Collision ####'
-        err += (Perr**2)
-        #plt.plot(*zip(*data))
-    return rob.reached(goal), rob.num_collisions, N, data
+    def rand(self):
+        return random.random() * 2.0 - 1.0
 
+    def make_landmarks(self, num_landmarks):
+        self.landmarks = []
+        for i in range(num_landmarks):
+            self.landmarks.append([round(random.random() * self.world_size),
+                                   round(random.random() * self.world_size)])
+        self.num_landmarks = num_landmarks
 
-def run(grid, init, goal, 
-         (weight_data, weight_smooth, p_gain, d_gain),
-         show=True):
-    from search import find_path
-    import smooth_control
-
-    grid=np.array(grid,dtype=int)
-    path = find_path(grid, init, goal)
-    spath = smooth_control.smooth(path, weight_data, weight_smooth)
-    res = navigate(grid, init, goal, spath, 
-            (p_gain, 0.0, d_gain),)
-    if show:
-        visual2D(path, spath, res[-1])
-    return res
-
-def average_run(params, grid, init, goal):
-    K = 10
-    best_err = 0.0
-    for k in range(K):
-        ret = run(grid, init, goal, params, show=False)
-        if ret[0]:
-            best_err += ret[1] * 100 + ret[2]
+    # move: attempts to move robot by dx, dy. If outside world
+    #       boundary, then the move does nothing and instead returns failure
+    def move(self, dx, dy):
+        x = self.x + dx + self.rand() * self.motion_noise
+        y = self.y + dy + self.rand() * self.motion_noise
+        if x < 0.0 or x > self.world_size or y < 0.0 or y > self.world_size:
+            return False
         else:
-            best_err += 99999
-    best_err /=  k+1
-    return best_err
+            self.x = x
+            self.y = y
+            return True
+    
+    # sense: returns (x,y) distances to landmarks within visibility range
+    #        because not all landmarks may be in this range, the list of measurements
+    #        is of variable length. 
+    #        Set measurement_range to -1 if you want all
+    #        landmarks to be visible at all times
+    def sense(self):
+        Z = []
+        for i in range(self.num_landmarks):
+            dx = self.landmarks[i][0] - self.x + self.rand() * self.measurement_noise
+            dy = self.landmarks[i][1] - self.y + self.rand() * self.measurement_noise    
+            if self.measurement_range < 0.0 or abs(dx) + abs(dy) <= self.measurement_range:
+                Z.append([i, dx, dy])
+        return Z
+
+    def __repr__(self):
+        return 'Robot: [x=%.5f y=%.5f]'  % (self.x, self.y)
 
 
-if __name__=="__main__":
-#   1 = occupied space
-    grid = [[0, 1, 0, 0, 0, 0],
-        [0, 1, 0, 1, 1, 0],
-        [0, 1, 0, 1, 0, 0],
-        [0, 0, 0, 1, 0, 1],
-        [0, 1, 0, 1, 0, 0]]
+def make_trip(N, num_landmarks, world_size, measurement_range, motion_noise, 
+              measurement_noise, distance):
+    complete = False
+    while not complete:
+        data = []
+        rob = robot(world_size, measurement_range, motion_noise, measurement_noise)
+        rob.make_landmarks(num_landmarks)
+        seen = [False for row in range(num_landmarks)]
+    
+        # guess an initial motion
+        orientation = random.random() * 2.0 * pi
+        dx = cos(orientation) * distance
+        dy = sin(orientation) * distance
 
-    init = [0, 0]
-    goal = [len(grid)-1, len(grid[0])-1]
+        for k in range(N-1):
+            Z = rob.sense()
+            # check off all landmarks that were observed 
+            for z in Z:
+                seen[z[0]] = True
+            while not rob.move(dx, dy):
+                # if we're out of world, pick instead a new direction
+                orientation = random.random() * 2.0 * pi
+                dx = cos(orientation) * distance
+                dy = sin(orientation) * distance
+            data.append([Z, [dx, dy]])
 
-    params = [weight_data, weight_smooth, p_gain, d_gain] = [0.1, 0.2, 2.0, 6.0]
-    #params = twiddle(average_run, params, (grid, init, goal))
-    run(grid, init, goal, params)
+        # we are done when all landmarks were observed; otherwise re-run
+        complete = (sum(seen) == num_landmarks)
+    print 'Landmarks: ', rob.landmarks
+    print rob
+    return data
+    
+def print_landmarks(N, num_landmarks, result):
+    A=result[2*N:]
+    X,Y=A[::2], A[1::2]
+    print 'Estimated Landmarks:'
+    for pos in zip(X,Y):
+        print '%.3f, %.3f' %(pos)
+
+def guess_trip(data, N, num_landmarks, motion_noise, measurement_noise):
+    dim = 2* (N+num_landmarks) #2D
+    Omega=np.zeros((dim,dim))
+    Omega[0,0]=Omega[1,1] = 1.0
+
+    Xi=np.zeros(dim)
+    Xi[0]=Xi[1]=world_size/2.
+    for k,(measurement, motion) in enumerate(data):
+        # n is motion index in matrix
+        n = k*2
+        for z in measurement:
+            # m is landmark index in matrix
+            m=2*(N+z[0])
+            for b in range(2):
+                Omega[n+b][n+b] += 1.0/measurement_noise
+                Omega[m+b][m+b] += 1.0/measurement_noise
+                Omega[n+b][m+b] += -1.0/measurement_noise
+                Omega[m+b][n+b] += -1.0/measurement_noise
+                Xi[n+b]         += -z[1+b]/measurement_noise
+                Xi[m+b]         += z[1+b]/measurement_noise
+        # update matrix by motion from i to (i+1)
+        for b in range(4):
+            Omega[n+b][n+b] += 1.0/motion_noise
+        for b in range(2):
+            Omega[n+b][n+b+2] += -1.0/motion_noise
+            Omega[n+b+2][n+b] += -1.0/motion_noise
+            Xi[n+b]           += -motion[b]/motion_noise
+            Xi[n+b+2]         += motion[b]/motion_noise
+
+    #compute best estimate
+    mu = np.linalg.inv(Omega).dot(Xi)
+    return mu 
+
+if __name__ == "__main__":
+    data = make_trip(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
+    result = guess_trip(data, N, num_landmarks, motion_noise, measurement_noise)
+    print_landmarks(N, num_landmarks, result)
