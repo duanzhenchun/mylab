@@ -48,21 +48,9 @@ def guess_trip(data, num_landmarks, motion_noise, measurement_noise):
     return mu, Omega
 
 
-data = make_trip(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
-result = guess_trip(data, num_landmarks, motion_noise, measurement_noise)
-print_result(1, num_landmarks, result[0])
-
-data = make_trip(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
-result = guess_trip(data, num_landmarks, motion_noise, measurement_noise)
-print_result(1, num_landmarks, result[0])
-
-##########################################################
 def solution_check(result, answer_mu, answer_omega):
-    if len(result) != 2:
-        print "Your function must return TWO matrices, mu and Omega"
-        return False
-    user_mu = result[0]
-    user_omega = result[1]
+    assert len(result) == 2
+    user_mu, user_omega = result
     answer_mu = answer_mu.reshape(answer_mu.size)
     assert user_mu.shape == answer_mu.shape
     assert user_omega.shape[0] == answer_omega.shape[0]
@@ -70,6 +58,16 @@ def solution_check(result, answer_mu, answer_omega):
     assert np.allclose(user_omega, answer_omega)
     print "Test case passed!"
 
+if __name__ =="__main__":
+    data = make_trip(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
+    result = guess_trip(data, num_landmarks, motion_noise, measurement_noise)
+    print_result(1, num_landmarks, result[0])
+
+    data = make_trip(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
+    result = guess_trip(data, num_landmarks, motion_noise, measurement_noise)
+    print_result(1, num_landmarks, result[0])
+
+"""
 # -----------
 # Test Case 1
 
@@ -125,3 +123,4 @@ answer_omega2      = np.array([[0.22871751620895048, 0.0, -0.11351536555795691, 
 
 result = guess_trip(testdata2, 2, 3.0, 4.0)
 solution_check(result, answer_mu2, answer_omega2)
+"""
