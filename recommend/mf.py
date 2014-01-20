@@ -4,7 +4,7 @@
 #
 # An implementation of matrix factorization
 #
-import numpy
+import numpy as np
 
 ###############################################################################
 
@@ -22,8 +22,8 @@ import numpy
 """
 def matrix_factorization(R, K, steps=5000, alpha=0.0002, beta=0.02, tol=1e-3):
     N,M=R.shape
-    P = numpy.random.rand(N,K)
-    Q = numpy.random.rand(M,K)
+    P = np.random.rand(N,K)
+    Q = np.random.rand(M,K)
     Q = Q.T
     for step in xrange(steps):
         for i in xrange(N):
@@ -40,14 +40,13 @@ def matrix_factorization(R, K, steps=5000, alpha=0.0002, beta=0.02, tol=1e-3):
             for j in xrange(M):
                 if R[i][j] > 0:
                     e += (R[i][j] - P[i,:].dot(Q[:,j]))**2
-                    for k in xrange(K):
-                        e += beta/2 * ( P[i][k]**2 + Q[k][j]**2)
+        e += beta/2*(np.linalg.norm(P)+np.linalg.norm(Q))
+        print e
         if e < tol:
             break
     print step
     return P, Q.T
 
-###############################################################################
 
 if __name__ == "__main__":
     R = [
@@ -57,7 +56,7 @@ if __name__ == "__main__":
          [1,0,0,4],
          [0,1,5,4],
         ]
-    R = numpy.array(R)
+    R = np.array(R)
     K = 2
     P, Q = matrix_factorization(R, K)
     print P.dot(Q.T)

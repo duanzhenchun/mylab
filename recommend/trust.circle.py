@@ -9,25 +9,27 @@ C = [[1,2,3],[1,2],[2,3],[1,3],[1,3]]
 #Social relationships: trust/knows/follow
 S0 = [[3,5],[1,3,4],[2],[1,5],[3]]
 
-#num of ratings that user u assigned to items in category c
-N=np.zeros((numC,numU), dtype=int)
-for u,cu in enumerate(C):
-    for c in cu: #start from 1
-        N[c-1][u] = 1
+def init():
+    #num of ratings that user u assigned to items in category c
+    Nc=np.zeros((numC,numU), dtype=int)
+    for u,cu in enumerate(C):
+        for c in cu: #start from 1
+            Nc[c-1][u] = 1
 
-#S in each Category
-Sc = np.zeros((numC,numU,numU))
-S=np.zeros((numU,numU))
-for u,vs in enumerate(S0):
-    for v in vs:
-        S[u][v-1]=1
+    #S in each Category
+    Sc = np.zeros((numC,numU,numU))
+    S=np.zeros((numU,numU))
+    for u,vs in enumerate(S0):
+        for v in vs:
+            S[u][v-1]=1
+    return Nc,Sc,S
     
 for c in range(numC):
     for u in range(numU):
-        if N[c][u] <= 0:
+        if Nc[c][u] <= 0:
             continue
         for v in range(numU):
-            if N[c][v] <=0:
+            if Nc[c][v] <=0:
                 continue
             if S[u][v]<=0:
                 continue
@@ -39,9 +41,9 @@ def CircleCon1():
 def CircleCon2():
     Ec=np.zeros_like(Sc)
     #follower distribution
-    Dw=np.ones_like(N,dtype=float)*N
+    Dw=np.ones_like(Nc,dtype=float)*Nc
     for w in range(numU):
-        All=N[:,w].sum()
+        All=Nc[:,w].sum()
         if All>0:
             Dw[:,w]/=All
     for c in range(numC):
@@ -50,7 +52,7 @@ def CircleCon2():
             for i in range(numU):
                 if V[i]>0:
                     Fv = S[i]
-                    Ec[c][u][i] = N[c][i] * Dw[c].dot(Fv)
+                    Ec[c][u][i] = Nc[c][i] * Dw[c].dot(Fv)
     return normalize(Ec)
 
 def normalize(Sc):
@@ -69,7 +71,7 @@ def CircleCon3():
             V=Sc[c][u]
             for i in range(numU):
                 if V[i]>0:
-                    res[c][u][i] = 1.0 * N[c][i]/N[:,i].sum()
+                    res[c][u][i] = 1.0 * Nc[c][i]/Nc[:,i].sum()
     return normalize(res)
 
 if __name__=="__main__":
