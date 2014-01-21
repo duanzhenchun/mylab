@@ -1,6 +1,6 @@
 import math
 import numpy as np
-
+from scipy import sparse
 
 lambdaU=lambdaV=0.02
 lambdaT=1.0
@@ -19,35 +19,39 @@ def costL(R,T,U,V):
     cost=0.0
     for u in xrange(N):
         for i in xrange(M):
-            if R[u][i]>0:
-                cost += (R[u][i]-sigmoid(U[u].dot(V[:,i].T)))**2
+            if R[u,i]>0:
+                cost += (R[u,i]-sigmoid(U[u].dot(V[:,i].T)))**2
     cost += lambdaU/2*np.linalg.norm(U)+lambdaV/2*np.linalg.norm(V)
     for u in xrange(N):
-        e = U[u] - T[u].dot(U) #1xK
+        e = U[u] - T[u,:].tocsr().dot(U) #1xK
         cost += lambdaT/2*e.dot(e.T)
     return cost
 
-def partial(R,T,U,V):
+def gradient(R,T,U,V):
+    print 'gradient'
     dU = np.zeros(U.shape)
     dV = np.zeros(V.shape)
     N,M=R.shape
     for u in xrange(N):
+        print 'u', u
         for i in xrange(M):
-            if R[u][i] >0:
+            print 'i',i
+            if R[u,i] >0:
                 tmp = U[u].dot(V[:,i].T)
-                dU[u] += V[:,i].dot(dsigmoid(tmp)*(tmp-R[u][i])) 
+                dU[u] += V[:,i].dot(dsigmoid(tmp)*(tmp-R[u,i])) 
         dU[u] += lambdaU * U[u]
         tmp = 0.0
         for v in xrange(N):
-            if T[v][u]>0:
-                tmp += T[v][u]*(U[v] - T[v].dot(U))
-        dU[u] +=lambdaT * (U[u] - T[u].dot(U) - tmp)
+            print 'v',v
+            if T[v,u]>0:
+                tmp += T[v,u]*(U[v] - T[v,:].tocsr().dot(U))
+        dU[u] += lambdaT*(U[u] - T[u,:].tocsr().dot(U)[0] - tmp)
 
     for i in xrange(M):
         for u in xrange(N):
-            if R[u][i]>0:
+            if R[u,i]>0:
                 tmp = U[u].dot(V[:,i].T)
-                dV[:,i] += U[u].dot(dsigmoid(tmp)*(tmp-R[u][i]))
+                dV[:,i] += U[u].dot(dsigmoid(tmp)*(tmp-R[u,i]))
     dV[:,i] += lambdaV * V[:,i]
     return dU,dV
 
@@ -55,7 +59,7 @@ def init(S0,N):
     S=np.zeros((N,N))
     for u,vs in enumerate(S0):
         for v in vs:
-            S[u][v-1]=1
+            S[u,v-1]=1
     return S
  
 def socialMF(R, T, K, steps=10**3, alpha=0.002, tol=1e-5):
@@ -63,18 +67,45 @@ def socialMF(R, T, K, steps=10**3, alpha=0.002, tol=1e-5):
     U = np.random.rand(N,K)
     V = np.random.rand(K,M)
     for step in xrange(steps):
-        dU,dV = partial(R,T,U,V)
+        dU,dV = gradient(R,T,U,V)
         U -= alpha * dU
         V -= alpha * dV
         e = costL(R,T,U,V)
-        print e
+        print step, e
         if e < tol:
             break
     print 'step:%d, e: %f' %(step, e)
     return U, V
 
 
-if __name__ == "__main__":
+def gen_data(fname):
+    count=100
+    for line in open(fname):
+        count-=1
+        if count<0:
+            break
+        try:
+            yield [int(i) for i in line.split()]
+        except:
+            print line
+
+
+def t_epinion():
+    maxN=50000
+    maxM=200000
+    T=sparse.lil_matrix((maxN, maxN), dtype=np.int8)
+    R=sparse.lil_matrix((maxN,maxM),dtype=np.int8)
+    print 'get T'
+    for u,v,_ in gen_data('./epinions/trust_data.txt'):
+        T[u,v]=1
+    print 'get R'
+    for u,d,i in gen_data('./epinions/ratings_data.txt'):
+        R[u,d]=i
+    print 'starting...'
+    U,V = socialMF(R,T,K=5)
+
+
+def t_toy():
     R = [
          [5,3,0,1],
          [4,0,0,1],
@@ -87,4 +118,9 @@ if __name__ == "__main__":
     T = init(T, R.shape[0])
     U,V = socialMF(R,T,K=2)
     print 'R_hat:\n', U.dot(V)
+
+
+if __name__ == "__main__":
+    t_epinion()
+#    t_toy()
 
