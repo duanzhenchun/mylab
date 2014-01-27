@@ -4,7 +4,11 @@
 #
 # An implementation of matrix factorization
 #
-import numpy as np
+try:
+    import numpy
+except:
+    print "This implementation requires the numpy module."
+    exit(0)
 
 ###############################################################################
 
@@ -20,34 +24,29 @@ import numpy as np
 @OUTPUT:
     the final matrices P and Q
 """
-def matrix_factorization(R, K, steps=5000, alpha=0.2, beta=0.02, tol=1e-3):
-    N,M=R.shape
-    P = np.random.rand(N,K)
-    Q = np.random.rand(M,K)
+def matrix_factorization(R, P, Q, K, steps=5000, alpha=0.0002, beta=0.02):
     Q = Q.T
-    alpha /=(N*M)
     for step in xrange(steps):
-        for i in xrange(N):
-            for j in xrange(M):
+        for i in xrange(len(R)):
+            for j in xrange(len(R[i])):
                 if R[i][j] > 0:
-                    eij = R[i][j] - P[i,:].dot(Q[:,j])
+                    eij = R[i][j] - numpy.dot(P[i,:],Q[:,j])
                     for k in xrange(K):
                         P[i][k] = P[i][k] + alpha * (2 * eij * Q[k][j] - beta * P[i][k])
                         Q[k][j] = Q[k][j] + alpha * (2 * eij * P[i][k] - beta * Q[k][j])
-        #R_hat = P.dot(Q)
-        #error with regularization
+        eR = numpy.dot(P,Q)
         e = 0
-        for i in xrange(N):
-            for j in xrange(M):
+        for i in xrange(len(R)):
+            for j in xrange(len(R[i])):
                 if R[i][j] > 0:
-                    e += (R[i][j] - P[i,:].dot(Q[:,j]))**2
-        e += beta/2*(np.linalg.norm(P)+np.linalg.norm(Q))
-        #print e
-        if e < tol:
+                    e = e + pow(R[i][j] - numpy.dot(P[i,:],Q[:,j]), 2)
+                    for k in xrange(K):
+                        e = e + (beta/2) * ( pow(P[i][k],2) + pow(Q[k][j],2) )
+        if e < 0.001:
             break
-    print step,e
     return P, Q.T
 
+###############################################################################
 
 if __name__ == "__main__":
     R = [
@@ -57,7 +56,17 @@ if __name__ == "__main__":
          [1,0,0,4],
          [0,1,5,4],
         ]
-    R = np.array(R)
+
+    R = numpy.array(R)
+
+    N = len(R)
+    M = len(R[0])
     K = 2
-    P, Q = matrix_factorization(R, K)
-    print P.dot(Q.T)
+
+    P = numpy.random.rand(N,K)
+    Q = numpy.random.rand(M,K)
+    P = numpy.random.normal(scale=10.0, size=(N,K))
+    Q = numpy.random.normal(scale=10.0, size=(M,K))
+    print P,Q
+    nP, nQ = matrix_factorization(R, P, Q, K)
+    print nP.dot(nQ.T)
