@@ -38,26 +38,26 @@ def logist_cost(X, y, theta, Lambda=0.0):
     J = -cost.sum() + Lambda * np.linalg.norm(theta[1:]) ** 2 / (2 * m)
     return J.item()
 
+
+#cost function of linear regression
 def linear_cost(X, y, theta, Lambda=0.0):
-    """
-    cost function of linear regression
-    """	
     delta = X.dot(theta) - y
-    m = X.shape[0]
     J = (delta.T.dot(delta) + Lambda * theta[1:].T.dot(theta[1:])) / (2 * m)
-    return J.item()	
+    return J.item()  
+
 
 def linear_regression(X, y, steps=STEPS, alpha=ALPHA, Lambda=0.0):
     m, n = X.shape
     theta = np.zeros((n, 1))
-    Js = [] 
+    Js = []
     alter = np.ones((theta.size,1)); alter[0] = 0 # theta0 should not be regularized
-    for _ in range(steps):   
+    for _ in range(steps):
         delta = X.dot(theta) - y
         theta = theta *(1 - alpha * Lambda * alter / m) - X.T.dot(delta)* alpha / m
         Js.append(linear_cost(X, y, theta))
     return theta, Js
-                
+
+               
 def logistic_regression(X, y0, steps=STEPS, Lambda=0.0):
     """
     using Newton's method

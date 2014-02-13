@@ -1,3 +1,4 @@
+import random
 import numpy as np
 from collections import defaultdict
 from matplotlib import pyplot as plt
@@ -46,6 +47,7 @@ def socialMF(R,N,M, T, K, lambdaU,lambdaV,lambdaT,
         R,T,Rr=args
         dU = np.zeros(U.shape)
         dV = np.zeros(V.shape)
+#        for u in random.shuffle(R.keys()):
         for u in R:
             for i in R[u]:
                 tmp = U[u].dot(V[i])
