@@ -22,7 +22,8 @@ def polynomial_linear(X, M=5):
 
 def gaussian_linear(X, M=5):
     mu = np.linspace(X.min(), X.max(), M) 
-    sig = 1.0 
+    sig = X.max() - X.min()
+    #sig =0.1
     X1 = np.zeros((len(X),M)) 
     for i in range(len(X)):
         for j in range(M):
@@ -30,9 +31,10 @@ def gaussian_linear(X, M=5):
     return X1
     
 def gen_noisedata():
-    X = np.linspace(0.1, 9.9, 50)
+    X = np.linspace(0.1, 99.9, 50)
     X = np.atleast_2d(X).T
     y = f(X).ravel()
+#    X *=100
     span = np.abs(y).max()
     dy = 0.5 + 1.0 * np.random.random(y.shape)
     noise = np.random.normal(0, span * 0.1 * dy)
@@ -54,14 +56,14 @@ def confidence_plot(X, y,y_pred, dy):
     pl.show()
 
 def main():
+    M=40
     X0, y, dy = gen_noisedata()
-    #X = polynomial_linear(X0)
-    X = gaussian_linear(X0)
-    #clf = linear_model.LinearRegression()
-    clf = linear_model.Ridge()
+    #X = polynomial_linear(X0, M)
+    X = gaussian_linear(X0, M)
+    clf = linear_model.LinearRegression()
+    #clf = linear_model.Ridge()
     clf.fit(X,y) 
     y_pred = clf.predict(X) 
-    print clf.coef_
     pl.plot(X0,y, 'r:', label='$f(x)$')
     pl.plot(X0, y_pred, 'b-', label='linear regression of $f(x)$')
     pl.show()
