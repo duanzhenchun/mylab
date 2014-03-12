@@ -32,21 +32,11 @@ class SVMer(object):
             return -1
     
     def stats(self):
+        from sklearn.metrics import f1_score
         X, y = self.pre()
         y_ = self.clf.predict(X)
-        dic = {}
-        for i in range(2):
-            for j in range(2):
-                dic.setdefault('%s_%s' % (i, j), 0)
-        for i, j in zip(self.y, y_):
-            s = '%s_%s' % (i,j)
-            dic[s] += 1
-        P = dic['1_1'] * 1. / ((dic['1_1'] + dic['0_1']) or 1)
-        R = dic['1_1'] * 1. / ((dic['1_1'] + dic['1_0']) or 1)
-        f1 = 2.0 * P * R / ((P + R) or 1)
-        print 'dic:', dic
-        print 'Precision:%.2f, Recall: %.2f, f1: %.2f, ntest: %d' % (P, R, f1, sum(dic.values()))
         self.cls()
+        return f1_score(y, y_)
 
     def add(self, X, y, uid):
         self.X.append(X)

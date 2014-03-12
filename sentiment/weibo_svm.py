@@ -10,7 +10,7 @@ from utils import *
 
 
 POS,NEG=1, 0
-DATA_FOLDER='./data/hotel'
+DATA_FOLDER='./data/prod'
 
 def word_seg(doc):
     wc = defaultdict(int)
@@ -145,21 +145,22 @@ def training_f1(K, ntrain):
     cls.fit()
     for row in rows[ntrain:]:
         cls.add(*row)
-    cls.stats()
+    print "%.2f" %cls.stats()
 
 def experiment(docs, K, ntrain):
-    doc_fn = {'hotel': hotel_data, 'prod': prod_data}
-    print "K=%d, ntrain=%d" %(K, ntrain)
+    print "%d    %d" %(K, ntrain),
 #    build_lexicon(docs)
     training_f1(K, ntrain)
  
 def main():
-    print DATA_FOLDER
+    doc_fn = {'hotel': hotel_data, 'prod': prod_data}
     docs = list(doc_fn.get(DATA_FOLDER.split('/')[-1])())
+    print DATA_FOLDER
     print 'len(docs)=%d' %len(docs)
-    for K in (50, 100, 1000):
+    print '#format: K    ntrain    f1_score'
+    for K in (50, 100, 500):
         vec_doc(docs, vectorize(K), K)
-        for ntrain in (500, 1000, 2000 ):
+        for ntrain in (500, 1000, 2000):
             experiment(docs, K, ntrain)
 
    
