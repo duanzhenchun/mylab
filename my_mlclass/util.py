@@ -21,6 +21,10 @@ def z_scale(X):
     
 def sigmoid(z):
     return 1.0 / (1 + np.exp(-z))
+ 
+#derivative of sigmoid
+def dsigmoid(z):
+    return np.multiply(z, 1-z)
 
 def logist_h(X,theta):
     h= sigmoid(X.dot(theta))

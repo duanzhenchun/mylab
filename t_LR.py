@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn import linear_model
+from sklearn.gaussian_process import GaussianProcess
 from matplotlib import pyplot as pl
 
 
@@ -13,6 +14,9 @@ def addOne(X):
 def gaussian(x, mu=0.0, sigma=2.0):
     return np.exp(-np.linalg.norm(x-mu)**2/(2*sigma**2))
 
+def sigmoid(z, mu=0.0, sigma=1.0):
+    return 1.0 / (1 + np.exp(-(z-mu)/sigma))
+
 def polynomial_linear(X, M=5):
     """
     x+x^2+x^3+... => x1,x2,x3,...
@@ -22,16 +26,17 @@ def polynomial_linear(X, M=5):
 
 def gaussian_linear(X, M=5):
     mu = np.linspace(X.min(), X.max(), M) 
-    sig = X.max() - X.min()
-    #sig =0.1
+    sigma = X.max() - X.min()
+    sigma =1.0
     X1 = np.zeros((len(X),M)) 
     for i in range(len(X)):
         for j in range(M):
-            X1[i,j] = gaussian(X[i], mu[j], sig)
+            X1[i,j] = sigmoid(X[i], mu[j], sigma)
+            X1[i,j] = gaussian(X[i], mu[j], sigma)
     return X1
     
 def gen_noisedata():
-    X = np.linspace(0.1, 99.9, 50)
+    X = np.linspace(0, 100, 50)
     X = np.atleast_2d(X).T
     y = f(X).ravel()
 #    X *=100
@@ -62,7 +67,10 @@ def main():
     X = gaussian_linear(X0, M)
     clf = linear_model.LinearRegression()
     #clf = linear_model.Ridge()
+    clf = GaussianProcess(corr='cubic', theta0=1e-2, thetaL=1e-4, thetaU=1e-1,
+                     random_start=100)
     clf.fit(X,y) 
+    print clf.score(X,y)
     y_pred = clf.predict(X) 
     pl.plot(X0,y, 'r:', label='$f(x)$')
     pl.plot(X0, y_pred, 'b-', label='linear regression of $f(x)$')

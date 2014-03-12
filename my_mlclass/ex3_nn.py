@@ -78,9 +78,9 @@ def loop(A0,Y,theta0,theta1,Lambda, Steps):
     for _ in xrange(Steps):
         A1, A2 = nnforward(A0, theta0, theta1)
         delta2 = A2 - Y  #  5000 * 10  
-        delta1 = np.multiply(delta2.dot(theta1), np.multiply(A1, 1.0 - A1))  # 5000 * 26 
+        delta1 = np.multiply(delta2.dot(theta1), dsigmoid(A1)) # 5000 * 26 
         print _, abs(delta2).sum()
-        
+       
         D1 = (delta2.T.dot(A1) + Lambda * theta1) / m  # save as theta1
         D0 = (delta1.T.dot(A0) + Lambda * theta0) / m 
         theta1 -= D1  
@@ -90,10 +90,10 @@ def loop(A0,Y,theta0,theta1,Lambda, Steps):
 def nn_min(X,Y, theta0, theta1, Lambda):
     def costJ(Theta, A0, Y,Lambda):
         m,n=A0.shape
-        theta0,theta1 = reshape(Theta,A0,Y)
+        theta0,theta1 = reshape(Theta, A0, Y)
         A1, A2 = nnforward(A0, theta0, theta1)
         delta2 = A2 - Y  #  5000 * 10  
-        delta1 = np.multiply(delta2.dot(theta1), np.multiply(A1, 1.0 - A1))  # 5000 * 26 
+        delta1 = np.multiply(delta2.dot(theta1), dsigmoid(A1))  # 5000 * 26 
         D1 = (delta2.T.dot(A1) + Lambda * theta1) / m  # save as theta1
         D0 = (delta1.T.dot(A0) + Lambda * theta0) / m 
         J= abs(delta2).sum()
