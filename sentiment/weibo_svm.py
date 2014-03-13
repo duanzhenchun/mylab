@@ -10,8 +10,9 @@ import classify
 from utils import *
 
 
-POS,NEG=1, 0
-DATA_FOLDER='./data/hotel'
+POS, NEG=1, -1
+DATA_FOLDER='./data/ccf_nlp'
+F_CHIPROB = 'chi_prob.txt'
 
 def word_seg(doc):
     wc = defaultdict(int)
@@ -34,19 +35,21 @@ def wcount(docs):
 def chi2(N, wc, cc):
     res = {} 
     for w in wc:
-        a = [[wc[w][POS], wc[w][NEG]], [cc[POS]-wc[w][POS], cc[NEG]-wc[w][NEG]]]
-        res[w] = chi2_contingency(a)[0]
-    fout=codecs.open('%s/out.txt' %DATA_FOLDER, 'w')
+        obs = []
+        for k in cc:
+            obs.append([wc[w][k], cc[k] - wc[w][k]])
+        res[w] = chi2_contingency(obs)[0]
+    fout=codecs.open('%s/%s' %(DATA_FOLDER, F_CHIPROB), 'w', encoding='utf8')
     x,y=[],[]
-    for k,v in sortv_iter(res):
+    for k,v in sortv_iter(res, True):
         fout.write(u'%s: %s\n' %(k,v))
         y.append(v)
     fout.close()
     plt.plot(y)
-    plt.show()
+#    plt.show()
     return res
 
-
+@benchmark
 def build_lexicon(docs):
     N = len(docs) 
     wc, cc = wcount(docs)
@@ -56,6 +59,12 @@ def build_lexicon(docs):
 
 def tf_idf(m, N, wfreq):
     return m * math.log(N/wfreq)
+
+def test_data():
+    docs=[[u'abc ded', POS],
+          [u'ffe afe', NEG],
+          [u'l wfe', POS]]
+    return docs
 
 def prod_data():
     for fname in ('IntegratedCons.txt', 'IntegratedPros.txt'):
@@ -75,37 +84,55 @@ def hotel_data():
     tar = tarfile.open('%s/Ctrip_htl_ba_4000.tar.gz' %DATA_FOLDER)
     for f in tar.getmembers():
         if f.isfile():
-            is_pos = f.name.split('/')[1] == "pos" and 1 or 0
+            is_pos = f.name.split('/')[1] == "pos" and POS or NEG
             txt = tar.extractfile(f).read()
             txt = txt.decode('gbk', 'ignore')
             yield txt.strip(), is_pos
 
-def test_data():
-    docs=[
-        [u'abc ded', POS],
-        [u'ffe afe', NEG],
-        [u'l wfe', POS],
-    ]
+
+def rm_tag(txt):
+    for i in txt.split('#')[::2]:
+        if i:
+            yield i
+
+def ccf_nlp_data():
+    import xml.etree.ElementTree as et
+    import os
+    fol = u"./data/ccf_nlp/2012/微博情感分析评测/测试数据/"
+    for fname in os.listdir(fol):
+        if not fname.endswith('.xml'):
+            continue
+        for wb in et.parse(fol + fname).findall('weibo'):
+            for sent in wb.findall('sentence'):
+                txt = ' '.join(rm_tag(sent.text))
+                op = sent.attrib['opinionated']
+                is_pos = 0
+                if op == 'Y':
+                    is_pos = (sent.attrib['polarity'] == repr(POS)) and POS or NEG
+                yield txt, is_pos
 
 def top_lex(K):
     lex = {}
-    with open('%s/out.txt' %DATA_FOLDER) as f:
+    with codecs.open('%s/%s' %(DATA_FOLDER, F_CHIPROB), encoding='utf8') as f:
         for _ in range(K):
             l = f.next()
             res = l.split(':')
+            if len(res)<2:
+                continue
             lex[res[0]] = res[1]
     return lex
 
 def vec_doc(docs, lex, K):
     N=len(docs)
     wc, cc = wcount(docs)
+#    print 'wc keys len=', len(wc.keys())
     vec=[0.0,]*len(lex)
     dic= dict(zip(lex.keys(), range(len(lex))))
-    fout=codecs.open('%s/vec_%s_index.txt' %(DATA_FOLDER, K), 'w')
+    fout=codecs.open('%s/vec_%s_index.txt' %(DATA_FOLDER, K), 'w', encoding='utf8')
     for k in lex:
-        fout.write('%s\n' %k)
+        fout.write(u'%s\n' %k)
     fout.close()
-    fout=codecs.open('%s/vec_%s_doc.txt' %(DATA_FOLDER, K), 'w')
+    fout=codecs.open('%s/vec_%s_doc.txt' %(DATA_FOLDER, K), 'w', encoding='utf8')
     for i, (doc, is_pos) in enumerate(docs):
         fout.write('%s: %s, ' %(i, is_pos))
         for w, c in word_seg(doc).iteritems():
@@ -149,14 +176,17 @@ def experiment(docs, K, ntrain):
     print "\t%.2f\t%.2f" %(f1s[0], f1s[1])
  
 def main():
-    doc_fn = {'hotel': hotel_data, 'prod': prod_data}
+    doc_fn = {'hotel': hotel_data, 
+              'prod': prod_data,
+              'ccf_nlp': ccf_nlp_data,
+              }
     docs = list(doc_fn.get(DATA_FOLDER.split('/')[-1])())
     print DATA_FOLDER
     print 'len(docs)=%d' %len(docs)
+    build_lexicon(docs)
     print 'K\tntrain\tf1_micro\tf1_macro'
-#   build_lexicon(docs)
     for K in (50, 100, 500):
-        #vec_doc(docs, top_lex(K), K)
+        vec_doc(docs, top_lex(K), K)
         for ntrain in (500, 1000, 2000):
             experiment(docs, K, ntrain)
 

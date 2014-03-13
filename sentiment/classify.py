@@ -8,8 +8,8 @@ class SVMer(object):
     def __init__(self):
         self.cls()
         self.scaler = None
-        C, gamma = 3, 0.3  # grid test values
-        self.clf = svm.SVC(C=C, gamma=gamma, class_weight='auto')
+        C, gamma = 1.0, 0  # grid test values
+        self.clf = svm.SVC(C=C, gamma=gamma, probability=True)
     
     def fit(self):
         X, y = self.pre()
@@ -21,11 +21,10 @@ class SVMer(object):
         print 'svm training score:', self.clf.score(X, y)
         self.scaler = None
         
-    def judge(self, threshold=0.8):
+    def judge(self, threshold=0.5):
         X, y = self.pre()
         self.cls()
         if X != None:
-#            return self.clf.predict(X)[0]
             res = self.clf.predict_proba(X)[:,1]
             return (res>threshold)*1
         else:
@@ -36,7 +35,7 @@ class SVMer(object):
         X, y = self.pre()
         y_ = self.clf.predict(X)
         self.cls()
-        return [f1_score(y, y_, average=ave) for ave in ('micro', 'macro')]
+        return [f1_score(y, y_, pos_label=None, average=ave) for ave in ('micro', 'macro')]
 
     def add(self, X, y, uid):
         self.X.append(X)
