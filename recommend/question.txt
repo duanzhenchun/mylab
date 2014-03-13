@@ -1,0 +1,8 @@
+I'm trying to experiment paper "a matrix factorization technique with trust propagation for recommendation..." https://www.google.com.hk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CC8QFjAA&url=%68%74%74%70%73%3a%2f%2f%73%74%75%79%72%65%73%65%61%72%63%68%2e%67%6f%6f%67%6c%65%63%6f%64%65%2e%63%6f%6d%2f%68%67%2f%62%6c%61%6b%65%2f%72%65%73%6f%75%72%63%65%73%2f%70%31%33%35%2d%6a%61%6d%61%6c%69%2e%70%64%66&ei=nrHgUqWyKOHYige0koEQ&usg=AFQjCNHRixH8EWQ9uw7ra_ZDeWhzvUTUDQ
+
+2 problem here:
+
+gradient descent achieve local mininum. how to find global? My test often leave out of convergence if learning_rate>0.1 or abs(initial U/V) > 1
+the paper report each iteration cost 2.8sec in Epinions test, with a PC, but it cost me hours.
+
+For rough calculation of complexity of paper section 4.2, let N=50k, M=200K, K=5, average r=t=10, gradient computering is O(2.5x10^8), evalution of L is O(5x10^6). how to get 2.8sec?

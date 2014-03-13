@@ -2,15 +2,16 @@
 from collections import defaultdict
 import jieba
 import matplotlib.pyplot as plt
-import numpy as np
+import random
 from scipy.stats import chi2_contingency
 import math
 import codecs
+import classify
 from utils import *
 
 
 POS,NEG=1, 0
-DATA_FOLDER='./data/prod'
+DATA_FOLDER='./data/hotel'
 
 def word_seg(doc):
     wc = defaultdict(int)
@@ -49,7 +50,7 @@ def chi2(N, wc, cc):
 def build_lexicon(docs):
     N = len(docs) 
     wc, cc = wcount(docs)
-    print "class count: %s" %cc
+    print "class count:\t %s" %cc
     res = chi2(N, wc, cc)
 
 
@@ -86,14 +87,13 @@ def test_data():
         [u'l wfe', POS],
     ]
 
-def vectorize(K):
+def top_lex(K):
     lex = {}
-    for l in open('%s/out.txt' %DATA_FOLDER):
-        res = l.split(':')
-        lex[res[0]] = res[1]
-        K-=1
-        if K<1:
-            break
+    with open('%s/out.txt' %DATA_FOLDER) as f:
+        for _ in range(K):
+            l = f.next()
+            res = l.split(':')
+            lex[res[0]] = res[1]
     return lex
 
 def vec_doc(docs, lex, K):
@@ -118,7 +118,7 @@ def vec_doc(docs, lex, K):
     return vec
 
 
-def gen_rows(K):
+def gen_rows(K, simple_c = False):
     divi=": "
     f = codecs.open('%s/vec_%s_doc.txt' %(DATA_FOLDER, K))
     for l in f:
@@ -131,35 +131,32 @@ def gen_rows(K):
                 res = j.split(divi)
                 w, c = int(res[0]), float(res[1])
                 if w<K:
-                    v[w] = c
+                    v[w] = simple_c and 1.0 or c
         yield [v, is_pos, i]
 
 
-def training_f1(K, ntrain):
-    import classify
+def experiment(docs, K, ntrain):
+    print "%d\t%d" %(K, ntrain),
     cls = classify.SVMer()
     rows = list(gen_rows(K))
-    np.random.shuffle(rows)
+    random.shuffle(rows)
     for row in rows[:ntrain]:
         cls.add(*row)
     cls.fit()
     for row in rows[ntrain:]:
         cls.add(*row)
-    print "%.2f" %cls.stats()
-
-def experiment(docs, K, ntrain):
-    print "%d    %d" %(K, ntrain),
-#    build_lexicon(docs)
-    training_f1(K, ntrain)
+    f1s=cls.stats()
+    print "\t%.2f\t%.2f" %(f1s[0], f1s[1])
  
 def main():
     doc_fn = {'hotel': hotel_data, 'prod': prod_data}
     docs = list(doc_fn.get(DATA_FOLDER.split('/')[-1])())
     print DATA_FOLDER
     print 'len(docs)=%d' %len(docs)
-    print '#format: K    ntrain    f1_score'
+    print 'K\tntrain\tf1_micro\tf1_macro'
+#   build_lexicon(docs)
     for K in (50, 100, 500):
-        vec_doc(docs, vectorize(K), K)
+        #vec_doc(docs, top_lex(K), K)
         for ntrain in (500, 1000, 2000):
             experiment(docs, K, ntrain)
 

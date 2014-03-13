@@ -36,7 +36,7 @@ class SVMer(object):
         X, y = self.pre()
         y_ = self.clf.predict(X)
         self.cls()
-        return f1_score(y, y_)
+        return [f1_score(y, y_, average=ave) for ave in ('micro', 'macro')]
 
     def add(self, X, y, uid):
         self.X.append(X)
