@@ -11,7 +11,7 @@ from utils import *
 
 
 POS, NEG=1, -1
-DATA_FOLDER='./data/ccf_nlp'
+DATA_FOLDER='./data/'
 F_CHIPROB = 'chi_prob.txt'
 
 def word_seg(doc):
@@ -32,14 +32,14 @@ def wcount(docs):
     return wc, cc
 
 
-def chi2(N, wc, cc):
+def chi2(N, wc, cc, folder):
     res = {} 
     for w in wc:
         obs = []
         for k in cc:
             obs.append([wc[w][k], cc[k] - wc[w][k]])
         res[w] = chi2_contingency(obs)[0]
-    fout=codecs.open('%s/%s' %(DATA_FOLDER, F_CHIPROB), 'w', encoding='utf8')
+    fout=codecs.open('%s/%s' %(folder, F_CHIPROB), 'w', encoding='utf8')
     x,y=[],[]
     for k,v in sortv_iter(res, True):
         fout.write(u'%s: %s\n' %(k,v))
@@ -50,11 +50,11 @@ def chi2(N, wc, cc):
     return res
 
 @benchmark
-def build_lexicon(docs):
+def build_lexicon(docs, folder):
     N = len(docs) 
     wc, cc = wcount(docs)
     print "class count:\t %s" %cc
-    res = chi2(N, wc, cc)
+    res = chi2(N, wc, cc, folder)
 
 
 def tf_idf(m, N, wfreq):
@@ -66,9 +66,9 @@ def test_data():
           [u'l wfe', POS]]
     return docs
 
-def prod_data():
+def prod_data(folder):
     for fname in ('IntegratedCons.txt', 'IntegratedPros.txt'):
-        f= open('%s/%s' %(DATA_FOLDER, fname))
+        f= open('%s/%s' %(folder, fname))
         dic = {'<Cons>': NEG, '<Pros>': POS}
         for line in f:
             line = line.strip()
@@ -79,9 +79,9 @@ def prod_data():
                    yield txt, dic[k]
                    continue
                 
-def hotel_data():
+def hotel_data(folder):
     import tarfile
-    tar = tarfile.open('%s/Ctrip_htl_ba_4000.tar.gz' %DATA_FOLDER)
+    tar = tarfile.open('%s/Ctrip_htl_ba_4000.tar.gz' %folder)
     for f in tar.getmembers():
         if f.isfile():
             is_pos = f.name.split('/')[1] == "pos" and POS or NEG
@@ -95,10 +95,10 @@ def rm_tag(txt):
         if i:
             yield i
 
-def ccf_nlp_data():
+def ccf_nlp_data(folder):
     import xml.etree.ElementTree as et
     import os
-    fol = u"./data/ccf_nlp/2012/微博情感分析评测/测试数据/"
+    fol = u"%s/2012/微博情感分析评测/测试数据/" %folder
     for fname in os.listdir(fol):
         if not fname.endswith('.xml'):
             continue
@@ -108,12 +108,12 @@ def ccf_nlp_data():
                 op = sent.attrib['opinionated']
                 is_pos = 0
                 if op == 'Y':
-                    is_pos = (sent.attrib['polarity'] == repr(POS)) and POS or NEG
+                    is_pos = (sent.attrib['polarity'] == 'POS') and POS or NEG
                 yield txt, is_pos
 
-def top_lex(K):
+def top_lex(K, folder):
     lex = {}
-    with codecs.open('%s/%s' %(DATA_FOLDER, F_CHIPROB), encoding='utf8') as f:
+    with codecs.open('%s/%s' %(folder, F_CHIPROB), encoding='utf8') as f:
         for _ in range(K):
             l = f.next()
             res = l.split(':')
@@ -122,17 +122,17 @@ def top_lex(K):
             lex[res[0]] = res[1]
     return lex
 
-def vec_doc(docs, lex, K):
+def vec_doc(docs, lex, K, folder):
     N=len(docs)
     wc, cc = wcount(docs)
 #    print 'wc keys len=', len(wc.keys())
     vec=[0.0,]*len(lex)
     dic= dict(zip(lex.keys(), range(len(lex))))
-    fout=codecs.open('%s/vec_%s_index.txt' %(DATA_FOLDER, K), 'w', encoding='utf8')
+    fout=codecs.open('%s/vec_%s_index.txt' %(folder, K), 'w', encoding='utf8')
     for k in lex:
         fout.write(u'%s\n' %k)
     fout.close()
-    fout=codecs.open('%s/vec_%s_doc.txt' %(DATA_FOLDER, K), 'w', encoding='utf8')
+    fout=codecs.open('%s/vec_%s_doc.txt' %(folder, K), 'w', encoding='utf8')
     for i, (doc, is_pos) in enumerate(docs):
         fout.write('%s: %s, ' %(i, is_pos))
         for w, c in word_seg(doc).iteritems():
@@ -145,9 +145,9 @@ def vec_doc(docs, lex, K):
     return vec
 
 
-def gen_rows(K, simple_c = False):
+def gen_rows(K, folder, simple_c = False):
     divi=": "
-    f = codecs.open('%s/vec_%s_doc.txt' %(DATA_FOLDER, K))
+    f = codecs.open('%s/vec_%s_doc.txt' %(folder, K))
     for l in f:
         h,t = l.split(', ',1)
         i, is_pos=[int(j) for j in h.split(divi)]
@@ -162,10 +162,10 @@ def gen_rows(K, simple_c = False):
         yield [v, is_pos, i]
 
 
-def experiment(docs, K, ntrain):
+def experiment(docs, K, ntrain, folder):
     print "%d\t%d" %(K, ntrain),
     cls = classify.SVMer()
-    rows = list(gen_rows(K))
+    rows = list(gen_rows(K, folder))
     random.shuffle(rows)
     for row in rows[:ntrain]:
         cls.add(*row)
@@ -176,19 +176,24 @@ def experiment(docs, K, ntrain):
     print "\t%.2f\t%.2f" %(f1s[0], f1s[1])
  
 def main():
+    import sys
+    data_t = 'ccf_nlp'
     doc_fn = {'hotel': hotel_data, 
               'prod': prod_data,
               'ccf_nlp': ccf_nlp_data,
               }
-    docs = list(doc_fn.get(DATA_FOLDER.split('/')[-1])())
-    print DATA_FOLDER
+    if len(sys.argv)>1 and sys.argv[1] in doc_fn:
+        data_t = sys.argv[1]
+    folder = DATA_FOLDER + data_t
+    print folder
+    docs = list(doc_fn.get(data_t)(folder))
     print 'len(docs)=%d' %len(docs)
-    build_lexicon(docs)
+    build_lexicon(docs, folder)
     print 'K\tntrain\tf1_micro\tf1_macro'
     for K in (50, 100, 500):
-        vec_doc(docs, top_lex(K), K)
+        vec_doc(docs, top_lex(K, folder), K, folder)
         for ntrain in (500, 1000, 2000):
-            experiment(docs, K, ntrain)
+            experiment(docs, K, ntrain, folder)
 
    
 if __name__ == "__main__":
