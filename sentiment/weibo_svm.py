@@ -10,7 +10,7 @@ import classify
 from utils import *
 
 
-POS, NEG=1, -1
+POS, NEG, NEU = 1, 0, 2
 DATA_FOLDER='./data/'
 F_CHIPROB = 'chi_prob.txt'
 
@@ -38,10 +38,10 @@ def chi2(N, wc, cc, folder):
         obs = []
         for k in cc:
             obs.append([wc[w][k], cc[k] - wc[w][k]])
-        res[w] = chi2_contingency(obs)[0]
+        res[w] = chi2_contingency(obs)[1]
     fout=codecs.open('%s/%s' %(folder, F_CHIPROB), 'w', encoding='utf8')
     x,y=[],[]
-    for k,v in sortv_iter(res, True):
+    for k,v in sortv_iter(res, False):
         fout.write(u'%s: %s\n' %(k,v))
         y.append(v)
     fout.close()
@@ -106,7 +106,7 @@ def ccf_nlp_data(folder):
             for sent in wb.findall('sentence'):
                 txt = ' '.join(rm_tag(sent.text))
                 op = sent.attrib['opinionated']
-                is_pos = 0
+                is_pos = NEU 
                 if op == 'Y':
                     is_pos = (sent.attrib['polarity'] == 'POS') and POS or NEG
                 yield txt, is_pos
@@ -161,7 +161,7 @@ def gen_rows(K, folder, simple_c = False):
                     v[w] = simple_c and 1.0 or c
         yield [v, is_pos, i]
 
-
+#@benchmark
 def experiment(docs, K, ntrain, folder):
     print "%d\t%d" %(K, ntrain),
     cls = classify.SVMer()
@@ -173,7 +173,7 @@ def experiment(docs, K, ntrain, folder):
     for row in rows[ntrain:]:
         cls.add(*row)
     f1s=cls.stats()
-    print "\t%.2f\t%.2f" %(f1s[0], f1s[1])
+    print "\t%.2f\t%.2f\t%s" %(f1s[0], f1s[1], f1s[2])
  
 def main():
     import sys
@@ -189,7 +189,7 @@ def main():
     docs = list(doc_fn.get(data_t)(folder))
     print 'len(docs)=%d' %len(docs)
     build_lexicon(docs, folder)
-    print 'K\tntrain\tf1_micro\tf1_macro'
+    print 'K\tntrain\tf1_micro\tf1_macro\tf1_seperate'
     for K in (50, 100, 500):
         vec_doc(docs, top_lex(K, folder), K, folder)
         for ntrain in (500, 1000, 2000):

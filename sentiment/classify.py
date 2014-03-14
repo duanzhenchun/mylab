@@ -5,11 +5,12 @@ from sklearn import preprocessing
 
 
 class SVMer(object):
-    def __init__(self):
+    def __init__(self, prob=False):
+        self.prob=prob
         self.cls()
         self.scaler = None
-        C, gamma = 1.0, 0  # grid test values
-        self.clf = svm.SVC(C=C, gamma=gamma, probability=True)
+        C, gamma = 1.0, 0.0 # grid test values
+        self.clf = svm.SVC(C=C, gamma=gamma, probability=self.prob, class_weight='auto')
     
     def fit(self):
         X, y = self.pre()
@@ -24,18 +25,26 @@ class SVMer(object):
     def judge(self, threshold=0.5):
         X, y = self.pre()
         self.cls()
+        res = -1
         if X != None:
-            res = self.clf.predict_proba(X)[:,1]
-            return (res>threshold)*1
-        else:
-            return -1
+            if self.prob:
+                res = self.clf.predict_proba(X)[:,1]
+                res = (res > threshold)*1
+            else:
+                res = self.clf.predict(X)
+        return res
     
     def stats(self):
         from sklearn.metrics import f1_score
         X, y = self.pre()
         y_ = self.clf.predict(X)
+#        print 'i, sum(i)'
+#        for i in(-1,0,1):
+#            print '\n', i,
+#            for t in (y, y_):
+#                print sum(t==i),
         self.cls()
-        return [f1_score(y, y_, pos_label=None, average=ave) for ave in ('micro', 'macro')]
+        return [f1_score(y, y_, pos_label=None, average=ave) for ave in ('micro', 'macro', None)]
 
     def add(self, X, y, uid):
         self.X.append(X)
