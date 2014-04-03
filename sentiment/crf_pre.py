@@ -7,9 +7,9 @@ from utils import *
 import sys
 
 def to_suite_fmt():
-    fname = 'prepare.txt'
+    fout = 'prepare.txt'
     folder, fn  = get_data_f_fn()
-    fout = codecs.open('%s/%s' %(folder, fname), 'w', encoding='utf8')
+    fout = codecs.open('%s/%s' %(folder, fout), 'w', encoding='utf8')
     docs = list(fn(folder))
     #random.shuffle(docs)
     for doc, is_pos in docs:
