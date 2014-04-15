@@ -39,8 +39,8 @@ def train(fi, model):
     # Use L2-regularized SGD and 1st-order dyad features.
     trainer.select('l2sgd', 'crf1d')
     # This demonstrates how to list parameters and obtain their values.
-    #for name in trainer.params():
-    #    print name, trainer.get(name), trainer.help(name)
+    for name in trainer.params():
+        print name, trainer.get(name), trainer.help(name)
     
     # Set the coefficient for L2 regularization to 0.1
     trainer.set('c2', '0.1')
@@ -62,6 +62,7 @@ def test(fi, fo, model):
         y_pred.append(y)
         fo.write('\n')
     print [f1_score(y_true, y_pred, pos_label=None, average=ave) for ave in ('micro', 'macro', None)]
+    #[0.62865497076023391, 0.42959425965018605, array([ 0.        ,  0.70619236,  0.55186722,  0.46031746])]
 
 
 def main(ratio=0.8):
