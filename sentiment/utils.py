@@ -88,6 +88,7 @@ def ccf_nlp_data(folder):
                 is_pos = NEU 
                 if op == 'Y':
                     is_pos = (sent.attrib['polarity'] == 'POS') and POS or NEG
+                #import pdb; pdb.set_trace() 
                 yield txt, is_pos
 
 
