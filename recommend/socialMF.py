@@ -77,17 +77,17 @@ def socialMF(R,N,M, T, K, lambdaU,lambdaV,lambdaT,
         U,V=x0
         args=R,T,Rr
         res=[]
-        old_e = 1e5
         t0=10
+        stage = max(steps/100 , 1)
         for step in xrange(steps):
             dU,dV = gradient(U,V,*args)
             rate=learn_rate/(t0+step)
             U -= rate * dU
             V -= rate * dV
-            e = costL(U,V,*args)
-            print step, e
-            res.append(e)
-#            old_e = e
+            if not step%stage:
+                e = costL(U,V,*args)
+                print step, e
+                res.append(e)
             if e < tol:
                 break
         plt.plot(res)

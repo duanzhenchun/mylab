@@ -13,11 +13,11 @@ def gen_tags():
     folder, fn  = get_data_f_fn()
     docs = list(fn(folder))
     random.shuffle(docs)
-    #count =200
+    count =200
     for doc, is_pos in docs:
-        #count -=1
-        #if count<0:
-        #    break
+        count -=1
+        if count<0:
+            break
         for w_pos in jieba.posseg.cut(doc):
             w, pos = w_pos.word, w_pos.flag
             w = w.strip()
@@ -36,13 +36,14 @@ def train(fi, model):
     trainer = Trainer()
     for xseq, yseq in instances(fi):
         trainer.append(xseq, yseq, 0)
+    #http://www.chokkan.org/software/crfsuite/manual.html#id491233
     # Use L2-regularized SGD and 1st-order dyad features.
     trainer.select('l2sgd', 'crf1d')
     # This demonstrates how to list parameters and obtain their values.
-    for name in trainer.params():
-        print name, trainer.get(name), trainer.help(name)
+    #for name in trainer.params():
+    #    print name, trainer.get(name), trainer.help(name)
     
-    # Set the coefficient for L2 regularization to 0.1
+    # Set the coefficient for L2 regularization
     trainer.set('c2', '0.1')
     trainer.train(model, -1) 
 
@@ -66,8 +67,8 @@ def test(fi, fo, model):
 
 
 def main(ratio=0.8):
-    data_src = sys.argv[1]
-    model = '%s.model' %data_src
+    data_src= './data/%s' %(len(sys.argv) > 1 and sys.argv[1] or 'ccf_nlp')
+    model = '%s/crf.model' %data_src
     print "model:", model
     data = list(prepare())
     N = len(data)
@@ -75,8 +76,8 @@ def main(ratio=0.8):
     print N, ntrain
     train_d, test_d = data[:ntrain], data[ntrain:]
     train(train_d, model)
-    fo = open('%s.tag' %data_src, 'w')
-    test(test_d, fo, model)
+    tag_out = open('%s/crf.tag' %data_src, 'w')
+    test(test_d, tag_out, model)
 
 def prepare():
     F = fields.split(' ')
