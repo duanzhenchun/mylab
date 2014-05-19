@@ -1,0 +1,28 @@
+<title>upload</title>
+<head>
+<style type="text/css">
+h3 {color:blue;}
+</style>
+</head>
+<body>
+<h3>方式1: 上传文本</h3>
+<form action="" method="post" enctype="multipart/form-data"> 
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value = "上传"/>
+</form>
+<br/><br/>
+ 
+<h3>方式2: 输入内容</h3>
+<form action="./upload_txt" method="post" enctype="utf-8" >
+	test_name
+	<input type="text" name="test_name" value="test1">
+	<br/><br/>
+	<textarea rows="5" cols="30" name="content" id="content" >
+	</textarea>
+	<input type="submit" value="upload" />
+</form>
+<br/>
+</body>
+</html>
+ 

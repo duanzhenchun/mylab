@@ -10,6 +10,7 @@ import tempfile
 import sys
 import os
 import random
+from utils import *
 
 
 log_console = logging.StreamHandler(sys.stderr)
@@ -50,6 +51,7 @@ def uk_us():
         dic[uk.strip()]=us.strip()
     return dic
 
+@benchmark
 def gen_paras(dic, txt, k):
     for line in txt.split('\n'):
         yield '<p>'
@@ -72,43 +74,6 @@ def word_def(w):
     else:
         definition = '%s:\n%s' %(ss[0].name, ss[0].definition)
         return '<span title="%s" >%s</span>' %(definition, w)
-
-
-def to_html(txt, title=""):
-    return """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>%s</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
-<style type="text/css">
-        body{text-align:center;}
-       .div_txt{text-align:left; width:70%%; margin:0 auto;} 
-        span{background-color:yellow}
-</style>
-<script src="jquery-1.8.0.js"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-    $(".div_txt").mouseup(function(){
-        //IE和火狐兼容性的处理函数。
-        function selectText(){
-            if(document.selection){
-                return document.selection.createRange().text;// IE
-            }else{
-                return 	window.getSelection().toString(); //标准
-            }
-        }
-        var s = selectText();
-        if (s.length>0) alert(s);
-    });
-});
-</script>
-</head>
-<body>
-<div class="div_txt">
-%s
-</div>
-</body>
-</html>""" %(title, txt)
 
 
 def init():
@@ -144,6 +109,13 @@ def init():
             logger.exception("")
     initialized = True
 
+@benchmark
+def api(txt):
+    k=WDict.get(word_lem('freak'))
+    print 'k:%d' %k
+    return ''.join(gen_paras(WDict, txt, k))
+
+
 def test(fname):
     print fname
     txt=open(fname).read()
@@ -154,5 +126,7 @@ def test(fname):
     f.close()
 
 init()
-test('razors.edge.txt')
+
+if __name__ == '__main__':
+    test('razors.edge.txt')
 

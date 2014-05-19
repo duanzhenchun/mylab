@@ -1,0 +1,33 @@
+﻿<head>
+<title>{{ title }}</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
+<style type="text/css">
+        body{text-align:center;}
+       .div_txt{text-align:left; width:70%%; margin:0 auto; line-height: 150%} 
+        span{background-color:yellow}
+</style>
+<script type="text/javascript" src="/static/js/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $(".div_txt").mouseup(function(){
+        //IE和火狐兼容性的处理函数。
+        function selectText(){
+            if(document.selection){
+                return document.selection.createRange().text;// IE
+            }else{
+                return 	window.getSelection().toString(); //标准
+            }
+        }
+        var s = selectText().trim();
+        if (s.length>0) alert(s);
+    });
+});
+</script>
+</head>
+<body>
+<div class="div_txt">
+    {{ txt|safe }}
+</div>
+</body>
+</html>"
+
