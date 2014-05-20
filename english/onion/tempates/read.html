@@ -9,18 +9,37 @@
 <script type="text/javascript" src="/static/js/jquery.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-    $(".div_txt").mouseup(function(){
-        //IE和火狐兼容性的处理函数。
-        function selectText(){
-            if(document.selection){
-                return document.selection.createRange().text;// IE
-            }else{
-                return 	window.getSelection().toString(); //标准
+function firm(w) {//利用对话框返回的值 （true 或者 false） 
+    if(confirm("生词?")) {
+        $.ajax({
+            type: "POST",
+            url: 'word_mark',
+            data:{w:w,},
+            success: function(data){
+                console.log(data);
+                $(".div_txt").html(data.txt);
             }
+        });
+    } else {
+        alert("return false"); 
+    }
+}
+$(".div_txt").mouseup(function(){
+    //IE和火狐兼容性的处理函数。
+    function selectText(){
+        if(document.selection){
+            return document.selection.createRange().text;// IE
+        }else{
+            return 	window.getSelection().toString(); //标准
         }
-        var s = selectText().trim();
-        if (s.length>0) alert(s);
-    });
+    }
+    var s = selectText().trim();
+    if (s.length>0) {
+    <!--alert(s);-->
+        firm(s);
+        <!--   location.reload(true);-->
+    } 
+});
 });
 </script>
 </head>

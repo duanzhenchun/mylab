@@ -24,6 +24,7 @@ initialized=False
 Word_pat = re.compile(r"[\w’']+|\W+")
 ST = PorterStemmer()
 Wnl= WordNetLemmatizer()
+Content = ''
 
 def word_lem(w):
     w = w.lower()
@@ -111,10 +112,20 @@ def init():
 
 @benchmark
 def api(txt):
-    k=WDict.get(word_lem('freak'))
-    print 'k:%d' %k
-    return ''.join(gen_paras(WDict, txt, k))
+    global K, Content
+    Content = txt
+    return ''.join(gen_paras(WDict, txt, K))
 
+def updateK(w):
+    global K, Content
+    t = WDict.get(word_lem(w))
+    print 't:', t
+    if t<0:
+        return 
+    else:
+        K=(K+t)/2
+        print "K:", K
+        return api(Content)
 
 def test(fname):
     print fname
@@ -126,6 +137,8 @@ def test(fname):
     f.close()
 
 init()
+K=WDict.get(word_lem('freak'))
+
 
 if __name__ == '__main__':
     test('razors.edge.txt')

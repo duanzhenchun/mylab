@@ -12,5 +12,7 @@ urlpatterns += patterns(mainpath + '.views',
     (r'^read$', 'read'),
     (r'^upload$', 'upload'),
     (r'^upload_txt$', 'upload_txt'),    
+    (r'^word_mark$', 'word_mark'),    
+
 )
 

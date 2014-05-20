@@ -61,3 +61,11 @@ def process(request, fname, data):
         return render_to_response('read.html', {'title':fname, 'txt':txt})
 #    return redirect(request.path.rsplit('/', 1)[0] + '/read/%s' % fname) 
 
+@benchmark
+def word_mark(request):
+    w = request.POST.get('w')
+    if w:
+        txt = word_level.updateK(w)
+        return json_response({'txt':txt})
+
+
