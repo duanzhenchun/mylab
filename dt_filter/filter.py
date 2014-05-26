@@ -1,75 +1,97 @@
 #coding=utf-8
 import xlrd
 import codecs
-#import openpyxl
-#from openpyxl.cell import get_column_letter
+from collections import defaultdict
 
+
+TARGETS = ('Subject','Content')
 RESULT_FILE = 'result.csv'
+STATS_FILE = 'stats.csv'
+AND_SEP = '_'
+
 
 def parse(buzz, dic):
+    counts=defaultdict(int)
     head = buzz.row_values(0)
     fo=codecs.open(RESULT_FILE, 'w', encoding='gbk')
-#    workbook = openpyxl.Workbook(encoding = 'utf-8')  
-#    sheet = workbook.create_sheet(title = 'result')  
-    fo.write('keyword,txt\n')
-#    for j, colname in enumerate(('keyword', 'txt')):    
-#        col = get_column_letter(j+1)
-#        sheet.cell('%s1' % col).value = colname 
-#    i=2
-    for colname in ('Subject','Content'):
+    fo.write('keyword, txt\n')
+    for colname in TARGETS:
         print colname
         rows = buzz.col_values(head.index(colname), start_rowx=1) 
-        output(fo, rows, dic)
+        output(fo, rows, dic, counts)
     fo.close()
-#    workbook.save(RESULT_FILE)  
+    return counts
 
-def output(fo, rows, dic):
+
+def output(fo, rows, dic, counts):
     for row in rows:
         row = unicode(row).strip().lower()
         if not row:
             continue
         for khead, (ks, exps) in dic.iteritems():
             for k in ks:
-                if row.find(k) >= 0:
-                    break
+                for k_and in k:
+                    if row.find(k_and)<0:
+                        break
+                else:
+                    break  #all AND matched
             else:   #no keyword found
                 continue
             for exp in exps:
-                if row.find(exp) >= 0:
+                for e_and in exp:
+                    if row.find(e_and) < 0:
+                        break
+                else:
                     break #either expt is bad
             else:
                 fo.write('%s, %s\n' %(khead, row))
-#                for j, txt in enumerate((khead, row)):
-#                    col = get_column_letter(j+1)
-#                    sheet.cell('%s%s' % (col, i)).value = txt
-                #sheet.write(i, 0, khead)#' '.join(ks))
-                #sheet.write(i, 1, row)
-#                i+=1
+                counts[khead]+=1
 
 
 def build_ke(dt):
     head = dt.row_values(0)
-    ks, exps = [dt.col_values(head.index(i), start_rowx=1) \
-            for i in ('keyword','expword')]
+    cat1s, cat2s, ks, exps = [dt.col_values(head.index(i), start_rowx=1) \
+            for i in ('cat1.cn', 'cat2.cn','keyword','expword')]
     dic={}
-    for k, e in zip(ks, exps):
-        k = unicode(k).strip().lower()
-        if not k:
+    dic_cat1={}
+    dic_cat2={}
+    for cat1, cat2, k, e in zip(cat1s, cat2s, ks, exps):
+        khead = unicode(k).strip()
+        if not khead:
             continue
-        es = unicode(e).strip().lower().split()
+        cat1=cat1.strip()
+        cat2=cat2.strip()
+        es = unicode(e).strip()
         # space means OR, _ means AND
-        ks = k.split()
-        dic[ks[0]] = (ks, es)
-    """
-    for fn in f:
-        key = [i.replace('_', ' ') for i in key.split()]
-        exp = [i.replace('_', ' ') for i in exp.split()]
-    """
-    return dic
+        dic[khead] = [[i.split(AND_SEP) for i in tmp.lower().split()] for tmp in (khead,es)]
+        dic_cat2[khead]=cat2
+        dic_cat1[cat2]= cat1
+    return dic, dic_cat1, dic_cat2
+
+def upcounts(dic, dic_up):
+    dic2=defaultdict(int)
+    for k,v in dic_up.iteritems():
+        dic2[v] += dic[k]
+    return dic2
+
+
+def tops(dic,title, fo):
+    res = sorted(dic.iteritems(), key=lambda (k, v):v, reverse=True)
+    fo.write(title+'\n')
+    for i in res:
+        fo.write('%s,%s\n' %(i[0], i[1]))
+
 
 if __name__ == '__main__':
     fi = 'for whille.xlsx'
     data = xlrd.open_workbook(fi)
     buzz, dt = [data.sheet_by_name(i) for i in('data', 'DT')]
-    dic = build_ke(dt)
-    parse(buzz, dic)
+    dic, dic_cat1, dic_cat2 = build_ke(dt)
+    counts = parse(buzz, dic)
+    dic2 = upcounts(counts, dic_cat2)
+    dic1 = upcounts(dic2, dic_cat1)
+    fo=codecs.open(STATS_FILE, 'w', encoding='gbk')
+    titles =('keywords_stat', 'cat2_stat', 'cat1_stat')
+    for title, i in zip(titles, (counts, dic2, dic1)):
+        tops(i, title, fo)
+    fo.close()
