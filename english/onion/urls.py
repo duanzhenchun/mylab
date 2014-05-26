@@ -9,7 +9,8 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns(mainpath + '.views',
-    (r'^read$', 'read'),
+#    (r'^read/(?P<pk>[\w.]+)$', 'read'),
+    (r'^$', 'read'),
     (r'^upload$', 'upload'),
     (r'^upload_txt$', 'upload_txt'),    
     (r'^word_mark$', 'word_mark'),    

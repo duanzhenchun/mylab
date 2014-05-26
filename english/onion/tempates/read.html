@@ -9,41 +9,51 @@
 <script type="text/javascript" src="/static/js/jquery.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-function firm(w) {//利用对话框返回的值 （true 或者 false） 
-    if(confirm("生词?")) {
-        $.ajax({
-            type: "POST",
-            url: 'word_mark',
-            data:{w:w,},
-            success: function(data){
-                console.log(data);
-                $(".div_txt").html(data.txt);
-            }
-        });
-    } else {
-        alert("return false"); 
+
+function selectText(){
+    if(document.selection){
+        return document.selection.createRange().text;// IE
+    }else{
+        return 	window.getSelection().toString(); //标准
     }
 }
-$(".div_txt").mouseup(function(){
-    //IE和火狐兼容性的处理函数。
-    function selectText(){
-        if(document.selection){
-            return document.selection.createRange().text;// IE
-        }else{
-            return 	window.getSelection().toString(); //标准
+
+function change_word(w, unkown){
+    $.ajax({
+        type: "POST",
+        url: '../word_mark',
+        data:{w:w,unkown:unkown},
+        success: function(data){
+            $(".div_txt").html(data.txt);
         }
+    });
+}
+function like_word(s) {
+    return /^[\w\d]+$/i.test(s);
+}
+
+$(".word_span").live("click", function (){ // live response everytime
+    s = $(this).text();
+    if (confirm("认识? "+s)){
+        change_word(s, false);
     }
+});
+
+$(".div_txt").mouseup(function(){
     var s = selectText().trim();
-    if (s.length>0) {
-    <!--alert(s);-->
-        firm(s);
-        <!--   location.reload(true);-->
+    if (s.length>0 & like_word(s)) {
+        if(confirm("生词? "+s)) {
+            change_word(s, true);
+        }
+        //location.reload(true);
     } 
 });
 });
 </script>
 </head>
 <body>
+<a href="./upload">upload</a>
+</br>
 <div class="div_txt">
     {{ txt|safe }}
 </div>

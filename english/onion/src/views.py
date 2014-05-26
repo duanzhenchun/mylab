@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.template import Template, RequestContext
 import json
 import re
@@ -15,8 +15,10 @@ from django import forms
 class UploadFileForm(forms.Form):
     file = forms.FileField()
 
+#def read(request, pk):
 def read(request):
-    return render_to_response("OK")
+    txt = word_level.api()
+    return render_to_response('read.html', {'title':'article', 'txt':txt})
 
 def fit_urlpath(fname):
     return re.match('^[\w\.]+$', fname)
@@ -32,13 +34,15 @@ def upload(request):
         elif f.size > UPLOAD_LIMIT:
             return HttpResponseBadRequest('file size too big: ' + str(f.size))
         else:
-            return process(request, f.name, f.readlines())
+            return process(request, f.name, f.read())
     else:
         return render_to_response('upload.html', {'form': UploadFileForm}, 
                     context_instance=RequestContext(request))
 
 @benchmark
 def upload_txt(request):
+    if not request.method == 'POST':
+        return HttpResponseBadRequest()
     data = request.POST.get('content', '')
     test_name = request.POST.get('test_name', '')
     if not data.strip():
@@ -56,16 +60,13 @@ def json_response(dic):
     
 @benchmark
 def process(request, fname, data):
-    if data:
-        txt = word_level.api(data)
-        return render_to_response('read.html', {'title':fname, 'txt':txt})
-#    return redirect(request.path.rsplit('/', 1)[0] + '/read/%s' % fname) 
+    word_level.set_txt(data)
+    return redirect(request.path.rsplit('/', 1)[0]+'/') 
 
-@benchmark
+#@benchmark
 def word_mark(request):
-    w = request.POST.get('w')
+    w, unkown = [request.POST.get(i, '') for i in ('w', 'unkown')]
+    unkown = unkown == 'true' and True or False
     if w:
-        txt = word_level.updateK(w)
+        txt = word_level.updateK(w, unkown)
         return json_response({'txt':txt})
-
-

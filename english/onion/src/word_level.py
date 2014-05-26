@@ -10,6 +10,7 @@ import tempfile
 import sys
 import os
 import random
+import redis
 from utils import *
 
 
@@ -25,6 +26,10 @@ Word_pat = re.compile(r"[\w’']+|\W+")
 ST = PorterStemmer()
 Wnl= WordNetLemmatizer()
 Content = ''
+Mem = redis.Redis()
+Kmem = 'en_known_%s'
+Init_w = 'freak'
+K,N=10,0
 
 def word_lem(w):
     w = w.lower()
@@ -52,7 +57,7 @@ def uk_us():
         dic[uk.strip()]=us.strip()
     return dic
 
-@benchmark
+#@benchmark
 def gen_paras(dic, txt, k):
     for line in txt.split('\n'):
         yield '<p>'
@@ -74,11 +79,11 @@ def word_def(w):
         return w
     else:
         definition = '%s:\n%s' %(ss[0].name, ss[0].definition)
-        return '<span title="%s" >%s</span>' %(definition, w)
+        return '<span class="word_span" title="%s" >%s</span>' %(definition, w)
 
 
 def init():
-    global WDict, Dic_uk, initialized
+    global WDict, Dic_uk, initialized, K,N
     if initialized:
         return
     cache_file = os.path.join(tempfile.gettempdir(),"en_word_freq.cache")
@@ -108,24 +113,55 @@ def init():
         except:
             logger.error("dump cache file failed.")
             logger.exception("")
+
+    K = WDict.get(word_lem(Init_w))
+    N = 1
+    print "K:%d" %K
     initialized = True
 
-@benchmark
-def api(txt):
-    global K, Content
-    Content = txt
-    return ''.join(gen_paras(WDict, txt, K))
 
-def updateK(w):
+def set_txt(txt):
+    global Content
+    Content=txt
+
+#@benchmark
+def api():
     global K, Content
-    t = WDict.get(word_lem(w))
-    print 't:', t
-    if t<0:
-        return 
-    else:
-        K=(K+t)/2
-        print "K:", K
-        return api(Content)
+    return ''.join(gen_paras(WDict, Content, K))
+
+def newTarget(k, n, v):
+    #as zipf-law, if rank(w)>1000, freq(w)>10, rank * freq = C
+    if v<10 or v>7600:
+        return k, n
+    k = (n+1)/(1.0/k*n+1.0/v)
+    k = k>1 and k or 2
+    return k, n+1
+
+def updateK(w, unkown):
+    global K,N
+    w1=word_lem(w)
+    v = WDict.get(w1)
+    if v<0:
+        return ''
+    remember(w, unkown)
+    K,N = newTarget(K,N,v)
+    print 'K:%s, N:%s, v:%s' %(K,N,v)
+    WDict[w1]= unkown and K-1 or K+1
+    print w, w1, WDict[w1]
+    return api()
+
+def remember(w, unkown):
+    t = not unkown and 1 or 0
+    k1=Kmem %t
+    k2 = Kmem %(1-t)
+    print k1, w
+    Mem.sadd(k1,w)
+    Mem.srem(k2,w)
+
+def personal_words():
+    for i in range(2):
+        k =Kmem %i 
+        yield i, Mem.smembers(k)
 
 def test(fname):
     print fname
@@ -136,8 +172,13 @@ def test(fname):
     f.write(to_html(''.join(gen_paras(WDict, txt, k)), 'onion'))
     f.close()
 
+def zipf():
+    from matplotlib import pyplot as plt
+    lst=sorted(WDict.values(), reverse=True)
+    plt.loglog(lst)
+    plt.show()
+
 init()
-K=WDict.get(word_lem('freak'))
 
 
 if __name__ == '__main__':
