@@ -4,16 +4,24 @@ import codecs
 from collections import defaultdict
 
 
+FILE_IN = 'Coppertone Product Whille.xlsx'
+DATA_SHEETS = ('pink', 'blue','green', 'other')
 TARGETS = ('Subject','Content')
+DTSHEET='DT'
+DT_NAMES = ('cat1.cn', 'cat2.cn','keyword','expword')
 RESULT_FILE = 'result.csv'
 STATS_FILE = 'stats.csv'
 AND_SEP = '_'
 
 
-def parse(buzz, dic):
+def writef(fname):
+    return codecs.open(fname, 'w', encoding='gb18030')
+
+
+def parse(result_fname, buzz, dic):
     counts=defaultdict(int)
     head = buzz.row_values(0)
-    fo=codecs.open(RESULT_FILE, 'w', encoding='gbk')
+    fo=writef(result_fname)
     fo.write('keyword, txt\n')
     for colname in TARGETS:
         print colname
@@ -44,14 +52,13 @@ def output(fo, rows, dic, counts):
                 else:
                     break #either expt is bad
             else:
-                fo.write('%s, %s\n' %(khead, row))
+                fo.write(u'%s, %s\n' %(khead, row))
                 counts[khead]+=1
 
 
 def build_ke(dt):
     head = dt.row_values(0)
-    cat1s, cat2s, ks, exps = [dt.col_values(head.index(i), start_rowx=1) \
-            for i in ('cat1.cn', 'cat2.cn','keyword','expword')]
+    cat1s, cat2s, ks, exps = [dt.col_values(head.index(i), start_rowx=1) for i in DT_NAMES]
     dic={}
     dic_cat1={}
     dic_cat2={}
@@ -83,15 +90,17 @@ def tops(dic,title, fo):
 
 
 if __name__ == '__main__':
-    fi = 'for whille.xlsx'
-    data = xlrd.open_workbook(fi)
-    buzz, dt = [data.sheet_by_name(i) for i in('data', 'DT')]
+    data = xlrd.open_workbook(FILE_IN)
+    dt = data.sheet_by_name(DTSHEET)
     dic, dic_cat1, dic_cat2 = build_ke(dt)
-    counts = parse(buzz, dic)
-    dic2 = upcounts(counts, dic_cat2)
-    dic1 = upcounts(dic2, dic_cat1)
-    fo=codecs.open(STATS_FILE, 'w', encoding='gbk')
-    titles =('keywords_stat', 'cat2_stat', 'cat1_stat')
-    for title, i in zip(titles, (counts, dic2, dic1)):
-        tops(i, title, fo)
-    fo.close()
+    for datasheet in DATA_SHEETS:
+        print datasheet
+        buzz= data.sheet_by_name(datasheet)
+        counts = parse('%s_%s' %(datasheet, RESULT_FILE), buzz, dic)
+        dic2 = upcounts(counts, dic_cat2)
+        dic1 = upcounts(dic2, dic_cat1)
+        fo=writef('%s_%s' %(datasheet, STATS_FILE))
+        titles =('keywords_stat', 'cat2_stat', 'cat1_stat')
+        for title, i in zip(titles, (counts, dic2, dic1)):
+            tops(i, title, fo)
+        fo.close()
