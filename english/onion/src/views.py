@@ -10,19 +10,28 @@ import word_level
 from conf import *
 from utils import *
 from django import forms
-
+import math
 
 class UploadFileForm(forms.Form):
     file = forms.FileField()
 
-#def read(request, pk):
-def read(request):
-    txt = word_level.api()
-    return render_to_response('read.html', {'title':'article', 'txt':txt})
+
+def read(request, page_size=20):
+    cur = get_curpage(request)
+    txt, allcount = word_level.api(cur, page_size)
+    pagecount = int(math.ceil(allcount / (page_size * 1.0)))
+    pagelist, page_range, addr = get_page_content(request, allcount, page_size, cur)
+    return render_to_response('read.html', 
+            {'title': 'article', 'txt': txt, 
+             'addr':addr, 'pagelist':pagelist, 
+             'curpage':cur, 'page_size':page_size,
+             'page_range':page_range, 'pagecount':pagecount})
+
 
 def fit_urlpath(fname):
     return re.match('^[\w\.]+$', fname)
-    
+
+
 def upload(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -36,8 +45,9 @@ def upload(request):
         else:
             return process(request, f.name, f.read())
     else:
-        return render_to_response('upload.html', {'form': UploadFileForm}, 
-                    context_instance=RequestContext(request))
+        return render_to_response('upload.html', {'form': UploadFileForm},
+                                  context_instance=RequestContext(request))
+
 
 @benchmark
 def upload_txt(request):
@@ -48,25 +58,27 @@ def upload_txt(request):
     if not data.strip():
         return HttpResponseBadRequest(data)
     elif not test_name or not fit_urlpath(test_name):
-            return HttpResponseBadRequest('file name should only contaions alpha, num, or _')
+        return HttpResponseBadRequest('file name should only contaions alpha, num, or _')
     elif len(data) > UPLOAD_LIMIT:
-        return HttpResponseBadRequest('Error: file size too big: ' + len(data))        
+        return HttpResponseBadRequest('Error: file size too big: ' + len(data))
     else:
         return process(request, test_name, tounicode(data))
-    
+
+
 def json_response(dic):
     json_response = json.dumps(dic)
     return HttpResponse(json_response, mimetype='application/json')
-    
+
+
 @benchmark
 def process(request, fname, data):
     word_level.set_txt(data)
-    return redirect(request.path.rsplit('/', 1)[0]+'/') 
+    return redirect(request.path.rsplit('/', 1)[0] + '/')
 
 #@benchmark
 def word_mark(request):
-    w, unkown = [request.POST.get(i, '') for i in ('w', 'unkown')]
+    w, unkown,cur, page_size = [request.POST.get(i, '') for i in ('w', 'unkown', 'curpage', 'page_size')]
     unkown = unkown == 'true' and True or False
     if w:
-        txt = word_level.updateK(w, unkown)
-        return json_response({'txt':txt})
+        txt = word_level.updateK(w, unkown, int(cur), int(page_size))
+        return json_response({'txt': txt})
