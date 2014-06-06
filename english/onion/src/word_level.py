@@ -127,7 +127,7 @@ def set_txt(txt):
     Content = txt.split('\n')
 
 #@benchmark
-def api(cur, page_size):
+def decorate(cur, page_size):
     global K, Content
     n = len(Content)
     l = page_size * (cur - 1)
@@ -157,7 +157,7 @@ def updateK(w, unkown, cur, page_size):
     print 'K:%s, N:%s, v:%s' % (K, N, v)
     WDict[w1] = unkown and K - 1 or K + 1
     print w, w1, WDict[w1]
-    txt, n = api(cur, page_size)
+    txt, n = decorate(cur, page_size)
     return txt
 
 

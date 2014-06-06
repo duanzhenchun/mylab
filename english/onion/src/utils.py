@@ -26,12 +26,19 @@ def benchmark(f):
     return wrapper
 
 
-def tounicode(s):
-    return isinstance(s, unicode) and s or isinstance(s, int) and unicode(s) or s.decode('utf-8')
+
+def get_encoding(txt):
+    import chardet
+    encoding = chardet.detect(txt[:100])['encoding']
+    return encoding
+
+
+def tounicode(s, encoding='utf8'):
+    return isinstance(s, unicode) and s or s.decode(encoding, 'ignore')
 
 
 def toutf8(s):
-    return isinstance(s, unicode) and s.encode('utf-8') or isinstance(s, int) and str(s) or s
+    return isinstance(s, unicode) and s.encode('utf8') or s
 
 
 def normalize(lst):
@@ -73,15 +80,15 @@ def lstclosure():
     return _
 
 
-def get_querymid(url):
-    return url.split('/')[-1].split('#')[0]
-
-
 def chunks(l, n):
     """ Yield successive n-sized chunks from l.
     """
     for i in xrange(0, len(l), n):
         yield l[i:i + n]
+
+
+def get_querymid(url):
+    return url.split('/')[-1].split('#')[0]
 
 
 def get_curpage(request):
