@@ -18,7 +18,9 @@ class UploadFileForm(forms.Form):
 
 def read(request, page_size=40):
     cur = get_curpage(request)
-    txt, allcount = word_level.decorate(cur, page_size)
+    lines = word_level.cur_txt(cur, page_size)
+    txt = word_level.decorate(lines)
+    allcount = len(word_level.Content)
     pagecount = int(math.ceil(allcount / (page_size * 1.0)))
     pagelist, page_range, addr = get_page_content(request, allcount, page_size, cur)
     return render_to_response('read.html', 
@@ -80,14 +82,13 @@ def word_mark(request):
     unkown = unkown == 'true' and True or False
     if w:
         txt = word_level.updateK(w, unkown, int(cur), int(page_size))
+        print txt
         return json_response({'txt': txt})
 
 
 def personal(request):
     res={}
-    for i,words in word_level.personal_words():
-        res[i]=list(words)
-    return json_response(res)
-    return render_to_response('upload.html', res )
-
-
+    for i,dic in word_level.personal_words():
+        res[i]=dic
+    return render_to_response('personal.html', 
+            {'title':'personal', 'result':res})

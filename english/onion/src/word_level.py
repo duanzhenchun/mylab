@@ -30,7 +30,7 @@ Mem = redis.Redis()
 Kmem = 'en_known_%s'
 Init_w = 'freak'
 K, N = 10, 0
-
+Sep_sent = re.compile(r'[\.\?!]')
 
 def word_lem(w):
     w = w.lower()
@@ -62,7 +62,6 @@ def uk_us():
 #@benchmark
 def gen_html(dic, lines, k):
     for line in lines:
-        yield '<p>'
         for w0 in Word_pat.findall(line):
             if not w0.isalpha():
                 yield w0
@@ -72,7 +71,7 @@ def gen_html(dic, lines, k):
                     yield word_def(w0)
                 else:
                     yield w0
-        yield '</p>'
+        yield '<br/>'
 
 
 def word_def(w):
@@ -124,17 +123,20 @@ def init():
 
 def set_txt(txt):
     global Content
-    Content = txt.split('\n')
+    Content = tounicode(txt).split('\n')
 
-#@benchmark
-def decorate(cur, page_size):
-    global K, Content
-    n = len(Content)
+
+def cur_txt(cur, page_size):
+    global Content
     l = page_size * (cur - 1)
     r = l + page_size
-    print 'xxx', l,r,n
-    txt = ''.join(gen_html(WDict, Content[l:r], K))
-    return txt, n
+    return Content[l:r]
+
+
+#@benchmark
+def decorate(lines):
+    txt = ''.join(gen_html(WDict, lines, K))
+    return txt
 
 
 def newTarget(k, n, v):
@@ -152,28 +154,32 @@ def updateK(w, unkown, cur, page_size):
     v = WDict.get(w1)
     if v < 0:
         return ''
-    remember(w, unkown)
     K, N = newTarget(K, N, v)
     print 'K:%s, N:%s, v:%s' % (K, N, v)
     WDict[w1] = unkown and K - 1 or K + 1
     print w, w1, WDict[w1]
-    txt, n = decorate(cur, page_size)
-    return txt
+    lines = cur_txt(cur, page_size)
+    for line in lines:
+        for sent in Sep_sent.split(line):
+            if w in sent:
+                sent = decorate((sent,))
+                remember(w, unkown, sent)
+                break
+    return decorate(lines)
 
 
-def remember(w, unkown):
+def remember(w, unkown, sentence):
     t = not unkown and 1 or 0
     k1 = Kmem % t
     k2 = Kmem % (1 - t)
-    print k1, w
-    Mem.sadd(k1, w)
-    Mem.srem(k2, w)
+    Mem.hset(k1, w, sentence)
+    Mem.hdel(k2, w)
 
 
 def personal_words():
     for i in range(2):
         k = Kmem % i
-        yield i, Mem.smembers(k)
+        yield i, Mem.hgetall(k)
 
 
 def test(fname):

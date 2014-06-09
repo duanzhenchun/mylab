@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block body %}
+{% for i, dic in result.iteritems %}
+    {{i}}:<br/>
+    {% for k,v in dic.iteritems %}
+        {{v|safe}}
+        <br/>
+    {% endfor %}
+{% endfor %}
+{% endblock %}
+

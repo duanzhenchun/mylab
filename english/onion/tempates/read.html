@@ -1,11 +1,5 @@
-﻿<head>
-<title>{{ title }}</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
-<style type="text/css">
-        body{text-align:center;}
-       #div_txt{text-align:left; width:70%%; margin:0 auto; line-height: 150%} 
-        .word_span{background-color:yellow}
-</style>
+﻿{% extends "base.html" %}
+{% block head %}
 <script type="text/javascript" src="/static/js/jquery.min.js"></script>
 <script type="text/javascript" src="/static/js/default.js"></script>
 <script type="text/javascript">
@@ -65,8 +59,9 @@ $(document).keydown(function(event){
    };
 });
 </script>
-</head>
-<body>
+{% endblock %}
+
+{% block body %}
 <a href="./upload">upload</a>
 </br>
 <div style="text-align: right;">{% include "nav.html" %}</div>
@@ -76,6 +71,6 @@ $(document).keydown(function(event){
 </div>
 <br>
 <br> {% include "nav.html" %}
-</body>
-</html>"
+
+{% endblock %}
 

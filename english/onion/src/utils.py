@@ -108,7 +108,7 @@ def get_page_content(request, allcount, page_size, cur):
     except(EmptyPage, InvalidPage, PageNotAnInteger):
         pagelist = paginator.page(1)
         cur = 1
-
+ 
     if cur >= after_range_num:
         page_range = paginator.page_range[
             cur - after_range_num:cur + bevor_range_num]
