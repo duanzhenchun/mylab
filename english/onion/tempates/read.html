@@ -1,7 +1,8 @@
 ﻿{% extends "base.html" %}
-{% block head %}
+
+{% block head%}
 <script type="text/javascript" src="/static/js/jquery.min.js"></script>
-<script type="text/javascript" src="/static/js/default.js"></script>
+<script type="text/javascript" src="/static/js/navigate.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 function selectText(){
@@ -20,7 +21,8 @@ function change_word(w, unkown){
                 page_size:{{page_size}} 
             },
         success: function(data){
-            $("#div_txt").html(data.txt);
+            txt = data.lines.join('<br/>');
+            $("#div_txt").html(txt);
         }
     });
 }
@@ -30,7 +32,9 @@ function like_word(s) {
 
 $(".word_span").live("click", function (){ // live response everytime
     s = $(this).text();
-    if (confirm("认识? "+s)){
+    if (confirm("生词? "+s)){
+        change_word(s, true);
+    }else{
         change_word(s, false);
     }
 });
@@ -41,10 +45,10 @@ $("#div_txt").mouseup(function(){
         if(confirm("生词? "+s)) {
             change_word(s, true);
         }
-        //location.reload(true);
     } 
 });
 });
+
 $(document).keydown(function(event){  
    event = event || window.event;
    if(event.keyCode==37){ 
@@ -61,16 +65,18 @@ $(document).keydown(function(event){
 </script>
 {% endblock %}
 
-{% block body %}
+{% block content %}
 <a href="./upload">upload</a>
 </br>
 <div style="text-align: right;">{% include "nav.html" %}</div>
 <br>
 <div id="div_txt">
-    {{ txt|safe }}
-</div>
+    {% for line in lines %}
+    {{line|safe}}
+    <br/>
+    {% endfor %}
 <br>
+</div>
 <br> {% include "nav.html" %}
-
 {% endblock %}
 

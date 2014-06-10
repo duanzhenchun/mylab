@@ -17,6 +17,7 @@ fo_name = './%s.inx' % fi_name
 Dicx_fname = Data_dir + 'Dicx.pkl'
 score_fname = Data_dir + 'score.txt'
 Threshold_tag = 10
+Ncandidates=600
 
 tf_u, tf_i, n_u, n_i, u_, i_, dic_tag = [
     defaultdict(int) for i in range(7)]
@@ -227,7 +228,7 @@ def best(dic, n):
     return sorted(dic.iteritems(), key=lambda (k, v): v, reverse=True)[:n]
 
 
-def predict(m, tags, k=600):
+def predict(m, tags, k=Ncandidates):
     links = reduce(set.union, [dic_li[l] for l in popular(tags, 10)])
     dics = [{} for i in range(len(sim_fs))]
     for n in links:
@@ -270,7 +271,7 @@ def MRR(lst):
 def evaluate():
     n_eval = len(sim_fs)
     lsts = [[] for i in range(n_eval)]
-    dismiss = [600, ] * len(sim_fs)
+    dismiss = [Ncandidates, ] * len(sim_fs)
     for line in open(score_fname):
         m, n, ls = line.split(' ', 2)
         m, n, ls = int(m), int(n), ast.literal_eval(ls)

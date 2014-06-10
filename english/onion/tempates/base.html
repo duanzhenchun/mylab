@@ -1,7 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
-
 <head>
 <title>{{ title }}</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
@@ -9,12 +7,16 @@
         body{text-align:center;}
         #div_txt{text-align:left; width:70%; margin:0 auto; line-height: 150%} 
         .word_span{background-color:yellow}
+        .head_line{color:blue; font-size:200%}
+        .personal_word{color:blue; font-size:150%}
+
 </style>
- {% block head %}
- {% endblock %}
+{% block head%}
+{% endblock %}
 </head>
 
 <body>
-{% block body %}{% endblock %}
+{% block content %}
+{% endblock %}
 </body>
 

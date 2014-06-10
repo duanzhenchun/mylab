@@ -59,21 +59,6 @@ def uk_us():
         dic[uk.strip()] = us.strip()
     return dic
 
-#@benchmark
-def gen_html(dic, lines, k):
-    for line in lines:
-        for w0 in Word_pat.findall(line):
-            if not w0.isalpha():
-                yield w0
-            else:
-                w = word_lem(w0)
-                if w in dic and dic[w] <= k:
-                    yield word_def(w0)
-                else:
-                    yield w0
-        yield '<br/>'
-
-
 def word_def(w):
     ss = wordnet.synsets(w)
     if not ss:
@@ -133,10 +118,22 @@ def cur_txt(cur, page_size):
     return Content[l:r]
 
 
-#@benchmark
 def decorate(lines):
-    txt = ''.join(gen_html(WDict, lines, K))
-    return txt
+    for line in lines:
+        yield ''.join(list(deco(line)))
+
+
+def deco(line):
+    for w0 in Word_pat.findall(line):
+        if not w0.isalpha():
+            yield w0
+        else:
+            w = word_lem(w0)
+            if w in WDict and WDict[w] <= K:
+                yield word_def(w0)
+            else:
+                yield w0
+
 
 
 def newTarget(k, n, v):
@@ -157,12 +154,11 @@ def updateK(w, unkown, cur, page_size):
     K, N = newTarget(K, N, v)
     print 'K:%s, N:%s, v:%s' % (K, N, v)
     WDict[w1] = unkown and K - 1 or K + 1
-    print w, w1, WDict[w1]
     lines = cur_txt(cur, page_size)
     for line in lines:
         for sent in Sep_sent.split(line):
             if w in sent:
-                sent = decorate((sent,))
+                sent = ''.join(decorate((sent,)))
                 remember(w, unkown, sent)
                 break
     return decorate(lines)
@@ -178,19 +174,7 @@ def remember(w, unkown, sentence):
 
 def personal_words():
     for i in range(2):
-        k = Kmem % i
-        yield i, Mem.hgetall(k)
-
-
-def test(fname):
-    print fname
-    txt = open(fname).read()
-    k = WDict.get(word_lem('freak'))
-    print 'k:%d' % k
-    f = open('%s.html' % fname, 'w')
-    f.write(to_html(''.join(gen_html(WDict, txt, k)), 'onion'))
-    f.close()
-
+        yield i, Mem.hgetall(Kmem % i)
 
 def zipf():
     from matplotlib import pyplot as plt

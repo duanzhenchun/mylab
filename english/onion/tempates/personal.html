@@ -1,11 +1,19 @@
 {% extends "base.html" %}
-{% block body %}
-{% for i, dic in result.iteritems %}
-    {{i}}:<br/>
-    {% for k,v in dic.iteritems %}
-        {{v|safe}}
-        <br/>
+
+{% block content %}
+<div id="div_txt">
+{% for i, dic in result.items %}
+    <br/>
+    <div class='head_line'>
+    {% if not i %}un{% endif %}known:
+    </div>
+    <br/>
+    <br/>
+    {% for k, v in dic.items %}
+    <div class='personal_word'>{{k}}</div>: 
+    {{v|safe}}<br/>
     {% endfor %}
 {% endfor %}
+</div>
 {% endblock %}
 
