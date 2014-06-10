@@ -12,7 +12,7 @@ function selectText(){
         return 	window.getSelection().toString(); //标准
     }
 }
-function change_word(w, unkown){
+function change_word(w, unkown, refresh){
     $.ajax({
         type: "POST",
         url: '../word_mark',
@@ -21,8 +21,10 @@ function change_word(w, unkown){
                 page_size:{{page_size}} 
             },
         success: function(data){
-            txt = data.lines.join('<br/>');
-            $("#div_txt").html(txt);
+            if (refresh){
+                txt = data.lines.join('<br/>');
+                $("#div_txt").html(txt);
+            }
         }
     });
 }
@@ -32,18 +34,15 @@ function like_word(s) {
 
 $(".word_span").live("click", function (){ // live response everytime
     s = $(this).text();
-    if (confirm("生词? "+s)){
-        change_word(s, true);
-    }else{
-        change_word(s, false);
-    }
+    yn = confirm("生词? "+s)
+    change_word(s, yn, !yn);
 });
 
 $("#div_txt").mouseup(function(){
     var s = selectText().trim();
     if (s.length>0 & like_word(s)) {
         if(confirm("生词? "+s)) {
-            change_word(s, true);
+            change_word(s, true, true);
         }
     } 
 });
@@ -65,18 +64,23 @@ $(document).keydown(function(event){
 </script>
 {% endblock %}
 
-{% block content %}
-<a href="./upload">upload</a>
-</br>
-<div style="text-align: right;">{% include "nav.html" %}</div>
-<br>
-<div id="div_txt">
-    {% for line in lines %}
-    {{line|safe}}
-    <br/>
-    {% endfor %}
-<br>
-</div>
-<br> {% include "nav.html" %}
+{% block header %}
+{% include "nav.html" %}
 {% endblock %}
 
+{% block footer %}
+{% include "nav.html" %}
+{% endblock %}
+
+
+{% block left %}
+<a href="./upload">upload</a>
+<br/>
+<a href="./personal">personal</a>
+{% endblock %}
+
+{% block right %}
+    {% for line in lines %}
+        {{line|safe}}
+    {% endfor %}
+{% endblock %}

@@ -79,13 +79,13 @@ def faces():
     Y = pca.fit_transform(scale(X))
     Xp = pca.inverse_transform(Y)
     fig = plt.figure()
-    for i in range(4):
+    for i in range(1):
         ax1 = fig.add_subplot(i+1, 2, 1)
         ax2 = fig.add_subplot(i+1, 2, 2)
         show_face(X[i],ax1)
         show_face(Xp[i],ax2)
     fig.show()
-    raw_input('w')
+    raw_input('end...')
 
 
 if __name__ == '__main__':

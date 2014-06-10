@@ -4,19 +4,80 @@
 <title>{{ title }}</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
 <style type="text/css">
-        body{text-align:center;}
-        #div_txt{text-align:left; width:70%; margin:0 auto; line-height: 150%} 
-        .word_span{background-color:yellow}
-        .head_line{color:blue; font-size:200%}
-        .personal_word{color:blue; font-size:150%}
-
+html, body { height: 100%; margin: 0; padding: 0; }
+#header{
+ position:absolute;
+ top:0;
+ width:100%;
+ height:40px;
+ background:#ccc;
+ line-height:40px;
+ text-align:center;
+}
+#footer{
+ position:absolute;
+ bottom:0;
+ width:100%;
+ height:40px;
+ background:#ccc;
+ line-height:40px;
+ text-align:center;
+}
+#left{
+ position: absolute!important;
+ position: relative;
+ left:0;
+ top:40px!important;
+ top:0;
+ right:0;
+ bottom:40px;
+ overflow: auto;
+ height:auto!important;
+ height:100%;
+ margin-right:200px;
+ width:200px;
+ background:#ffc;
+ text-align:center;
+ line-height: 200%
+}
+#right{
+ position: absolute;
+ right:0;
+ top:40px!important;
+ bottom:40px;
+ height:auto!important;
+ height:100%;
+ overflow: auto;
+ margin-left:200px;
+ text-align:center;
+}
+#div_txt{text-align:left; width:70%; margin:0 auto; line-height: 150%} 
+.word_span{background-color:yellow}
+.head_line{color:blue; font-size:200%}
+.personal_word{color:blue; font-size:100%}
 </style>
 {% block head%}
 {% endblock %}
 </head>
 
 <body>
-{% block content %}
-{% endblock %}
+<div id="header">
+    {% block header %}
+    {% endblock %}
+</div>
+<div id="left">
+    {% block left %}
+    {% endblock %}    
+</div>
+<div id="right">
+    <div id="div_txt">
+    {% block right %}
+    {% endblock %}
+    </div>
+</div>
+<div id="footer">
+    {% block footer %}
+    {% endblock %}
+</div>
 </body>
 
