@@ -11,6 +11,8 @@ import sys
 import os
 import random
 import redis
+import time
+import ast
 from utils import *
 
 
@@ -31,6 +33,7 @@ Kmem = 'en_known_%s'
 Init_w = 'freak'
 K, N = 10, 0
 Sep_sent = re.compile(r'[\.\?!]')
+
 
 def word_lem(w):
     w = w.lower()
@@ -168,13 +171,14 @@ def remember(w, unkown, sentence):
     t = not unkown and 1 or 0
     k1 = Kmem % t
     k2 = Kmem % (1 - t)
-    Mem.hset(k1, w, sentence)
+    Mem.hset(k1, w, (sentence, int(time.time())))
     Mem.hdel(k2, w)
 
 
 def personal_words():
     for i in range(2):
-        yield i, Mem.hgetall(Kmem % i)
+        dic = dict((k, ast.literal_eval(v)) for k, v in Mem.hgetall(Kmem % i).iteritems())
+        yield i, dic
 
 def zipf():
     from matplotlib import pyplot as plt

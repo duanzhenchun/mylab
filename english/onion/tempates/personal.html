@@ -4,18 +4,17 @@
     <a href="../">homepage</a>
 {% endblock %}
 
-
 {% block right %}
 {% for i, dic in result.items %}
+<br/>
+<div class='head_line'>{% if not i %}un{% endif %}known:</div>
+<br/>
+
+{% for k, v in dic.items %}
+    <div class='personal_word'>{{k}}:</div> 
+    {{v.0|safe}}, {{v.1}}
     <br/>
-    <div class='head_line'>
-    {% if not i %}un{% endif %}known:
-    </div>
-    <br/>
-    {% for k, v in dic.items %}
-        <div class='personal_word'>{{k}}:</div> 
-        {{v|safe}}<br/>
-    {% endfor %}
+{% endfor %}
 {% endfor %}
 {% endblock %}
 
