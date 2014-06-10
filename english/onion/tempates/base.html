@@ -5,80 +5,87 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
 <style type="text/css">
 html, body { height: 100%; margin: 0; padding: 0; }
-#header{
- position:absolute;
- top:0;
- width:100%;
- height:40px;
- background:#ccc;
- line-height:40px;
- text-align:center;
-}
+
 #footer{
  position:absolute;
  bottom:0;
  width:100%;
  height:40px;
- background:#ccc;
  line-height:40px;
  text-align:center;
+ background:#ccc;
 }
 #left{
  position: absolute!important;
  position: relative;
+ width:10%;
  left:0;
- top:40px!important;
- top:0;
- right:0;
+ top:0!important;
  bottom:40px;
  overflow: auto;
  height:auto!important;
  height:100%;
- width:20%;
  background:#ffc;
  text-align:center;
  line-height: 200%
 }
-#right{
+#middle{
  position: absolute;
- right:0;
- top:40px!important;
+ width:60%;
+ left:10%;
+ top:0!important;
  bottom:40px;
  height:auto!important;
  height:100%;
  overflow: auto;
- margin-left:20%;
- margin-right:0;
+ margin-left:20px;
+ margin-right:20px;
  text-align:center;
+}
+#right{
+ position: absolute;
+ width:30%;
+ right:0;
+ top:0!important;
+ bottom:40px;
+ height:auto!important;
+ height:100%;
+ overflow: auto;
+// margin-left:10%;
+// margin-right:0;
+ text-align:center;
+ background:lightgreen;
 }
 #div_txt{
  text-align:left; 
- width:80%; 
+ width:100%; 
  margin:0 auto; 
  line-height: 150%
 } 
 span.word_span{background-color:yellow}
 div.head_line{color:blue; font-size:200%}
-div.personal_word{color:blue; font-size:100%}
+div.personal_word{color:blue; font-size:150%}
+div.dt{color:green;}
 </style>
 {% block head%}
 {% endblock %}
 </head>
 
 <body>
-<div id="header">
-    {% block header %}
-    {% endblock %}
-</div>
 <div id="left">
     {% block left %}
     {% endblock %}    
 </div>
-<div id="right">
+<div id="middle">
     <div id="div_txt">
-    {% block right %}
+    {% block middle%}
     {% endblock %}
     </div>
+</div>
+<div id="right">
+    right
+    {% block right %}
+    {% endblock %}
 </div>
 <div id="footer">
     {% block footer %}

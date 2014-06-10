@@ -64,10 +64,6 @@ $(document).keydown(function(event){
 </script>
 {% endblock %}
 
-{% block header %}
-{% include "nav.html" %}
-{% endblock %}
-
 {% block footer %}
 {% include "nav.html" %}
 {% endblock %}
@@ -79,7 +75,7 @@ $(document).keydown(function(event){
 <a href="./personal">personal</a>
 {% endblock %}
 
-{% block right %}
+{% block middle%}
     {% for line in lines %}
     {{line|safe}}<br/>
     {% endfor %}

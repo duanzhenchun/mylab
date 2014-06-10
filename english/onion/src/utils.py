@@ -16,6 +16,8 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnIn
 def time2now(created_at):
     return time.time() - time.mktime(get_create_at(created_at).timetuple())
 
+def fmt_timestamp(t):
+    return datetime.datetime.fromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S')
 
 def benchmark(f):
     def wrapper(*args, **kwargs):

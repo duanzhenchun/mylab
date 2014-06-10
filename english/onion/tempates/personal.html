@@ -4,7 +4,7 @@
     <a href="../">homepage</a>
 {% endblock %}
 
-{% block right %}
+{% block middle %}
 {% for i, dic in result.items %}
 <br/>
 <div class='head_line'>{% if not i %}un{% endif %}known:</div>
@@ -12,7 +12,7 @@
 
 {% for k, v in dic.items %}
     <div class='personal_word'>{{k}}:</div> 
-    {{v.0|safe}}, {{v.1}}
+    {{v.0|safe}}, <div class='dt'>{{v.1}}</div>
     <br/>
 {% endfor %}
 {% endfor %}

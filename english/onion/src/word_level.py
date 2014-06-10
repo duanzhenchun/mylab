@@ -177,7 +177,10 @@ def remember(w, unkown, sentence):
 
 def personal_words():
     for i in range(2):
-        dic = dict((k, ast.literal_eval(v)) for k, v in Mem.hgetall(Kmem % i).iteritems())
+        dic={}
+        for k, v in Mem.hgetall(Kmem % i).iteritems():
+            sent, t = ast.literal_eval(v)
+            dic[k]=(sent, fmt_timestamp(t))
         yield i, dic
 
 def zipf():
