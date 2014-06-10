@@ -2,14 +2,20 @@ import json
 import cPickle as pickle
 import traceback
 import math
+import ast
+import os
 from collections import defaultdict
 
 
 Categories = ('user', 'link', 'tag')
 Dicx = {}
 Sep = ', '
-fi_name = 'delicious-rss-1250k'
+user_home = os.path.expanduser('~')
+Data_dir = user_home + '/bak/data/delicious/'
+fi_name = Data_dir + 'delicious-rss-1250k'
 fo_name = './%s.inx' % fi_name
+Dicx_fname = Data_dir + 'Dicx.pkl'
+score_fname = Data_dir + 'score.txt'
 Threshold_tag = 10
 
 tf_u, tf_i, n_u, n_i, u_, i_, dic_tag = [
@@ -37,7 +43,7 @@ def pre():
             # print traceback.format_exc()
             pass
     fo.close()
-    pickle.dump(Dicx, open('Dicx.pkl', 'wb'))
+    pickle.dump(Dicx, open(Dicx_fname, 'wb'))
 
 
 def parse(txt):
@@ -97,7 +103,7 @@ def gen_data(fname):
 
 # paper: content-based recommendation in social tagging systems
 def train():
-    #Dicx = pickle.load(open('Dicx.pkl'))
+    #Dicx = pickle.load(open(Dicx_fname))
     b, k1 = 0.75, 2.0
     for m, n, ls in gen_data(fo_name + '.train'):
         for l in ls:
@@ -112,6 +118,7 @@ def train():
         i_[n] += 1
     M, N, L = len(u_), len(i_), len(n_u)
     print 'M, N, L=', M, N, L
+    # M, N, L= 23008 250510 119180
     for l in n_u:
         iuf[l] = math.log(M * 1.0 / n_u[l])
     avg_u = 1.0 * sum(u_.values()) / len(u_)
@@ -212,17 +219,18 @@ def sim_cos(m, n, A, B, with_idf=None):
         g = a * 1.0 / (b1 ** 0.5 * b2 ** 0.5)
     return g
 
+sim_fs = (sim_tf_u, sim_tf_i, sim_cos_tf, sim_cos_tfidf,
+          sim_bm25_u, sim_bm25_i, sim_cos_bm25)
+
 
 def best(dic, n):
     return sorted(dic.iteritems(), key=lambda (k, v): v, reverse=True)[:n]
 
 
 def predict(m, tags, k=600):
-    items = reduce(set.union, [dic_li[l] for l in popular(tags, 10)])
-    sim_fs = (sim_tf_u, sim_tf_i, sim_cos_tf, sim_cos_tfidf,
-              sim_bm25_u, sim_bm25_i, sim_cos_bm25)
+    links = reduce(set.union, [dic_li[l] for l in popular(tags, 10)])
     dics = [{} for i in range(len(sim_fs))]
-    for n in items:
+    for n in links:
         for i, f in enumerate(sim_fs):
             dics[i][n] = f(m, n)
     res = []
@@ -236,7 +244,7 @@ def predict(m, tags, k=600):
     return res
 
 
-def evaluate():
+def test():
     for m, n, ls in gen_data(fo_name + '.test'):
         res = predict(m, ls)
         print m, n, res
@@ -250,9 +258,34 @@ def popular(tags, k=3):
         dic[tag] = dic_tag[tag]
     return [i[0] for i in best(dic, k)]
 
+# Mean reciprocal rank
+
+
+def MRR(lst):
+    assert len(lst) > 0
+    a = sum([1.0 / (i + 1) for i in lst])
+    return a / len(lst)
+
+
+def evaluate():
+    n_eval = len(sim_fs)
+    lsts = [[] for i in range(n_eval)]
+    dismiss = [600, ] * len(sim_fs)
+    for line in open(score_fname):
+        m, n, ls = line.split(' ', 2)
+        m, n, ls = int(m), int(n), ast.literal_eval(ls)
+        if ls == dismiss:
+            continue
+        for i in range(n_eval):
+            lsts[i].append(ls[i])
+    #[0.0413, 0.0413, 0.0468, 0.0468, 0.0525, 0.0437, 0.0471]
+    #[0.0888, 0.0888, 0.10112, 0.1012, 0.1135, 0.094, 0.1016], dismiss
+    return [MRR(lst) for lst in lsts]
+
 
 if __name__ == '__main__':
     #    pre()
     # train_test()
-    train()
-    evaluate()
+    # train()
+    # test()
+    print evaluate()
