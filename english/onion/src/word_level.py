@@ -34,7 +34,7 @@ Mem = redis.Redis()
 Kmem = 'onion_en_known_%s'
 Ktimeline = 'onion_en_timeline'
 Init_w = 'freak'
-K, N = 10, 0
+K = 10
 Sep_sent = re.compile(r'(?<=[\.\?!:]) ') 
 
 
@@ -80,7 +80,7 @@ def word_def(w):
 
 
 def init():
-    global WDict, Dic_uk, initialized, K, N
+    global WDict, Dic_uk, initialized, K
     if initialized:
         return
     init_fi()
@@ -113,7 +113,6 @@ def init():
             logger.exception("")
 
     K = WDict.get(word_lem(Init_w))
-    N = 1
     print "K:%d" % K
     initialized = True
 
@@ -134,7 +133,7 @@ def cur_txt(cur, page_size):
 
 def decorate(lines):
     for line in lines:
-        yield ''.join(list(deco(line)))
+        yield ''.join(deco(line))
 
 
 def deco(line):
@@ -148,34 +147,77 @@ def deco(line):
             else:
                 yield w0
 
+def deco_w(line, w):
+    aim = word_def(w)
+    pat = '(?<!\w)%s(?!\w)' %w
+    return aim.join(re.split(pat, line))
 
 
-def newTarget(k, n, v):
-    # as zipf-law, if rank(w)>1000, freq(w)>10, rank * freq = C
-    if v < 10 or v > 7600:
-        return k, n
-    k = (n + 1) / (1.0 / k * n + 1.0 / v)
-    k = k > 1 and k or 2
-    return k, n + 1
+def clo_target(n=10):
+    dic={}
+    def update():
+        global K
+        a=1.0/K
+        print dic
+        for w, (v, unkown) in dic.iteritems():
+            # as zipf-law, if rank(w)>1000 and freq(w)>10: rank * freq = C
+            if v < 5 or v > 7600:
+                continue 
+            a+= 1.0/v
+        K = max(2, int((len(dic)+1)/a))
+        print 'new K:%s' %K
+        for w, (v, unkwon) in dic.iteritems():
+            WDict[w] = unkown and K-1 or K+1
+        dic.clear()
+
+    def cache(w, v, unkown):
+        global K
+        #pre-update w-freq
+        WDict[w] = unkown and K-1 or K+1
+        print 'dic len:', len(dic)
+        if len(dic)<n:
+            dic[w] = (v, unkown)
+        else:
+            update()
+    return cache
+f_newK = clo_target()
 
 
 def updateK(w, unkown, cur, page_size):
-    global K, N
-    w1 = word_lem(w)
-    v = WDict.get(w1)
+    w0 = word_lem(w)
+    v = WDict.get(w0)
     if v < 0:
         return ''
-    K, N = newTarget(K, N, v)
-    print 'K:%s, N:%s, v:%s' % (K, N, v)
-    WDict[w1] = unkown and K - 1 or K + 1
+    f_newK(w0, v, unkown)
     lines = cur_txt(cur, page_size)
+    remember_lines(lines, w, unkown)
+    return decorate(lines)
+
+def remember_lines(lines, w, unkown):
     for line in lines:
         for sent in Sep_sent.split(line):
             if w in sent:
-                sent = ''.join(decorate((sent,)))
+                sent = deco_w(sent, w)
+                print sent
                 remember(w, unkown, sent)
-                break
-    return decorate(lines)
+                return
+
+def remember(w, unkown, sentence):
+    t = not unkown and 1 or 0
+    name = Kmem % t
+    name0 = Kmem % (1 - t)
+    Mem.hdel(name0, w)
+    v = word_info(name, w)
+    now = now_timestamp()
+    if v:
+        v [0] = sentence
+    else:
+        v = (sentence, now, 0)
+    Mem.hset(name, w, v)
+    if unkown:
+        if not v or Mem.zrank(Ktimeline, w) == None:
+            toshow = Ebbinghaus.period[0]
+            Mem.zadd(Ktimeline, w, now + toshow)
 
 
 def word_info(name, w):
@@ -184,21 +226,6 @@ def word_info(name, w):
         v = list(ast.literal_eval(v))
     return v
  
-def remember(w, unkown, sentence):
-    t = not unkown and 1 or 0
-    name = Kmem % t
-    name0 = Kmem % (1 - t)
-    Mem.hdel(name0, w)
-    v = word_info(name, w)
-    if v:
-        v [0] = sentence
-    else:
-        now = now_timestamp()
-        v = (sentence, now, 0)
-        if unkown:
-            toshow = Ebbinghaus.period[0]
-            Mem.zadd(Ktimeline, w, now + toshow)
-    Mem.hset(name, w, v)
 
 def repeat(w):
     name= Kmem %0
