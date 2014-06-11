@@ -14,6 +14,8 @@ MANAGERS = ADMINS
 
 LANGUAGE_CODE = 'zh-CN'
 
+TIME_ZONE='Asia/Shanghai'
+
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not

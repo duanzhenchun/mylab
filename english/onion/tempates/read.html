@@ -22,7 +22,7 @@ function change_word(w, unkown, refresh){
             },
         success: function(data){
             if (refresh){
-                txt = data.lines.join('<br/>');
+            txt = '<p>' + data.lines.join('</p><p>')+ '</p>';
                 $("#div_txt").html(txt);
             }
         }
@@ -77,6 +77,6 @@ $(document).keydown(function(event){
 
 {% block middle%}
     {% for line in lines %}
-    {{line|safe}}<br/>
+    <p>{{line|safe}}</p>
     {% endfor %}
 {% endblock %}

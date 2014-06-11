@@ -9,10 +9,10 @@
 <br/>
 <div class='head_line'>{% if not i %}un{% endif %}known:</div>
 <br/>
-
 {% for k, v in dic.items %}
-    <div class='personal_word'>{{k}}:</div> 
-    {{v.0|safe}}, <div class='dt'>{{v.1}}</div>
+    <div class='personal_word'>{{k}}: {{v.2}}</div> 
+    {# https://docs.djangoproject.com/en/dev/ref/templates/builtins/#date #}
+    {{v.0|safe}} <div class='dt'>{{v.1|date:"Y-m-d H:i"}}</div>
     <br/>
 {% endfor %}
 {% endfor %}

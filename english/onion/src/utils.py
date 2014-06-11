@@ -5,7 +5,7 @@ import urlparse
 import datetime
 import time
 import traceback
-import dateutil
+import chardet
 import math
 import time
 import re
@@ -16,8 +16,12 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnIn
 def time2now(created_at):
     return time.time() - time.mktime(get_create_at(created_at).timetuple())
 
+def now_timestamp():
+    return int(time.time())
+
 def fmt_timestamp(t):
-    return datetime.datetime.fromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S')
+    dt = datetime.datetime.fromtimestamp(t)
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
 
 def benchmark(f):
     def wrapper(*args, **kwargs):
@@ -28,15 +32,12 @@ def benchmark(f):
     return wrapper
 
 
-
 def get_encoding(txt):
-    import chardet
-    encoding = chardet.detect(txt[:100])['encoding']
-    return encoding
+    return chardet.detect(txt[:100])['encoding']
 
-
-def tounicode(s, encoding='utf8'):
-    return isinstance(s, unicode) and s or s.decode(encoding, 'ignore')
+def tounicode(s):
+    encoding = get_encoding(s)
+    return isinstance(s, unicode) and s or s.decode(encoding, 'ignore') 
 
 
 def toutf8(s):
@@ -123,3 +124,5 @@ def get_page_content(request, allcount, page_size, cur):
         [i for i in addr.split('&') if i.split('=')[0] not in ['page', 'url']])
     addr = '&'.join([addr, 'page'])
     return pagelist, page_range, addr
+
+

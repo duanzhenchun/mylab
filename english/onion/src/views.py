@@ -23,7 +23,7 @@ def read(request, page_size=40):
     pagecount = int(math.ceil(allcount / (page_size * 1.0)))
     pagelist, page_range, addr = get_page_content(request, allcount, page_size, cur)
     return render_to_response('read.html', 
-            {'title': 'article', 'lines': list(word_level.decorate(lines)), 
+            {'title': word_level.title(), 'lines': list(word_level.decorate(lines)), 
              'addr':addr, 'pagelist':pagelist, 
              'curpage':cur, 'page_size':page_size,
              'page_range':page_range, 'pagecount':pagecount})
@@ -63,7 +63,7 @@ def upload_txt(request):
     elif len(data) > UPLOAD_LIMIT:
         return HttpResponseBadRequest('Error: file size too big: ' + len(data))
     else:
-        return process(request, test_name, tounicode(data))
+        return process(request, test_name, data)
 
 
 def json_response(dic):
@@ -73,7 +73,7 @@ def json_response(dic):
 
 @benchmark
 def process(request, fname, data):
-    word_level.set_txt(data)
+    word_level.set_article(fname, data)
     return redirect(request.path.rsplit('/', 1)[0] + '/')
 
 def word_mark(request):

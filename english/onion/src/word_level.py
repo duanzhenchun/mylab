@@ -13,6 +13,7 @@ import random
 import redis
 import time
 import ast
+import Ebbinghaus
 from utils import *
 
 
@@ -27,12 +28,14 @@ initialized = False
 Word_pat = re.compile(r"[\w’']+|\W+")
 ST = PorterStemmer()
 Wnl = WordNetLemmatizer()
+Title = ''
 Content = []
 Mem = redis.Redis()
-Kmem = 'en_known_%s'
+Kmem = 'onion_en_known_%s'
+Ktimeline = 'onion_en_timeline'
 Init_w = 'freak'
 K, N = 10, 0
-Sep_sent = re.compile(r'[\.\?!]')
+Sep_sent = re.compile(r'(?<=[\.\?!:]) ') 
 
 
 def word_lem(w):
@@ -52,6 +55,11 @@ def init_dict(fname='data/all.num'):
         dic[w] = max(dic.get(w, 0), int(t[0]))
     return dic
 
+def init_fi():
+    fname = 'razors.edge.txt'
+    print fname
+    f=open('data/%s' %fname)
+    set_article(fname, f.read())
 
 def uk_us():
     # http://www.tysto.com/uk-us-spelling-list.html
@@ -75,6 +83,7 @@ def init():
     global WDict, Dic_uk, initialized, K, N
     if initialized:
         return
+    init_fi()
     cache_file = os.path.join(tempfile.gettempdir(), "en_word_freq.cache")
     load_fail = True
     if os.path.exists(cache_file):
@@ -108,11 +117,13 @@ def init():
     print "K:%d" % K
     initialized = True
 
-
-def set_txt(txt):
-    global Content
+def set_article(fname, txt):
+    global Title, Content
+    Title = fname
     Content = tounicode(txt).split('\n')
 
+def title():
+    return Title
 
 def cur_txt(cur, page_size):
     global Content
@@ -167,20 +178,77 @@ def updateK(w, unkown, cur, page_size):
     return decorate(lines)
 
 
+def word_info(name, w):
+    v = Mem.hget(name, w)
+    if v:
+        v = list(ast.literal_eval(v))
+    return v
+ 
 def remember(w, unkown, sentence):
     t = not unkown and 1 or 0
-    k1 = Kmem % t
-    k2 = Kmem % (1 - t)
-    Mem.hset(k1, w, (sentence, int(time.time())))
-    Mem.hdel(k2, w)
+    name = Kmem % t
+    name0 = Kmem % (1 - t)
+    Mem.hdel(name0, w)
+    v = word_info(name, w)
+    if v:
+        v [0] = sentence
+    else:
+        now = now_timestamp()
+        v = (sentence, now, 0)
+        if unkown:
+            toshow = Ebbinghaus.period[0]
+            Mem.zadd(Ktimeline, w, now + toshow)
+    Mem.hset(name, w, v)
+
+def repeat(w):
+    name= Kmem %0
+    v =  word_info(name, w)
+    v[-1]+=1
+    Mem.hset(name, w, v)
+    t = now_timestamp()
+    toshow = Ebbinghaus.period[v[-1]]
+    Mem.zadd(Ktimeline, w, t + toshow)
+
+
+def show_unkown_words():
+    start ,step =0, 10
+    remains=True
+    now = now_timestamp()
+    name = Kmem %0
+    while remains:
+        print start
+        res = Mem.zrangebyscore(Ktimeline, 0, sys.maxint, start, start+step, withscores=True)
+        remains = (len(res)==step)
+        start+=step
+        for (w, t) in res:
+            diff = now - t 
+            print diff
+            if diff<0:
+                remains=False
+                break
+            v = word_info(name, w)
+            if diff>Ebbinghaus.period[v[-1]+1]:
+                forget(w)
+            else:
+                v[1] = datetime.datetime.fromtimestamp(v[1])
+                yield w, v 
+
+
+def forget(w):
+    name= Kmem %0
+    v = word_info(name, w)
+    v [-1] = -1
+    Mem.hset(name, w, v)
 
 
 def personal_words():
     for i in range(2):
         dic={}
-        for k, v in Mem.hgetall(Kmem % i).iteritems():
-            sent, t = ast.literal_eval(v)
-            dic[k]=(sent, fmt_timestamp(t))
+        name = Kmem %i
+        for w in Mem.hkeys(name):
+            v = word_info(name, w)
+            v[1] = datetime.datetime.fromtimestamp(v[1])
+            dic[w]=v
         yield i, dic
 
 def zipf():

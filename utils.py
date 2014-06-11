@@ -1,5 +1,7 @@
 #encoding:utf-8
 import time
+import chardet
+import datetime
 import sys
 
 def input_pass(user):
@@ -99,16 +101,19 @@ def chunks(l, n):
         yield l[i:i + n]
 
 
-
 def get_encoding(txt):
-    import chardet
-    encoding = chardet.detect(txt[:100])['encoding']
-    return encoding
+    return chardet.detect(txt[:100])['encoding']
 
-
-def tounicode(s, encoding='utf8'):
-    return isinstance(s, unicode) and s or s.decode(encoding, 'ignore')
-
+def tounicode(s):
+    encoding = get_encoding(s)
+    return isinstance(s, unicode) and s or s.decode(encoding, 'ignore') 
 
 def toutf8(s):
     return isinstance(s, unicode) and s.encode('utf8') or s
+
+
+def fmt_timestamp(t):
+    dt = datetime.datetime.fromtimestamp(t)
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
+
+
