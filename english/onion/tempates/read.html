@@ -31,10 +31,14 @@ function change_word(w, unkown, refresh){
 }
 
 function unkown_html(k, v){
-    return "<div><span class='unkown_word'><span class='wl_" +v[2] +"'>" + 
+    return ("<div><span class='unkown_word'><span class='wl_{0}'>{1}</span></span></div>" +
+        "<div class='dt'>{2}</div><div>{3}</div>").format(v[2], k, v[1], v[0]);
+
+/*    return "<div><span class='unkown_word'><span class='wl_" +v[2] +"'>" + 
            k + "</span></span></div>" +
            "<div class='dt'>" + v[1] + "</div>" +
            "<div>" + v[0] + "</div>";
+*/
 }
 function repeat_word(w){
     $.ajax({
@@ -98,12 +102,6 @@ $(document).keydown(function(event){
 <a href="./upload">upload</a>
 <br/>
 <a href="./mywords">mywords</a>
-
-{% for i in "0123456" %}
-<div>
-<span class='wl_{{i}}' />word level: {{i}} 
-</div>
-{% endfor %}
 {% endblock %}
 
 {% block middle%}

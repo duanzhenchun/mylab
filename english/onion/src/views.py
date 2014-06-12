@@ -80,6 +80,7 @@ def process(request, fname, data):
 
 def word_mark(request):
     w, unkown, context, cur, page_size = [request.POST.get(i, '') for i in ('w', 'unkown', 'context', 'curpage', 'page_size')]
+    w = w.strip()
     unkown = unkown == 'true' and True or False
     if w:
         lines = list(word_level.updateK(w, unkown, int(cur), int(page_size)))
@@ -97,7 +98,7 @@ def mywords(request):
 def word_repeat(request):
     if not request.method == 'POST':
         return HttpResponseBadRequest()
-    w = request.POST.get('w')
+    w = request.POST.get('w').strip()
     word_level.repeat(w)
     return json_response(dict(word_level.unkowns_toshow()))
 

@@ -143,10 +143,10 @@ def cur_txt(cur, page_size):
 
 def decorate(lines):
     for line in lines:
-        yield ''.join(deco(line))
+        yield ''.join(mark(line))
 
 
-def deco(line):
+def mark(line):
     for w0 in Word_pat.findall(line):
         if not w0.isalpha():
             yield w0
@@ -157,8 +157,8 @@ def deco(line):
             else:
                 yield w0
 
-def deco_w(line, w):
-    aim = word_def(w, 'unkown_word')
+def mark_word(line, w):
+    aim = word_def(w, 'mark_word')
     pat = '(?<!\w)%s(?!\w)' %w
     return aim.join(re.split(pat, line))
 
@@ -207,7 +207,7 @@ def remember_lines(lines, w, unkown):
     for line in lines:
         for sent in Sep_sent.split(line):
             if w in sent:
-                sent = deco_w(sent, w)
+                sent = mark_word(sent, w)
                 remember(w, unkown, sent)
                 return
 
