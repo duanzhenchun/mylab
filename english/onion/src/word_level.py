@@ -240,7 +240,7 @@ def repeat(w):
     name= Kmem %0
     v =  word_info(name, w)
     if not v:
-        print w
+        print w, 'not found!'
         return
     v[-1]+=1
     Mem.hset(name, w, v)
