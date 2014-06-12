@@ -31,7 +31,8 @@ function change_word(w, unkown, refresh){
 }
 
 function unkown_html(k, v){
-    return "<div><span class='personal_word'>" + k + "</span> : " + v[2] + "</div>" +
+    return "<div><span class='unkown_word'><span class='wl_" +v[2] +"'>" + 
+           k + "</span></span></div>" +
            "<div class='dt'>" + v[1] + "</div>" +
            "<div>" + v[0] + "</div>";
 }
@@ -60,9 +61,9 @@ $(".word_span").live("click", function (){ // live response everytime
     change_word(w, yn, !yn);
 });
 
-$(".personal_word").live("click", function (){ 
+$(".unkown_word").live("click", function (){ 
     w = $(this).text();
-    yn = confirm("repeat? "+w)
+    yn = confirm("重复? "+w)
     repeat_word(w);
 });
 
@@ -96,7 +97,13 @@ $(document).keydown(function(event){
 {% block left %}
 <a href="./upload">upload</a>
 <br/>
-<a href="./personal">personal</a>
+<a href="./mywords">mywords</a>
+
+{% for i in "0123456" %}
+<div>
+<span class='wl_{{i}}' />word level: {{i}} 
+</div>
+{% endfor %}
 {% endblock %}
 
 {% block middle%}
@@ -109,7 +116,9 @@ $(document).keydown(function(event){
 <div id="div_unkown_txt">
 {% for k, v in unkown.items %}
     <div>
-    <span class='personal_word'>{{k}}</span> : {{v.2}}
+    <span class='unkown_word'>
+    <span class='wl_{{v.2}}'>{{k}}
+    </span></span>
     </div>
     <div class='dt'>{{v.1}}</div>
     <div>{{v.0|safe}}</div> 

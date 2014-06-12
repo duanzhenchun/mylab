@@ -158,7 +158,7 @@ def deco(line):
                 yield w0
 
 def deco_w(line, w):
-    aim = word_def(w, 'unkown_word_span')
+    aim = word_def(w, 'unkown_word')
     pat = '(?<!\w)%s(?!\w)' %w
     return aim.join(re.split(pat, line))
 
@@ -239,11 +239,16 @@ def word_info(name, w):
 def repeat(w):
     name= Kmem %0
     v =  word_info(name, w)
+    if not v:
+        print w
+        return
     v[-1]+=1
     Mem.hset(name, w, v)
-    t = now_timestamp()
-    toshow = Ebbinghaus.period[v[-1]]
-    Mem.zadd(Ktimeline, w, t + toshow)
+    if Ebbinghaus.finished(v[-1]):
+        Mem.zrem(Ktimeline, w)
+    else:
+        toshow = Ebbinghaus.period[v[-1]]
+        Mem.zadd(Ktimeline, w, now_timestamp() + toshow)
 
 
 def unkowns_toshow(debug=True):
@@ -259,6 +264,8 @@ def unkowns_toshow(debug=True):
                 break
         v = word_info(name, w)
         v[1] = fmt_timestamp(v[1])
+        if Ebbinghaus.finished(v[-1]):
+            continue
         if diff>Ebbinghaus.period[v[-1]+1]:
             forget(w)
             if not debug:
@@ -273,7 +280,15 @@ def forget(w):
     Mem.hset(name, w, v)
 
 
-def personal_words():
+def reset_wlevel():
+    name = Kmem %0
+    for w,v in Mem.hgetall(name).iteritems():
+        v=list(ast.literal_eval(v))
+        v[-1] = 0
+        Mem.hset(name, w, v)
+
+
+def mywords():
     for i in range(2):
         dic={}
         name = Kmem %i

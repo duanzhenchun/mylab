@@ -86,12 +86,12 @@ def word_mark(request):
         return json_response({'lines': lines})
 
 
-def personal(request):
+def mywords(request):
     res={}
-    for i,dic in word_level.personal_words():
+    for i,dic in word_level.mywords():
         res[i]=dic
-    return render_to_response('personal.html', 
-            {'title':'personal', 'result':res })
+    return render_to_response('mywords.html', 
+            {'title':'mywords', 'result':res })
 
 
 def word_repeat(request):
