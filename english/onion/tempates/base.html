@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
 <style type="text/css">
 html, body { height: 100%; margin: 0; padding: 0; }
-p { text-indent:2em }
+.p_txt { text-indent:2em }
 #footer{
  position:absolute;
  bottom:0;
@@ -58,9 +58,9 @@ p { text-indent:2em }
  margin:0 auto;
  line-height: 150%
 } 
-span.word_span{background-color:yellow}
 div.head_line{color:blue; font-size:200%}
-div.personal_word{color:blue; font-size:150%}
+span.word_span, span.unkown_word_span{background-color:yellow}
+.personal_word{color:blue; background-color:yellow; font-size:150%}
 div.dt{color:green;}
 </style>
 {% block head%}
@@ -79,7 +79,6 @@ div.dt{color:green;}
     </div>
 </div>
 <div id="right">
-    right
     {% block right %}
     {% endblock %}
 </div>

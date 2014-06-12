@@ -85,7 +85,6 @@ def sample_rotation(N, ratio=.25):
 
 def lstclosure():
     lst = []
-
     def _(x=None):
         if x:
             lst.append(x)

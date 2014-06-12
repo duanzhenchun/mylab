@@ -22,21 +22,50 @@ function change_word(w, unkown, refresh){
             },
         success: function(data){
             if (refresh){
-            txt = '<p>' + data.lines.join('</p><p>')+ '</p>';
+            var ph='<p class="p_txt">';
+            txt = ph + data.lines.join('</p>'+ph)+ '</p>';
                 $("#div_txt").html(txt);
             }
         }
     });
 }
+
+function unkown_html(k, v){
+    return "<div><span class='personal_word'>" + k + "</span> : " + v[2] + "</div>" +
+           "<div class='dt'>" + v[1] + "</div>" +
+           "<div>" + v[0] + "</div>";
+}
+function repeat_word(w){
+    $.ajax({
+        type: "POST",
+        url: '../word_repeat',
+        data:{w:w}, 
+        success: function(data){
+            var txt='';
+            $.each(data, function(k, v){ 
+                txt += unkown_html(k,v);
+            });
+            $("#div_unkown_txt").html(txt);
+        }
+    });
+}
+
 function like_word(s) {
     return /^[\w\d]+$/i.test(s);
 }
 
 $(".word_span").live("click", function (){ // live response everytime
-    s = $(this).text();
-    yn = confirm("生词? "+s)
-    change_word(s, yn, !yn);
+    w = $(this).text();
+    yn = confirm("生词? "+w)
+    change_word(w, yn, !yn);
 });
+
+$(".personal_word").live("click", function (){ 
+    w = $(this).text();
+    yn = confirm("repeat? "+w)
+    repeat_word(w);
+});
+
 
 $("#div_txt").mouseup(function(){
     var s = selectText().trim();
@@ -64,11 +93,6 @@ $(document).keydown(function(event){
 </script>
 {% endblock %}
 
-{% block footer %}
-{% include "nav.html" %}
-{% endblock %}
-
-
 {% block left %}
 <a href="./upload">upload</a>
 <br/>
@@ -77,6 +101,22 @@ $(document).keydown(function(event){
 
 {% block middle%}
     {% for line in lines %}
-    <p>{{line|safe}}</p>
+    <p class='p_txt'>{{line|safe}}</p>
     {% endfor %}
+{% endblock %}
+
+{% block right %}
+<div id="div_unkown_txt">
+{% for k, v in unkown.items %}
+    <div>
+    <span class='personal_word'>{{k}}</span> : {{v.2}}
+    </div>
+    <div class='dt'>{{v.1}}</div>
+    <div>{{v.0|safe}}</div> 
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "nav.html" %}
 {% endblock %}

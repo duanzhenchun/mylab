@@ -21,7 +21,7 @@ def now_timestamp():
 
 def fmt_timestamp(t):
     dt = datetime.datetime.fromtimestamp(t)
-    return dt.strftime('%Y-%m-%d %H:%M:%S')
+    return dt.strftime('%Y-%m-%d %H:%M')
 
 def benchmark(f):
     def wrapper(*args, **kwargs):

@@ -33,9 +33,12 @@ Content = []
 Mem = redis.Redis()
 Kmem = 'onion_en_known_%s'
 Ktimeline = 'onion_en_timeline'
+K_K = 'onion_en_K'
 Init_w = 'freak'
 K = 10
 Sep_sent = re.compile(r'(?<=[\.\?!:]) ') 
+Span_name='word_span'
+
 
 
 def word_lem(w):
@@ -70,13 +73,13 @@ def uk_us():
         dic[uk.strip()] = us.strip()
     return dic
 
-def word_def(w):
+def word_def(w, spname=Span_name):
     ss = wordnet.synsets(w)
     if not ss:
         return w
     else:
         definition = '%s:\n%s' % (ss[0].name, ss[0].definition)
-        return '<span class="word_span" title="%s" >%s</span>' % (definition, w)
+        return '<span class="%s" title="%s" >%s</span>' % (spname, definition, w)
 
 
 def init():
@@ -111,10 +114,17 @@ def init():
         except:
             logger.error("dump cache file failed.")
             logger.exception("")
-
-    K = WDict.get(word_lem(Init_w))
-    print "K:%d" % K
+    init_K()
     initialized = True
+
+def init_K():
+    global K
+    try:
+        K = int(Mem.get(K_K))
+    except:
+        K = WDict.get(word_lem(Init_w))
+    print "K:%d" % K
+
 
 def set_article(fname, txt):
     global Title, Content
@@ -148,35 +158,35 @@ def deco(line):
                 yield w0
 
 def deco_w(line, w):
-    aim = word_def(w)
+    aim = word_def(w, 'unkown_word_span')
     pat = '(?<!\w)%s(?!\w)' %w
     return aim.join(re.split(pat, line))
 
 
 def clo_target(n=10):
-    dic={}
+    cache_dic={}
     def update():
         global K
         a=1.0/K
-        print dic
-        for w, (v, unkown) in dic.iteritems():
+        for w, (v, unkown) in cache_dic.iteritems():
             # as zipf-law, if rank(w)>1000 and freq(w)>10: rank * freq = C
             if v < 5 or v > 7600:
                 continue 
             a+= 1.0/v
-        K = max(2, int((len(dic)+1)/a))
+        K = max(2, int((len(cache_dic)+1)/a))
         print 'new K:%s' %K
-        for w, (v, unkwon) in dic.iteritems():
+        Mem.set(K_K, K)
+        for w, (v, unkwon) in cache_dic.iteritems():
             WDict[w] = unkown and K-1 or K+1
-        dic.clear()
+        cache_dic.clear()
 
     def cache(w, v, unkown):
         global K
         #pre-update w-freq
         WDict[w] = unkown and K-1 or K+1
-        print 'dic len:', len(dic)
-        if len(dic)<n:
-            dic[w] = (v, unkown)
+        if len(cache_dic)<n:
+            cache_dic[w] = (v, unkown)
+            print 'w:', w, 'cache_dic len:', len(cache_dic)
         else:
             update()
     return cache
@@ -198,7 +208,6 @@ def remember_lines(lines, w, unkown):
         for sent in Sep_sent.split(line):
             if w in sent:
                 sent = deco_w(sent, w)
-                print sent
                 remember(w, unkown, sent)
                 return
 
@@ -237,28 +246,24 @@ def repeat(w):
     Mem.zadd(Ktimeline, w, t + toshow)
 
 
-def show_unkown_words():
-    start ,step =0, 10
-    remains=True
+def unkowns_toshow(debug=True):
+    start ,step = 0, 20
     now = now_timestamp()
     name = Kmem %0
-    while remains:
-        print start
-        res = Mem.zrangebyscore(Ktimeline, 0, sys.maxint, start, start+step, withscores=True)
-        remains = (len(res)==step)
-        start+=step
-        for (w, t) in res:
-            diff = now - t 
-            print diff
+    res = Mem.zrangebyscore(Ktimeline, 0, sys.maxint, start, start+step, withscores=True)
+    for (w, t) in res:
+        diff = now - t 
+        print 'w=%s, diff=%f' %(w,diff)
+        if not debug:
             if diff<0:
-                remains=False
                 break
-            v = word_info(name, w)
-            if diff>Ebbinghaus.period[v[-1]+1]:
-                forget(w)
-            else:
-                v[1] = datetime.datetime.fromtimestamp(v[1])
-                yield w, v 
+        v = word_info(name, w)
+        v[1] = fmt_timestamp(v[1])
+        if diff>Ebbinghaus.period[v[-1]+1]:
+            forget(w)
+            if not debug:
+                continue
+        yield w, v 
 
 
 def forget(w):
@@ -274,7 +279,7 @@ def personal_words():
         name = Kmem %i
         for w in Mem.hkeys(name):
             v = word_info(name, w)
-            v[1] = datetime.datetime.fromtimestamp(v[1])
+            v[1] = fmt_timestamp(v[1])
             dic[w]=v
         yield i, dic
 

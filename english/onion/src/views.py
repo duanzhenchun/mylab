@@ -22,8 +22,10 @@ def read(request, page_size=40):
     allcount = len(word_level.Content)
     pagecount = int(math.ceil(allcount / (page_size * 1.0)))
     pagelist, page_range, addr = get_page_content(request, allcount, page_size, cur)
+    unkowns = dict(word_level.unkowns_toshow())
     return render_to_response('read.html', 
             {'title': word_level.title(), 'lines': list(word_level.decorate(lines)), 
+             'unkown': unkowns,
              'addr':addr, 'pagelist':pagelist, 
              'curpage':cur, 'page_size':page_size,
              'page_range':page_range, 'pagecount':pagecount})
@@ -89,4 +91,14 @@ def personal(request):
     for i,dic in word_level.personal_words():
         res[i]=dic
     return render_to_response('personal.html', 
-            {'title':'personal', 'result':res})
+            {'title':'personal', 'result':res })
+
+
+def word_repeat(request):
+    if not request.method == 'POST':
+        return HttpResponseBadRequest()
+    w = request.POST.get('w')
+    word_level.repeat(w)
+    return json_response(dict(word_level.unkowns_toshow()))
+
+
