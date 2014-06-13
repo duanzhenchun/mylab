@@ -22,9 +22,10 @@
 {% endif %}
 
 <span>
-<a href="###" class="Goto">转到</a>
-第<input type="text" class="page_i" style="width: 40px; " value = "1"/>页
+第<input type="text" id="page_i" style="width: 40px; " value = "{{curpage}}"/>页
+<a href="###" id="Goto">Go</a>&nbsp;&nbsp;
 </span>
-<span>当前第{{ curpage }}页 共
+<span>当前第<span id="curpage" >{{ curpage }}</span>页 
+ 共
 <input type="text" id="pagecount" value="{{pagecount}}" readonly style="width: 40px; ">
 页，每页{{page_size}}行</span>

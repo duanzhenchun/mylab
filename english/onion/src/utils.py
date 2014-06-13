@@ -101,7 +101,7 @@ def get_curpage(request):
         page = 1
     return page
 
-
+@benchmark
 def get_page_content(request, allcount, page_size, cur):
     paginator = Paginator([[] for _ in xrange(allcount)], page_size)
     after_range_num = 6

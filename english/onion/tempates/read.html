@@ -95,6 +95,9 @@ $(document).keydown(function(event){
    location.href = "?{{ addr|safe }}={{ pagelist.next_page_number }}";
    {% endif %}
    };
+   if(event.keyCode==13){ 
+     $('#Goto').click();
+   };
 });
 </script>
 {% endblock %}

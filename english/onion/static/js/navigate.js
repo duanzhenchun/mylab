@@ -14,10 +14,12 @@ $(document).ready(function() {
 		}
 		return true;
 	}
-	$('a.Goto').live('click',function(){
-		var page_i = $(this).next('.page_i').val()
+	$('#Goto').live('click',function(){
+		var page_i = $('#page_i').val()
 		if (!isNumber(page_i)) {
 			alert("请输入正确数字");
+        } else if ( $('#curpage').text() == page_i ){
+            return;
 		} else if (parseInt(page_i) > parseInt(page_count)
 				|| parseInt(page_i) < 1) {
 			alert("页数超出范围");

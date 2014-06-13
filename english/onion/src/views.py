@@ -15,7 +15,7 @@ import math
 class UploadFileForm(forms.Form):
     file = forms.FileField()
 
-
+@benchmark
 def read(request, page_size=40):
     cur = get_curpage(request)
     lines = word_level.cur_txt(cur, page_size)

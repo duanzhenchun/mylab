@@ -12,10 +12,19 @@ import ast
 K_IPA = 'onion_en_IPA'
 
 def phonetic(w):
-    res = Mem.hget(name, w)
+    res = Mem.hget(K_IPA, w)
     if res:
         res = ast.literal_eval(res)
     return res
+
+def show(w):
+    res = phonetic(w)
+    if res:
+        res = '[%s]' %('], ['.join(res))
+    else:
+        res=''
+    return res
+
 
 def prepare():
     import zipfile
@@ -35,5 +44,5 @@ def prepare():
             Dic[w].append(alp)
     Mem = redis.Redis()
     for w, lst in Dic.iteritems():
-        Mem.hset(name, w, lst)
+        Mem.hset(K_IPA, w, lst)
     
