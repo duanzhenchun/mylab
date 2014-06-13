@@ -25,7 +25,8 @@ Span_name='word_span'
 def set_article(fname, txt):
     global Title, Content
     Title = fname
-    Content = tounicode(txt).split('\n')
+    for part in gen_part(tounicode(txt)):
+        Content.append(part)
 
 @benchmark
 def init_fi():
@@ -47,11 +48,8 @@ def word_def(w, spname=Span_name):
 def title():
     return Title
 
-def cur_txt(cur, page_size):
-    global Content
-    l = page_size * (cur - 1)
-    r = l + page_size
-    return Content[l:r]
+def cur_txt(cur):
+    return Content[cur-1].split('\n')
 
 def decorate(lines):
     for line in lines:
@@ -109,13 +107,13 @@ def clo_target(n=10):
 f_newK = clo_target()
 
 
-def updateK(w, unkown, cur, page_size):
+def updateK(w, unkown, cur):
     w0 = vocabulary.word_lem(w)
     v = vocabulary.get_freq(w0)
     if v < 0:
         return ''
     f_newK(w0, v, unkown)
-    lines = cur_txt(cur, page_size)
+    lines = cur_txt(cur)
     remember_lines(lines, w, unkown)
     return decorate(lines)
 

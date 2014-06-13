@@ -17,19 +17,18 @@ class UploadFileForm(forms.Form):
     file = forms.FileField()
 
 @benchmark
-def read(request, page_size=30):
+def read(request):
     cur = get_curpage(request)
-    lines = word_level.cur_txt(cur, page_size)
-    allcount = len(word_level.Content)
-    pagecount = int(math.ceil(allcount / (page_size * 1.0)))
-    pagelist, page_range, addr = get_page_content(request, allcount, page_size, cur)
+    lines = word_level.cur_txt(cur)
+    pagecount = len(word_level.Content)
+    pagelist, page_range, addr = get_page_content(request, pagecount, cur)
     unkowns = dict(word_level.show_unkowns())
     return render_to_response('read.html', 
             {'title': word_level.title(), 
-             'lines': list(word_level.decorate(lines)), 
+             'lines': list(word_level.decorate(lines)),
              'unkown': unkowns,
              'addr':addr, 'pagelist':pagelist, 
-             'curpage':cur, 'page_size':page_size,
+             'curpage':cur, 
              'page_range':page_range, 'pagecount':pagecount})
 
 
@@ -83,11 +82,11 @@ def process(request, fname, data):
 
 @benchmark
 def word_mark(request):
-    w, unkown, context, cur, page_size = [request.POST.get(i, '') for i in ('w', 'unkown', 'context', 'curpage', 'page_size')]
+    w, unkown, context, cur = [request.POST.get(i, '') for i in ('w', 'unkown', 'context', 'curpage' )]
     w = w.strip()
     unkown = unkown == 'true' and True or False
     if w:
-        lines = list(word_level.updateK(w, unkown, int(cur), int(page_size)))
+        lines = list(word_level.updateK(w, unkown, int(cur)))
         return json_response({'lines': lines})
 
 

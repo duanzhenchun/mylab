@@ -101,21 +101,20 @@ def get_curpage(request):
         page = 1
     return page
 
-def get_page_content(request, allcount, page_size, cur):
-    paginator = Paginator([[] for _ in xrange(allcount)], page_size)
-    after_range_num = 6
-    bevor_range_num = 5
+def get_page_content(request, allcount, cur):
+    paginator = Paginator([[] for _ in xrange(allcount)], 1)
+    before, after = 5, 6
     try:
         pagelist = paginator.page(cur)
     except(EmptyPage, InvalidPage, PageNotAnInteger):
         pagelist = paginator.page(1)
         cur = 1
  
-    if cur >= after_range_num:
+    if cur >= after:
         page_range = paginator.page_range[
-            cur - after_range_num:cur + bevor_range_num]
+            cur - after:cur + before]
     else:
-        page_range = paginator.page_range[0:int(cur) + bevor_range_num]
+        page_range = paginator.page_range[0:int(cur) + before]
 
     # 对get的地址进行解析
     addr = request.META['QUERY_STRING']
@@ -125,3 +124,16 @@ def get_page_content(request, allcount, page_size, cur):
     return pagelist, page_range, addr
 
 
+def gen_part(txt, psize=2500, most=20):
+    l,r=0,psize
+    while l<len(txt):
+        more = r+most
+        for i in (' ', '\n'):
+            pos = txt.find(i, r, more) 
+            if pos <=0:
+                continue
+            else:
+               more=min(pos, more)
+        r=more+1
+        yield txt[l:r]
+        l,r=r,r+psize

@@ -23,7 +23,6 @@ function change_word(w, unkown, refresh){
         url: '../word_mark',
         data:{ w:w, unkown:unkown,
                 curpage:{{curpage}}, 
-                page_size:{{page_size}} 
             },
         success: function(data){
             if (refresh){
