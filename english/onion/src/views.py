@@ -23,7 +23,7 @@ def read(request, page_size=40):
     allcount = len(word_level.Content)
     pagecount = int(math.ceil(allcount / (page_size * 1.0)))
     pagelist, page_range, addr = get_page_content(request, allcount, page_size, cur)
-    unkowns = dict(word_level.unkowns_toshow())
+    unkowns = dict(word_level.show_unkowns())
     return render_to_response('read.html', 
             {'title': word_level.title(), 
              'lines': list(word_level.decorate(lines)), 
@@ -80,6 +80,8 @@ def process(request, fname, data):
     word_level.set_article(fname, data)
     return redirect(request.path.rsplit('/', 1)[0] + '/')
 
+
+@benchmark
 def word_mark(request):
     w, unkown, context, cur, page_size = [request.POST.get(i, '') for i in ('w', 'unkown', 'context', 'curpage', 'page_size')]
     w = w.strip()
@@ -89,6 +91,7 @@ def word_mark(request):
         return json_response({'lines': lines})
 
 
+@benchmark
 def mywords(request):
     res={}
     for i,dic in word_level.mywords():
@@ -97,11 +100,12 @@ def mywords(request):
             {'title':'mywords', 'result':res })
 
 
+@benchmark
 def word_repeat(request):
     if not request.method == 'POST':
         return HttpResponseBadRequest()
     w = request.POST.get('w').strip()
     word_level.repeat(w)
-    return json_response(dict(word_level.unkowns_toshow()))
+    return json_response(dict(word_level.show_unkowns()))
 
 

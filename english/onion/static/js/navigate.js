@@ -24,6 +24,7 @@ $(document).ready(function() {
 				|| parseInt(page_i) < 1) {
 			alert("页数超出范围");
 		} else {
+            keybusy = true;
 			window.location = window.location.pathname + '?&page=' + page_i;
 		}
 	});

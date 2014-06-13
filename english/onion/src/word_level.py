@@ -165,7 +165,8 @@ def repeat(w):
         toshow = Ebbinghaus.period[v[-1]]
         Mem.zadd(Ktimeline, w, now_timestamp() + toshow)
 
-def unkowns_toshow(debug=True):
+
+def show_unkowns(debug=True):
     start ,step = 0, 20
     now = now_timestamp()
     name = Kmem %0
