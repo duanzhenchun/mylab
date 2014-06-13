@@ -17,7 +17,7 @@ class UploadFileForm(forms.Form):
     file = forms.FileField()
 
 @benchmark
-def read(request, page_size=40):
+def read(request, page_size=30):
     cur = get_curpage(request)
     lines = word_level.cur_txt(cur, page_size)
     allcount = len(word_level.Content)

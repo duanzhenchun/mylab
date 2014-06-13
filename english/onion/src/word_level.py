@@ -66,7 +66,10 @@ def mark(line):
             w0 = vocabulary.word_lem(w)
             freq = vocabulary.get_freq(w0)
             if freq and freq <= K:
-                yield word_def(w)
+                spname = Span_name
+                if freq <=K/2:
+                    spname = 'hard'+ spname
+                yield word_def(w, spname)
             else:
                 yield w
 
@@ -85,7 +88,7 @@ def clo_target(n=10):
     def update():
         a=1.0/vocabulary.get_K()
         for w, (v, unkown) in cdic.iteritems():
-            if v < Usual_wrange[0] or v > Usual_wrange[1]:
+            if v < Usual_wfreq[0] or v > Usual_wfreq[1]:
                 continue 
             a+= 1.0/v
         vocabulary.set_K(max(2, int((len(cdic)+1)/a)))
@@ -166,11 +169,10 @@ def repeat(w):
         Mem.zadd(Ktimeline, w, now_timestamp() + toshow)
 
 
-def show_unkowns(debug=True):
-    start ,step = 0, 20
+def show_unkowns(n=10, debug=False):
     now = now_timestamp()
     name = Kmem %0
-    res = Mem.zrangebyscore(Ktimeline, 0, sys.maxint, start, start+step, withscores=True)
+    res = Mem.zrangebyscore(Ktimeline, 0, sys.maxint, 0, n, withscores=True)
     for (w, t) in res:
         diff = now - t 
         #print 'w=%s, diff=%f' %(w,diff)
@@ -179,7 +181,7 @@ def show_unkowns(debug=True):
                 break
         v = word_info(name, w)
         v[1] = fmt_timestamp(v[1])
-        if Ebbinghaus.finished(v[-1]):
+        if v[-1]<0 or Ebbinghaus.finished(v[-1]):
             continue
         if diff>Ebbinghaus.period[v[-1]+1]:
             forget(w)

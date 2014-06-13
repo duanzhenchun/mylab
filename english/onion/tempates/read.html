@@ -64,11 +64,18 @@ function like_word(s) {
     return /^[\w\d]+$/i.test(s);
 }
 
-$(".word_span").live("click", function (){ // live response everytime
-    w = $(this).text();
+$(".word_span ").live("click", function (){ // live response everytime
+    ask_change($(this).text());
+});
+
+$(".hardword_span").live("click", function (){ // live response everytime
+    ask_change($(this).text());
+});
+
+function ask_change(w){
     yn = confirm("生词? "+w)
     change_word(w, yn, !yn);
-});
+}
 
 $(".unkown_word").live("click", function (){ 
     w = $(this).text();
