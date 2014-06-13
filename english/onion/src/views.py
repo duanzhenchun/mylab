@@ -23,11 +23,10 @@ def read(request, page_size=40):
     allcount = len(word_level.Content)
     pagecount = int(math.ceil(allcount / (page_size * 1.0)))
     pagelist, page_range, addr = get_page_content(request, allcount, page_size, cur)
-    lines =  list(word_level.decorate(lines))
     unkowns = dict(word_level.unkowns_toshow())
     return render_to_response('read.html', 
             {'title': word_level.title(), 
-             'lines':lines, 
+             'lines': list(word_level.decorate(lines)), 
              'unkown': unkowns,
              'addr':addr, 'pagelist':pagelist, 
              'curpage':cur, 'page_size':page_size,

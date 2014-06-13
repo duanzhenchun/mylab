@@ -73,6 +73,7 @@ def to_mem(wdict, dic_uk):
 
 @benchmark
 def build_cache(fname):
+    import random
     dic_uk = uk_us()
     wdict = init_dict()
     print "start dumping model to file cache %s" % fname

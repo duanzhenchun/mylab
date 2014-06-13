@@ -14,7 +14,7 @@ $(document).ready(function() {
 		}
 		return true;
 	}
-	$('#Goto').live('click',function(){
+	$('a#Goto').live('click',function(){
 		var page_i = $('#page_i').val();
 		if (!isNumber(page_i)) {
 			alert("请输入正确数字");
