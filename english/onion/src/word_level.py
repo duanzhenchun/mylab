@@ -21,7 +21,6 @@ Word_pat = re.compile(u"[\w’']+|\W+")
 Sep_sent = re.compile(u'(?<=[\.\?!:]) ') 
 Span_name='word_span'
 
-@benchmark
 def set_article(fname, txt):
     global Title, Content
     Title = fname
@@ -35,6 +34,7 @@ def init_fi():
     set_article(fname, f.read())
 init_fi()
 
+
 def word_def(w, spname=Span_name):
     ss = wordnet.synsets(w)
     if not ss:
@@ -46,30 +46,29 @@ def word_def(w, spname=Span_name):
 def title():
     return Title
 
-@benchmark
 def cur_txt(cur, page_size):
     global Content
     l = page_size * (cur - 1)
     r = l + page_size
     return Content[l:r]
 
-@benchmark
 def decorate(lines):
     for line in lines:
         yield ''.join(mark(line))
 
-
 def mark(line):
+    K = vocabulary.get_K()
     for w in Word_pat.findall(line):
         if not w.isalpha():
             yield w
         else:
             w0 = vocabulary.word_lem(w)
             freq = vocabulary.get_freq(w0)
-            if freq and freq <= vocabulary.get_K():
+            if freq and freq <= K:
                 yield word_def(w)
             else:
                 yield w
+
 
 def mark_word(line, w):
     aim = word_def(w, 'mark_word')
@@ -165,7 +164,6 @@ def repeat(w):
         toshow = Ebbinghaus.period[v[-1]]
         Mem.zadd(Ktimeline, w, now_timestamp() + toshow)
 
-@benchmark
 def unkowns_toshow(debug=True):
     start ,step = 0, 20
     now = now_timestamp()

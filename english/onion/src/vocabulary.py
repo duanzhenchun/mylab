@@ -13,18 +13,12 @@ En_freq_cache = 'en_word_freq.cache'
 Fdata = '../data'
 
 
-ST, Wnl = None, None
-@benchmark
-def init_stem():
-    global ST, Wnl
-    from nltk.stem import WordNetLemmatizer
-    from nltk.stem.porter import PorterStemmer
-    ST = PorterStemmer()
-    Wnl = WordNetLemmatizer()
-init_stem()
+from nltk.stem import WordNetLemmatizer
+from nltk.stem.porter import PorterStemmer
+ST = PorterStemmer()
+Wnl = WordNetLemmatizer()
 
 def word_lem(w):
-    global ST, Wnl
     w = get_us(w.lower())
     return ST.stem(Wnl.lemmatize(w))
 

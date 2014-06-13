@@ -1,5 +1,5 @@
 $(document).ready(function() {
-	var page_count = $('#pagecount').val()
+	var page_count = $('#pagecount').val();
 	function isNumber(oNum) {
 		if (!oNum)
 			return false;
@@ -15,7 +15,7 @@ $(document).ready(function() {
 		return true;
 	}
 	$('#Goto').live('click',function(){
-		var page_i = $('#page_i').val()
+		var page_i = $('#page_i').val();
 		if (!isNumber(page_i)) {
 			alert("请输入正确数字");
         } else if ( $('#curpage').text() == page_i ){
