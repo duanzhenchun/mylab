@@ -9,7 +9,7 @@ K_K = 'onion_en_K'
 K_freq = 'onion_en_freq'
 K_uk = 'onion_en_uk'
 K_word0 = 'freak'
-En_freq_cache = 'en_word_freq.cache'
+Default_cache = os.path.join(tempfile.gettempdir(), 'en_word_freq.cache')
 Fdata = '../data'
 
 
@@ -47,8 +47,7 @@ def set_K(K):
 
 
 @benchmark
-def prepare():
-    fname = os.path.join(tempfile.gettempdir(), En_freq_cache)
+def prepare(fname=Default_cache):
     failed = True
     if os.path.exists(fname):
         try:
@@ -57,7 +56,9 @@ def prepare():
         except Exception, e:
             print e
     if failed:
-        wdict, dic_uk = build_cache(fname)
+        dic_uk = uk_us()
+        wdict = init_dict()
+        dump_dicts(wdict, dic_uk)
     print 'english dict len: %d' % len(wdict)
     to_mem(wdict, dic_uk)
 
@@ -67,15 +68,20 @@ def to_mem(wdict, dic_uk):
         Mem.hset(K_freq, w, v)
     for uk, us in dic_uk.iteritems():
         Mem.hset(K_uk, uk, us)
-    k = wdict.get(word_lem(K_word0))
-    print "K:%d" % k
-    Mem.set(K_K, k)
+    K = wdict.get(word_lem(K_word0))
+    print "K:%d" % K
+    Mem.set(K_K, K)
+
 
 @benchmark
-def build_cache(fname):
+def to_marshal():
+    wdict = Mem.hgetall(K_freq)
+    dic_uk = Mem.hgetall(K_uk) 
+    dump_dicts(wdict, dict_uk)
+
+@benchmark
+def dump_dicts(wdict, dict_uk, fname=Default_cache):
     import random
-    dic_uk = uk_us()
-    wdict = init_dict()
     print "start dumping model to file cache %s" % fname
     tmp_suffix = "." + str(random.random())
     with open(fname + tmp_suffix, 'wb') as temp_fname:
@@ -86,7 +92,7 @@ def build_cache(fname):
     else:
         replace_file = os.rename
     replace_file(fname + tmp_suffix, fname)
-    return wdict, dic_uk
+
 
 @benchmark
 def init_dict():
