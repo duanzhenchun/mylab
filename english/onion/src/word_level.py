@@ -10,10 +10,10 @@ import tempfile
 import sys
 import os
 import random
-import redis
 import time
 import ast
 import Ebbinghaus
+from db import Mem
 from utils import *
 
 
@@ -25,18 +25,17 @@ logger.addHandler(log_console)
 WDict = None
 Dic_uk = None
 initialized = False
-Word_pat = re.compile(r"[\w’']+|\W+")
+Word_pat = re.compile(u"[\w’']+|\W+")
 ST = PorterStemmer()
 Wnl = WordNetLemmatizer()
 Title = ''
 Content = []
-Mem = redis.Redis()
 Kmem = 'onion_en_known_%s'
 Ktimeline = 'onion_en_timeline'
 K_K = 'onion_en_K'
 Init_w = 'freak'
 K = 10
-Sep_sent = re.compile(r'(?<=[\.\?!:]) ') 
+Sep_sent = re.compile(u'(?<=[\.\?!:]) ') 
 Span_name='word_span'
 
 
@@ -298,7 +297,7 @@ def mywords():
             dic[w]=v
         yield i, dic
 
-def zipf():
+def test_zipf():
     from matplotlib import pyplot as plt
     lst = sorted(WDict.values(), reverse=True)
     plt.loglog(lst)

@@ -29,6 +29,14 @@ html, body { height: 100%; margin: 0; padding: 0; }
  text-align:center;
  line-height: 200%
 }
+#left_bottom{
+ position: absolute;
+ bottom:0;
+ height:50%;
+ top: auto;
+ width:100%;
+ background:white;
+}
 #middle{
  position: absolute;
  left:10%;
@@ -95,12 +103,13 @@ String.prototype.format = function()
 <div id="left">
 {% block left %}
 {% endblock %}    
+<div id="left_bottom">
 {% for i in "0123456" %}
 <div>
 <span class='wl_{{i}}' />__{{i}}__ 
 </div>
 {% endfor %}
-
+</div>
 </div>
 <div id="middle">
     <div id="div_txt">

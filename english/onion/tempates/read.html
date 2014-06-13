@@ -67,8 +67,9 @@ $(".word_span").live("click", function (){ // live response everytime
 
 $(".unkown_word").live("click", function (){ 
     w = $(this).text();
-    yn = confirm("重复? "+w)
-    repeat_word(w);
+    if (confirm("重复? "+w)){
+        repeat_word(w);
+    }
 });
 
 
