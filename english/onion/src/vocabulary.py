@@ -30,13 +30,13 @@ def set_freq(w, v):
     Mem.hset(K_freq, w, v)
 
 def get_freq(w):
-    if not Mem.hexists(K_freq, w):
+    try:
+        return int(Mem.hget(K_freq, w))
+    except:
         return 0
-    return int(Mem.hget(K_freq, w))
 
 def get_us(w):
-    us = Mem.hget(K_uk, w)
-    return us and us or w
+    return Mem.hget(K_uk, w) or w
 
 def get_K():
     return int(Mem.get(K_K))
