@@ -68,7 +68,7 @@ def mark(line):
             if freq and freq <= K:
                 spname = Span_name
                 if freq <=K/2:
-                    spname = 'hard'+ spname
+                    spname += ' hard'
                 yield word_def(w, spname)
             else:
                 yield w

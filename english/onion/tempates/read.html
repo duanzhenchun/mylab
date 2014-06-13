@@ -65,17 +65,10 @@ function like_word(s) {
 }
 
 $(".word_span ").live("click", function (){ // live response everytime
-    ask_change($(this).text());
-});
-
-$(".hardword_span").live("click", function (){ // live response everytime
-    ask_change($(this).text());
-});
-
-function ask_change(w){
+    w = $(this).text();
     yn = confirm("生词? "+w)
     change_word(w, yn, !yn);
-}
+});
 
 $(".unkown_word").live("click", function (){ 
     w = $(this).text();
