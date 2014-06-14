@@ -35,14 +35,8 @@ function change_word(w, unkown, refresh){
 }
 
 function unkown_html(k, v){
-    return ("<div><span class='unkown_word'><span class='wl_{0}'>{1}</span></span></div>" +
-        "<div class='dt'>{2}</div><div>{3}</div>").format(v[2], k, v[1], v[0]);
-
-/*    return "<div><span class='unkown_word'><span class='wl_" +v[2] +"'>" + 
-           k + "</span></span></div>" +
-           "<div class='dt'>" + v[1] + "</div>" +
-           "<div>" + v[0] + "</div>";
-*/
+    return ("<div><span class='unkown_word wl_{0}'>{1}</span>&nbsp;" +
+            "<span class='dt'>{2}</span></div><div>{3}</div>").format(v[2], k, v[1], v[0]);
 }
 function repeat_word(w){
     $.ajax({
@@ -126,11 +120,9 @@ $(document).keydown(function(event){
 <div id="div_unkown_txt">
 {% for k, v in unkown.items %}
     <div>
-    <span class='unkown_word'>
-    <span class='wl_{{v.2}}'>{{k}}
-    </span></span>
+    <span class='unkown_word wl_{{v.2}}'>{{k}}</span>&nbsp;
+    <span class='dt'>{{v.1}}</span>
     </div>
-    <div class='dt'>{{v.1}}</div>
     <div>{{v.0|safe}}</div> 
 {% endfor %}
 </div>

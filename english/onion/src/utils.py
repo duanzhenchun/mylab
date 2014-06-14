@@ -137,3 +137,16 @@ def gen_part(txt, psize=2500, most=20):
         r=more+1
         yield txt[l:r]
         l,r=r,r+psize
+
+#string.digits, string.uppercase
+Numerals = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+def baseN(num,b):
+        return ((num == 0) and Numerals[0]) or (baseN(num // b, b).lstrip(Numerals[0]) + Numerals[num % b])
+
+
+def n36s(n):
+    return baseN(n, 36)
+
+def s36n(s):
+    return int(s, 36)
+

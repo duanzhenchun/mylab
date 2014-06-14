@@ -212,3 +212,9 @@ def mywords():
             v[1] = fmt_timestamp(v[1])
             dic[w]=v
         yield i, dic
+
+
+if __name__ == "__main__":
+    lines = 'Maugham remains the consummate craftsman.…[His writing is] so compact, so economical, so closely motivated, so skillfully written, that it rivets attention from the first page to last'.split(',')
+    for l in decorate(lines):
+        print l
