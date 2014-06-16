@@ -8,15 +8,12 @@ from nltk.corpus import wordnet
 import Ebbinghaus
 import pronounce
 import vocabulary
-from db import Mem
+from db import *
 from utils import *
 
 
 Title = ''
 Content = []
-Kmem = 'onion_en_known_%s'
-Ktimeline = 'onion_en_timeline'
-
 Word_pat = re.compile(u"[\w’']+|\W+")
 Sep_sent = re.compile(u'(?<=[\.\?!:]) ') 
 Span_name='word_span'
@@ -51,12 +48,12 @@ def title():
 def cur_txt(cur):
     return Content[cur-1].split('\n')
 
-def decorate(lines):
+def decorate(lines, uid):
     for line in lines:
-        yield ''.join(mark(line))
+        yield ''.join(mark(line, uid))
 
-def mark(line):
-    K, n = vocabulary.get_K()
+def mark(line, uid):
+    K, n = vocabulary.get_K(uid)
     for w in Word_pat.findall(line):
         if not w.isalpha():
             yield w
@@ -83,8 +80,8 @@ Usual_wfreq=(4, 7600)
 
 def clo_target(ncache=10):
     cdic={}
-    def update():
-        K, n = vocabulary.get_K()
+    def update(uid):
+        K, n = vocabulary.get_K(uid)
         lst=[]
         for w, (v, unkown) in cdic.iteritems():
             if v < Usual_wfreq[0] or v > Usual_wfreq[1]:
@@ -97,57 +94,56 @@ def clo_target(ncache=10):
         vocabulary.set_K(newK, n+1)
 
         for w, (v, unkwon) in cdic.iteritems():
-            vocabulary.set_freq_K(w, unkown)
+            vocabulary.set_freq_K(w, unkown, uid)
         cdic.clear()
 
-    def cache(w, v, unkown):
-        #pre-set
-        vocabulary.set_freq_K(w, unkown)
+    def cache(w, v, unkown, uid):
         if len(cdic)<ncache:
+            vocabulary.set_freq_K(w, unkown, uid) #pre-set
             cdic[w] = (v, unkown)
             print 'w:', w, 'cdic len:', len(cdic)
         else:
-            update()
+            update(uid)
     return cache
 f_newK = clo_target()
 
 
-def updateK(w, unkown, cur):
+def updateK(w, unkown, cur, uid):
     w0 = vocabulary.word_lem(w)
     v = vocabulary.get_freq(w0)
     if v < 0:
         return ''
-    f_newK(w0, v, unkown)
+    f_newK(w0, v, unkown, uid)
     lines = cur_txt(cur)
-    remember_lines(lines, w, unkown)
-    return decorate(lines)
+    remember_lines(lines, w, unkown, uid)
+    return decorate(lines, uid)
 
-def remember_lines(lines, w, unkown):
+def remember_lines(lines, w, unkown, uid):
     for line in lines:
         for sent in Sep_sent.split(line):
             if w in sent:
                 sent = mark_word(sent, w)
-                remember(w, unkown, sent)
+                remember(w, unkown, sent, uid)
                 return
 
-def remember(w, unkown, sentence):
-    t = not unkown and 1 or 0
-    name = Kmem % t
-    name0 = Kmem % (1 - t)
-    Mem.hdel(name0, w)
-    v = word_info(name, w)
+def remember(w, unkown, sentence, uid):
+    names = (K_known, K_unknown)
+    if unkown:
+        names = names[::-1]
+    Mem.hdel(names[1] %uid, w)
+    v = word_info(names[0] %uid, w)
     now = now_timestamp()
     if v:
         v [0] = sentence
     else:
         v = (sentence, now, 0)
-    Mem.hset(name, w, v)
+    Mem.hset(names[0] %uid, w, v)
     if unkown:
-        if not v or Mem.zrank(Ktimeline, w) == None:
+        if not v or Mem.zrank(K_tl %uid, w) == None:
             toshow = Ebbinghaus.period[0]
-            Mem.zadd(Ktimeline, w, now + toshow)
+            Mem.zadd(K_tl %uid, w, now + toshow)
     else:
-        Mem.zrem(Ktimeline, w)
+        Mem.zrem(K_tl %uid, w)
 
 
 def word_info(name, w):
@@ -157,8 +153,8 @@ def word_info(name, w):
     return v
  
 
-def repeat(w):
-    name= Kmem %0
+def repeat(w, uid):
+    name= K_unknown %uid
     v =  word_info(name, w)
     if not v:
         print w, 'not found!'
@@ -166,16 +162,16 @@ def repeat(w):
     v[-1]+=1
     Mem.hset(name, w, v)
     if Ebbinghaus.finished(v[-1]):
-        Mem.zrem(Ktimeline, w)
+        Mem.zrem(K_tl %uid, w)
     else:
         toshow = Ebbinghaus.period[v[-1]]
-        Mem.zadd(Ktimeline, w, now_timestamp() + toshow)
+        Mem.zadd(K_tl %uid, w, now_timestamp() + toshow)
 
 
-def show_unkowns(n=10, debug=False):
+def show_unknowns(uid, n=10, debug=False):
     now = now_timestamp()
-    name = Kmem %0
-    res = Mem.zrangebyscore(Ktimeline, 0, sys.maxint, 0, n, withscores=True)
+    name = K_unknown %uid
+    res = Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, n, withscores=True)
     for (w, t) in res:
         diff = now - t 
         #print 'w=%s, diff=%f' %(w,diff)
@@ -187,31 +183,30 @@ def show_unkowns(n=10, debug=False):
         if v[-1]<0 or Ebbinghaus.finished(v[-1]):
             continue
         if diff>Ebbinghaus.period[v[-1]+1]:
-            forget(w)
+            forget(w, uid)
             if not debug:
                 continue
         yield w, v 
 
 
-def forget(w):
-    name= Kmem %0
+def forget(w, uid):
+    name = K_unknown %uid
     v = word_info(name, w)
     v [-1] = -1
     Mem.hset(name, w, v)
 
 
 def reset_wlevel():
-    name = Kmem %0
-    for w,v in Mem.hgetall(name).iteritems():
+    for w,v in Mem.hgetall(K_unknown).iteritems():
         v=list(ast.literal_eval(v))
         v[-1] = 0
-        Mem.hset(name, w, v)
+        Mem.hset(K_unknown, w, v)
 
 
-def mywords():
-    for i in range(2):
+def mywords(uid):
+    for i, name in enumerate((K_known, K_unknown)):
+        name = name %uid
         dic={}
-        name = Kmem %i
         for w in Mem.hkeys(name):
             v = word_info(name, w)
             v[1] = fmt_timestamp(v[1])
@@ -221,5 +216,5 @@ def mywords():
 
 if __name__ == "__main__":
     lines = 'Maugham remains the consummate craftsman.…[His writing is] so compact, so economical, so closely motivated, so skillfully written, that it rivets attention from the first page to last'.split(',')
-    for l in decorate(lines):
+    for l in decorate(lines, Uid0):
         print l

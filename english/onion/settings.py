@@ -51,13 +51,14 @@ USE_I18N = True
 # calendars according to the current locale
 USE_L10N = True
 
-PROJECT_PATH = os.path.dirname(__file__)
-MEDIA_URL = ''
-STATIC_URL =  "/static/"
-STATIC_ROOT = "" #os.path.join(PROJECT_PATH, 'static')
 
-# List of finder classes that know how to find static files in
-# various locations.
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_ROOT, 'static'),
+)
+
 STATICFILES_FINDERS = (
         'django.contrib.staticfiles.finders.FileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -98,7 +99,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_PATH, 'tempates').replace('\\', '/'),
+    os.path.join(PROJECT_ROOT, 'tempates').replace('\\', '/'),
     './tempates',
 )
 
@@ -150,8 +151,8 @@ ACCOUNT_EMAIL_VERIFICATION='mandatory'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'zg.whille@gmail.com'
-EMAIL_HOST_PASSWORD = 'wzg072207'
+EMAIL_HOST_USER = 'english.onion.op@gmail.com'
+EMAIL_HOST_PASSWORD = 'OP_english'
 ROOT_URLCONF = 'urls'
 
 

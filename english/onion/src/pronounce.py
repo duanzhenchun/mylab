@@ -1,7 +1,7 @@
 #coding=utf8
 import re
-from db import Mem
 import ast
+from db import *
 from utils import *
 
 #http://people.umass.edu/nconstan/CMU-IPA/
@@ -10,7 +10,6 @@ from utils import *
 #http://www.speech.cs.cmu.edu/cgi-bin/cmudict
 #http://en.wikipedia.org/wiki/Arpabet
 
-K_IPA = 'onion_en_IPA'
 
 def phonetic(w):
     res = Mem.hget(K_IPA, w)

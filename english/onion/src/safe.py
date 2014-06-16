@@ -1,5 +1,5 @@
 import bcrypt
-from db import Mem
+from db import *
 from utils import *
 
 
@@ -10,8 +10,6 @@ def getDigest(password):
 def isPassword(password, digest):
     return bcrypt.hashpw(password, digest) == digest
 
-K_uid = 'onion_en_uid:'
-K_nextuid = 'onion_en_next_user_id'
 
 def userid(n):
     return K_uid+n36id(n)

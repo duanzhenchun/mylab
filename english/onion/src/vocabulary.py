@@ -2,17 +2,11 @@ import os
 import tempfile
 import marshal
 import ast
-from db import Mem
+from db import * 
 from utils import *
 
-
-K_K = 'onion_en_K'
-K_freq = 'onion_en_freq'
-K_uk = 'onion_en_uk'
-K_word0 = 'freak'
 Default_cache = os.path.join(tempfile.gettempdir(), 'en_word_freq.cache')
 Fdata = '../data'
-
 
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.porter import PorterStemmer
@@ -23,8 +17,8 @@ def word_lem(w):
     w = get_us(w.lower())
     return ST.stem(Wnl.lemmatize(w))
 
-def set_freq_K(w, unkown):
-    K, n = get_K()
+def set_freq_K(w, unkown, uid):
+    K, n = get_K(uid)
     set_freq(w, unkown and K-1 or K+1)
 
 def set_freq(w, v):
@@ -39,14 +33,20 @@ def get_freq(w):
 def get_us(w):
     return Mem.hget(K_uk, w) or w
 
-def get_K():
-    return ast.literal_eval(Mem.get(K_K))
+def get_K(uid):
+    res = Mem.get(K_K %uid)
+    if res:
+        return ast.literal_eval(res)
+    else:
+        K = get_freq(Word0)
+        return K,0
 
-def set_K(K, n=None):
+
+def set_K(K, uid, n=None):
     if not n:
-        K, n = get_K()
+        K, n = get_K(uid)
         n+=1
-    Mem.set(K_K, (K,n))
+    Mem.set(K_K %uid, (K,n))
     print 'new K:%s, n: %d' %(K,n)
 
 
@@ -64,17 +64,17 @@ def prepare(fname=Default_cache):
         wdict = init_dict()
         dump_dicts(wdict, dic_uk)
     print 'english dict len: %d' % len(wdict)
-    to_mem(wdict, dic_uk)
+    to_mem(wdict, dic_uk, Uid0)
 
 @benchmark
-def to_mem(wdict, dic_uk):
+def to_mem(wdict, dic_uk, uid):
     for w, v in wdict.iteritems():
         Mem.hset(K_freq, w, v)
     for uk, us in dic_uk.iteritems():
         Mem.hset(K_uk, uk, us)
-    K = wdict.get(word_lem(K_word0))
+    K = wdict.get(word_lem(Word0))
     print "K:%d" % K
-    Mem.set(K_K, K)
+    Mem.set(K_K %uid, K)
 
 
 @benchmark

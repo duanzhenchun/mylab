@@ -19,19 +19,21 @@ class UploadFileForm(forms.Form):
 
 @benchmark
 def read(request):
-    print request.user
+    uid = request.user.id
+    print 'user:%s, uid:%d' %(request.user, uid)
     cur = get_curpage(request)
     lines = word_level.cur_txt(cur)
     pagecount = len(word_level.Content)
     pagelist, page_range, addr = get_page_content(request, pagecount, cur)
-    unkowns = dict(word_level.show_unkowns())
+    unkowns = dict(word_level.show_unknowns(uid))
     return render_to_response('read.html', 
             {'title': word_level.title(), 
-             'lines': list(word_level.decorate(lines)),
+             'lines': list(word_level.decorate(lines, uid)),
              'unkown': unkowns,
              'addr':addr, 'pagelist':pagelist, 
              'curpage':cur, 
-             'page_range':page_range, 'pagecount':pagecount})
+             'page_range':page_range, 'pagecount':pagecount},
+             context_instance=RequestContext(request))
 
 
 def fit_urlpath(fname):
@@ -85,18 +87,19 @@ def process(request, fname, data):
 
 @benchmark
 def word_mark(request):
+    uid = request.user.id
     w, unkown, context, cur = [request.POST.get(i, '') for i in ('w', 'unkown', 'context', 'curpage' )]
     w = w.strip()
     unkown = unkown == 'true' and True or False
     if w:
-        lines = list(word_level.updateK(w, unkown, int(cur)))
+        lines = list(word_level.updateK(w, unkown, int(cur), uid))
         return json_response({'lines': lines})
 
 
 @benchmark
 def mywords(request):
     res={}
-    for i,dic in word_level.mywords():
+    for i,dic in word_level.mywords(request.user.id):
         res[i]=dic
     return render_to_response('mywords.html', 
             {'title':'mywords', 'result':res })
@@ -104,10 +107,9 @@ def mywords(request):
 
 @benchmark
 def word_repeat(request):
+    uid = request.user.id
     if not request.method == 'POST':
         return HttpResponseBadRequest()
     w = request.POST.get('w').strip()
-    word_level.repeat(w)
-    return json_response(dict(word_level.show_unkowns()))
-
-
+    word_level.repeat(w, uid)
+    return json_response(dict(word_level.show_unknowns(uid)))
