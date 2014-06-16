@@ -1,11 +1,11 @@
-﻿{% extends "base.html" %}
+﻿{% extends "baseread.html" %}
 
 {% block head%}
-<script type="text/javascript" src="/static/js/jquery.min.js"></script>
 <script type="text/javascript" src="/static/js/navigate.js"></script>
 <script type="text/javascript">
 
 var keybusy = false; //global
+
 $(document).ready(function() {
 
 keybusy = false;
@@ -22,7 +22,7 @@ function change_word(w, unkown, refresh){
         type: "POST",
         url: '../word_mark',
         data:{ w:w, unkown:unkown,
-                curpage:{{curpage}}, 
+               curpage:{{curpage}}, 
             },
         success: function(data){
             if (refresh){
@@ -42,7 +42,9 @@ function repeat_word(w){
     $.ajax({
         type: "POST",
         url: '../word_repeat',
-        data:{w:w}, 
+        data:{
+                w:w,
+            }, 
         success: function(data){
             var txt='';
             $.each(data, function(k, v){ 

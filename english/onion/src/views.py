@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#coding: utf8
 
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render_to_response, redirect
@@ -7,17 +6,20 @@ from django.template import Template, RequestContext
 import json
 import re
 import word_level
-from conf import *
-from utils import *
 from django import forms
 import math
+from captcha.fields import CaptchaField 
+from conf import *
+from utils import *
 
 
 class UploadFileForm(forms.Form):
     file = forms.FileField()
+    captcha=CaptchaField()
 
 @benchmark
 def read(request):
+    print request.user
     cur = get_curpage(request)
     lines = word_level.cur_txt(cur)
     pagecount = len(word_level.Content)
@@ -41,6 +43,7 @@ def upload(request):
         form = UploadFileForm(request.POST, request.FILES)
         if not form.is_valid():
             return HttpResponseBadRequest()
+        human = True
         f = request.FILES['file']
         if not fit_urlpath(f.name):
             return HttpResponseBadRequest('file name should only contaions alpha, num, or _')

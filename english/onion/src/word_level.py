@@ -56,7 +56,7 @@ def decorate(lines):
         yield ''.join(mark(line))
 
 def mark(line):
-    K = vocabulary.get_K()
+    K, n = vocabulary.get_K()
     for w in Word_pat.findall(line):
         if not w.isalpha():
             yield w
@@ -81,15 +81,20 @@ def mark_word(line, w):
 # as zipf-law, if rank(w)>1000 and freq(w)>10: rank * freq = C
 Usual_wfreq=(4, 7600)
 
-def clo_target(n=10):
+def clo_target(ncache=10):
     cdic={}
     def update():
-        a=1.0/vocabulary.get_K()
+        K, n = vocabulary.get_K()
+        lst=[]
         for w, (v, unkown) in cdic.iteritems():
             if v < Usual_wfreq[0] or v > Usual_wfreq[1]:
                 continue 
-            a+= 1.0/v
-        vocabulary.set_K(max(2, int((len(cdic)+1)/a)))
+            lst.append(1.0/v)
+        a = 1.0/K 
+        if lst:
+            a = (a * n + sum(lst)/len(lst)) /(n+1)
+        newK = max(1, int(1.0/a))
+        vocabulary.set_K(newK, n+1)
 
         for w, (v, unkwon) in cdic.iteritems():
             vocabulary.set_freq_K(w, unkown)
@@ -98,7 +103,7 @@ def clo_target(n=10):
     def cache(w, v, unkown):
         #pre-set
         vocabulary.set_freq_K(w, unkown)
-        if len(cdic)<n:
+        if len(cdic)<ncache:
             cdic[w] = (v, unkown)
             print 'w:', w, 'cdic len:', len(cdic)
         else:

@@ -1,6 +1,7 @@
 import os
 import tempfile
 import marshal
+import ast
 from db import Mem
 from utils import *
 
@@ -23,7 +24,7 @@ def word_lem(w):
     return ST.stem(Wnl.lemmatize(w))
 
 def set_freq_K(w, unkown):
-    K = get_K()
+    K, n = get_K()
     set_freq(w, unkown and K-1 or K+1)
 
 def set_freq(w, v):
@@ -39,11 +40,14 @@ def get_us(w):
     return Mem.hget(K_uk, w) or w
 
 def get_K():
-    return int(Mem.get(K_K))
+    return ast.literal_eval(Mem.get(K_K))
 
-def set_K(K):
-    print 'new K:%s' %K
-    return Mem.set(K_K, K)
+def set_K(K, n=None):
+    if not n:
+        K, n = get_K()
+        n+=1
+    Mem.set(K_K, (K,n))
+    print 'new K:%s, n: %d' %(K,n)
 
 
 @benchmark
