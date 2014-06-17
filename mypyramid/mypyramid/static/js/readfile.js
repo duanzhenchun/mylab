@@ -74,7 +74,7 @@ $(document).ready(function(){       //$(function() {
           url: 'reader',
           data: {fname:f.name,"txt":txt},
           success: function(data){
-            $("#text_div").html(data);
+            $("#div_txt").html(data);
             disablenavi(false);
           }
         });

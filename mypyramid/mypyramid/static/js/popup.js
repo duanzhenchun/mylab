@@ -34,7 +34,7 @@ $(document).ready(function(){
 			}
 		},
 	});
-	$("#text_div").on('click', 'a.edit-word', function(){
+	$("#div_txt").on('click', 'a.edit-word', function(){
         en.val($(this).text());
         cs.val($(this).attr('title'));
 		$( "#dialog-form" ).dialog( "open" );

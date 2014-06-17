@@ -1,6 +1,5 @@
 $(function() {
-    
-var bar = $('.bar');
+var bar = $('#bar');
 var percent = $('.percent');
 var status = $('#status');
    
@@ -10,7 +9,7 @@ $('#uploadform').ajaxForm({
         var percentVal = '0%';
         bar.width(percentVal)
         percent.html(percentVal);
-		$("#text_div").html('waiting for response...');
+		$("#div_txt").html('waiting for response...');
     },
     uploadProgress: function(event, position, total, percentComplete) {
         var percentVal = percentComplete + '%';
@@ -19,8 +18,7 @@ $('#uploadform').ajaxForm({
 		//console.log(percentVal, position, total);
     },
 	success: function( data) { 
-	    $("#text_div").html(data);
+	    $("#div_txt").html(data);
     } 
 }); 
-
 });  
