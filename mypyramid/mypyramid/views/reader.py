@@ -6,7 +6,7 @@ from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.security import authenticated_userid
 from pyramid.httpexceptions import (HTTPFound, HTTPForbidden)
-from tools_0 import *
+from tools import *
 
 filestore = 'store'
 g_worddic = getdic(filestore + '/sorted_en')
