@@ -12,27 +12,9 @@ from db import *
 from utils import *
 
 
-Title = ''
-Content = []
 Word_pat = re.compile(u"[\w’']+|\W+")
 Sep_sent = re.compile(u'(?<=[\.\?!:]) ') 
 Span_name='word_span'
-
-
-def set_article(fname, txt):
-    global Title, Content
-    Content =[]
-    Title = fname
-    for part in gen_part(tounicode(txt)):
-        Content.append(part)
-
-@benchmark
-def init_fi():
-    fname = 'razors.edge.txt'
-    print fname
-    f=open('data/%s' %fname)
-    set_article(fname, f.read())
-init_fi()
 
 
 def word_def(w, spname=Span_name):
@@ -43,11 +25,6 @@ def word_def(w, spname=Span_name):
         info = '\n'.join((ss[0].name, pronounce.show(w), ss[0].definition))
         return '<span class="%s" title="%s" >%s</span>' % (spname, info, w)
 
-def title():
-    return Title
-
-def cur_txt(cur):
-    return Content[cur-1].split('\n')
 
 def decorate(lines, uid):
     for line in lines:
@@ -84,7 +61,7 @@ def clo_target(ncache=10):
     def update(uid):
         K, n = vocabulary.get_K(uid)
         lst=[]
-        for w, (v, unkown) in cdic.iteritems():
+        for w, (v, unknown) in cdic.iteritems():
             if v < Usual_wfreq[0] or v > Usual_wfreq[1]:
                 continue 
             lst.append(1.0/v)
@@ -95,13 +72,13 @@ def clo_target(ncache=10):
         vocabulary.set_K(newK, n+1)
 
         for w, (v, unkwon) in cdic.iteritems():
-            vocabulary.set_freq_K(w, unkown, uid)
+            vocabulary.set_freq_K(w, unknown, uid)
         cdic.clear()
 
-    def cache(w, v, unkown, uid):
+    def cache(w, v, unknown, uid):
         if len(cdic)<ncache:
-            vocabulary.set_freq_K(w, unkown, uid) #pre-set
-            cdic[w] = (v, unkown)
+            vocabulary.set_freq_K(w, unknown, uid) #pre-set
+            cdic[w] = (v, unknown)
             print 'w:', w, 'cdic len:', len(cdic)
         else:
             update(uid)
@@ -109,27 +86,27 @@ def clo_target(ncache=10):
 f_newK = clo_target()
 
 
-def updateK(w, unkown, cur, uid):
+def updateK(w, unknown, txt, uid):
     w0 = vocabulary.word_lem(w)
     v = vocabulary.get_freq(w0)
     if v < 0:
         return ''
-    f_newK(w0, v, unkown, uid)
-    lines = cur_txt(cur)
-    remember_lines(lines, w, unkown, uid)
+    f_newK(w0, v, unknown, uid)
+    lines = to_lines(txt)
+    remember_lines(lines, w, unknown, uid)
     return decorate(lines, uid)
 
-def remember_lines(lines, w, unkown, uid):
+def remember_lines(lines, w, unknown, uid):
     for line in lines:
         for sent in Sep_sent.split(line):
             if w in sent:
                 sent = mark_word(sent, w)
-                remember(w, unkown, sent, uid)
+                remember(w, unknown, sent, uid)
                 return
 
-def remember(w, unkown, sentence, uid):
+def remember(w, unknown, sentence, uid):
     names = (K_known, K_unknown)
-    if unkown:
+    if unknown:
         names = names[::-1]
     Mem.hdel(names[1] %uid, w)
     v = word_info(names[0] %uid, w)
@@ -139,7 +116,7 @@ def remember(w, unkown, sentence, uid):
     else:
         v = (sentence, now, 0)
     Mem.hset(names[0] %uid, w, v)
-    if unkown:
+    if unknown:
         if not v or Mem.zrank(K_tl %uid, w) == None:
             toshow = Ebbinghaus.period[0]
             Mem.zadd(K_tl %uid, w, now + toshow)

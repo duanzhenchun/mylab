@@ -3,6 +3,7 @@
 <head>
 <title>{{ title }}</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
+<link rel="shortcut icon" href="{{ STATIC_URL }}/img/onion.ico" />
 <style type="text/css">
 html, body { height: 100%; margin: 0; padding: 0; }
 .p_txt { text-indent:2em }
@@ -61,7 +62,7 @@ html, body { height: 100%; margin: 0; padding: 0; }
  text-align: left;
  background:lightgreen;
 }
-#div_txt{
+#div_article{
  text-align:left; 
  width:100%; 
  margin:0 auto;
@@ -71,7 +72,7 @@ div.head_line{color:blue; font-size:200%}
 /* http://www.astrodigital.org/digital/htmlcolors.html */
 span.word_span, span.mark_word{background-color:yellow}
 span.hard{background:#ffc}
-span.unkown_word{font-size:150%;}
+span.unknown_word{font-size:150%;}
 span.wl_-1{background-color:white}
 span.wl_0{background-color:red}
 span.wl_1{background-color:#FF7F00}
@@ -83,7 +84,7 @@ span.wl_6{background-color:#FF00FF}
 span.dt{color:green;}
 </style>
 
-<script type="text/javascript" src="/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.min.js"></script>
 <script type="text/javascript">
 String.prototype.format = function()
 {
@@ -161,10 +162,8 @@ $.ajaxSetup({
 </div>
 </div>
 <div id="middle">
-    <div id="div_txt">
     {% block middle%}
     {% endblock %}
-    </div>
 </div>
 <div id="right">
     {% block right %}

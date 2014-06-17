@@ -1,31 +1,10 @@
-
-{% if pagelist.has_previous %}
-<a href="?{{ addr|escape }}=1" title="首页">首页</a>
-<a href="?{{ addr|escape }}={{ pagelist.previous_page_number }}" title="上一页">上一页</a>&nbsp;
-{% endif %}
-
-{% if pagelist.has_other_pages %}
-{% for p in page_range %}
-{% ifequal p pagelist.number %}
-<span>{{p}}</span>
-{% else %}
-<a href="?{{ addr|escape }}={{p}}" title="第{{p}}页">{{p}}</a>
-{% endifequal %}
-{% endfor %}
-{% endif %}
-
-&nbsp;
-
-{% if pagelist.has_next %}
-<a href="?{{ addr|escape }}={{ pagelist.next_page_number }}" title="下一页">下一页</a>&nbsp;
-<a href="?{{ addr|escape }}={{ pagecount }}" title="末页">末页</a>&nbsp;
-{% endif %}
-
-<span>
-第<input type="text" id="page_i" style="width: 40px; " value = "{{curpage}}"/>页
-<a href="###" id="Goto">Go</a>&nbsp;&nbsp;
-</span>
-<span>当前第<span id="curpage" >{{ curpage }}</span>页 
- 共
-<input type="text" id="pagecount" value="{{pagecount}}" readonly style="width: 40px; ">
-页</span>
+<div id="navibar">
+<input type="button" id="navihome" value="<<" >
+<input type="button" id="naviup" value="<" >
+<input type="button" id="navigoto" value="Goto">
+<input id="curpage" value="0" style="width:40px;">
+/
+<input id="totalpage" value="" style="width:40px;" disabled >
+<input type="button" id="navidown" value=">" >
+<input type="button" id="naviend" value=">>" >
+</div>

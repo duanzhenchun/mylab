@@ -10,7 +10,13 @@ import math
 import time
 import re
 from conf import *
-from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
+
+
+def fit_urlpath(fname):
+    return re.match('^[\w\.]+$', fname)
+
+def to_lines(txt):
+    return tounicode(txt).split('\n')
 
 
 def time2now(created_at):
@@ -36,7 +42,7 @@ def get_encoding(txt):
     return chardet.detect(txt[:100])['encoding']
 
 def tounicode(s):
-    encoding = get_encoding(s)
+    encoding = get_encoding(s) or 'utf8'
     return isinstance(s, unicode) and s or s.decode(encoding, 'ignore') 
 
 
@@ -92,36 +98,6 @@ def chunks(l, n):
 
 def get_querymid(url):
     return url.split('/')[-1].split('#')[0]
-
-
-def get_curpage(request):
-    try:
-        page = max(1, int(request.GET.get("page", 1)))
-    except ValueError:
-        page = 1
-    return page
-
-def get_page_content(request, allcount, cur):
-    paginator = Paginator([[] for _ in xrange(allcount)], 1)
-    before, after = 5, 6
-    try:
-        pagelist = paginator.page(cur)
-    except(EmptyPage, InvalidPage, PageNotAnInteger):
-        pagelist = paginator.page(1)
-        cur = 1
- 
-    if cur >= after:
-        page_range = paginator.page_range[
-            cur - after:cur + before]
-    else:
-        page_range = paginator.page_range[0:int(cur) + before]
-
-    # 对get的地址进行解析
-    addr = request.META['QUERY_STRING']
-    addr = '&'.join(
-        [i for i in addr.split('&') if i.split('=')[0] not in ['page', 'url']])
-    addr = '&'.join([addr, 'page'])
-    return pagelist, page_range, addr
 
 
 def gen_part(txt, psize=2500, most=20):

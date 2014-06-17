@@ -15,11 +15,16 @@ Wnl = WordNetLemmatizer()
 
 def word_lem(w):
     w = get_us(w.lower())
-    return ST.stem(Wnl.lemmatize(w))
+    try:
+        res= Wnl.lemmatize(w)
+        return ST.stem(Wnl.lemmatize(w))
+    except Exception, e:
+        print w, e
 
-def set_freq_K(w, unkown, uid):
+
+def set_freq_K(w, unknown, uid):
     K, n = get_K(uid)
-    set_freq(w, unkown and K-1 or K+1)
+    set_freq(w, unknown and K-1 or K+1)
 
 def set_freq(w, v):
     Mem.hset(K_freq, w, v)

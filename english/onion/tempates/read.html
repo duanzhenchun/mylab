@@ -1,132 +1,26 @@
 ﻿{% extends "baseread.html" %}
 
 {% block head%}
-<script type="text/javascript" src="/static/js/navigate.js"></script>
-<script type="text/javascript">
-
-var keybusy = false; //global
-
-$(document).ready(function() {
-
-keybusy = false;
-
-function selectText(){
-    if(document.selection){
-        return document.selection.createRange().text;// IE
-    }else{
-        return 	window.getSelection().toString(); //标准
-    }
-}
-function change_word(w, unkown, refresh){
-    $.ajax({
-        type: "POST",
-        url: '../word_mark',
-        data:{ w:w, unkown:unkown,
-               curpage:{{curpage}}, 
-            },
-        success: function(data){
-            if (refresh){
-            var ph='<p class="p_txt">';
-            txt = ph + data.lines.join('</p>'+ph)+ '</p>';
-                $("#div_txt").html(txt);
-            }
-        }
-    });
-}
-
-function unkown_html(k, v){
-    return ("<div><span class='unkown_word wl_{0}'>{1}</span>&nbsp;" +
-            "<span class='dt'>{2}</span></div><div>{3}</div>").format(v[2], k, v[1], v[0]);
-}
-function repeat_word(w){
-    $.ajax({
-        type: "POST",
-        url: '../word_repeat',
-        data:{
-                w:w,
-            }, 
-        success: function(data){
-            var txt='';
-            $.each(data, function(k, v){ 
-                txt += unkown_html(k,v);
-            });
-            $("#div_unkown_txt").html(txt);
-        }
-    });
-}
-
-function like_word(s) {
-    return /^[\w\d]+$/i.test(s);
-}
-
-$(".word_span ").live("click", function (){ // live response everytime
-    w = $(this).text();
-    yn = confirm("生词? "+w)
-    change_word(w, yn, !yn);
-});
-
-$(".unkown_word").live("click", function (){ 
-    w = $(this).text();
-    if (confirm("重复? "+w)){
-        repeat_word(w);
-    }
-});
-
-$("#div_txt").mouseup(function(){
-    var s = selectText().trim();
-    if (s.length>0 & like_word(s)) {
-        if(confirm("生词? "+s)) {
-            change_word(s, true, true);
-        }
-    } 
-});
-});
-
-$(document).keydown(function(event){  
-   if (keybusy){
-       return;
-   }
-   event = event || window.event;
-   if(event.keyCode==37){ 
-   {% if pagelist.has_previous %}
-   keybusy = true;
-   location.href = "?{{ addr|safe }}={{ pagelist.previous_page_number }}";
-   {% endif %}
-   };
-   if(event.keyCode==39){ 
-   {% if pagelist.has_next %}
-   keybusy = true;
-   location.href = "?{{ addr|safe }}={{ pagelist.next_page_number }}";
-   {% endif %}
-   };
-   if(event.keyCode==13){ 
-     $('#Goto').click();
-   };
-});
-</script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/read.js"></script>
 {% endblock %}
 
 {% block left %}
-<a href="./upload">upload</a>
+<div class="file-box"> 
+<input type="file" id="fileinput" accept="text/*" style= "width: 100%;"/>
+</div>
 <br/>
 <a href="./mywords">mywords</a>
 {% endblock %}
 
 {% block middle%}
-    {% for line in lines %}
-    <p class='p_txt'>{{line|safe}}</p>
-    {% endfor %}
+<div id="div_article">
+    {{article|safe}}
+</div>
 {% endblock %}
 
 {% block right %}
-<div id="div_unkown_txt">
-{% for k, v in unkown.items %}
-    <div>
-    <span class='unkown_word wl_{{v.2}}'>{{k}}</span>&nbsp;
-    <span class='dt'>{{v.1}}</span>
-    </div>
-    <div>{{v.0|safe}}</div> 
-{% endfor %}
+<div id="div_unknown_txt">
+    {{unkown|safe}}
 </div>
 {% endblock %}
 
