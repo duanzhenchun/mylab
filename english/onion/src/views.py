@@ -32,7 +32,7 @@ def read(request):
     if is_post:
         return json_response(dic)
     else:
-        dic['unknown']=unkown_word_html(dict(word_level.show_unknowns(uid)))
+        dic['unknown']=unknown_word_html(dict(word_level.show_unknowns(uid)))
         return render_to_response('read.html', dic,
                         context_instance=RequestContext(request))
 
@@ -43,7 +43,7 @@ def article_html(lines):
         res +="<p class='p_txt'>%s</p>" %line
     return res
 
-def unkown_word_html(dic):
+def unknown_word_html(dic):
     res=''
     for k,v in dic.iteritems():
         res += "<div><span class='unknown_word wl_%s'>%s</span> " %(v[2], k) +\
@@ -83,4 +83,4 @@ def word_repeat(request):
         return HttpResponseBadRequest()
     w = request.POST.get('w').strip()
     word_level.repeat(w, uid)
-    return json_response(unkown_word_html(dict(word_level.show_unknowns(uid))))
+    return json_response(unknown_word_html(dict(word_level.show_unknowns(uid))))

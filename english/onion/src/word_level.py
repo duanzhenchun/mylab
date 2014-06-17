@@ -109,15 +109,18 @@ def remember(w, unknown, sentence, uid):
     if unknown:
         names = names[::-1]
     Mem.hdel(names[1] %uid, w)
-    v = word_info(names[0] %uid, w)
     now = now_timestamp()
+
+    v = word_info(names[0] %uid, w)
+    new_w=True
     if v:
         v [0] = sentence
+        new_w=False
     else:
         v = (sentence, now, 0)
     Mem.hset(names[0] %uid, w, v)
     if unknown:
-        if not v or Mem.zrank(K_tl %uid, w) == None:
+        if new_w or Mem.zrank(K_tl %uid, w) == None:
             toshow = Ebbinghaus.period[0]
             Mem.zadd(K_tl %uid, w, now + toshow)
     else:
@@ -146,6 +149,7 @@ def repeat(w, uid):
         Mem.zadd(K_tl %uid, w, now_timestamp() + toshow)
 
 
+@benchmark
 def show_unknowns(uid, n=10, debug=False):
     now = now_timestamp()
     name = K_unknown %uid
