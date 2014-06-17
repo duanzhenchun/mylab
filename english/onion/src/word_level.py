@@ -21,6 +21,7 @@ Span_name='word_span'
 
 def set_article(fname, txt):
     global Title, Content
+    Content =[]
     Title = fname
     for part in gen_part(tounicode(txt)):
         Content.append(part)

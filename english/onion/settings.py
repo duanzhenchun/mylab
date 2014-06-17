@@ -54,6 +54,9 @@ USE_L10N = True
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, 'static'),
@@ -131,6 +134,7 @@ INSTALLED_APPS = (
     # ... include the providers you want to enable:
     'allauth.socialaccount.providers.github',
 #    'allauth.socialaccount.providers.google',
+    'src',
     'captcha',
 )
 

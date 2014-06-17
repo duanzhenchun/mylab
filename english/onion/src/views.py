@@ -1,14 +1,13 @@
 #coding: utf8
 
+import json
+import re
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render_to_response, redirect
 from django.template import Template, RequestContext
-import json
-import re
-import word_level
 from django import forms
-import math
 from captcha.fields import CaptchaField 
+import word_level
 from conf import *
 from utils import *
 

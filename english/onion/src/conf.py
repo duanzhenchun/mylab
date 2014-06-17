@@ -9,5 +9,5 @@ SPECIAL_PATTERN = re.compile(
     ur'(#.+?#|\[.+?\]|https?:\/\/[.\/\w$&_-]+|@[0-9a-zA-Z\u4e00-\u9fa5_-]+)')
 
 
-UPLOAD_LIMIT = 10 ** 9
+UPLOAD_LIMIT = 10 ** 7
 MAX_RATIO = 1e4
