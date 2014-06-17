@@ -1,4 +1,4 @@
-var pagesize=5000;  // about 20kb data post, suitable for http transfer
+var pagesize=2000;  // about 20kb data post, suitable for http transfer
 var page_txt = ''
 var keybusy = false; //global
 
@@ -134,6 +134,7 @@ $("#fileinput").change(function(evt){
 
   var r = new FileReader();
   r.onload = function(e){
+   // curpage.val(0);
     var contents = e.target.result;
     totalpage.val(Math.floor(contents.length/pagesize));
     var startpos = pagesize * curpage.val();

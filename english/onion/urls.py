@@ -25,8 +25,6 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += patterns(mainpath + '.views',
     (r'^$', 'read'),
     (r'^read$', 'read'),
-    (r'^upload$', 'upload'),
-    (r'^upload_txt$', 'upload_txt'),    
     (r'^word_mark$', 'word_mark'),    
     (r'^mywords$', 'mywords'),    
     (r'^word_repeat$', 'word_repeat'),    
