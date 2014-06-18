@@ -1,5 +1,5 @@
 var pagesize=2000;  // about 20kb data post, suitable for http transfer
-var max_pagesize = pagesize+20;
+var page_plus = 20;
 var max_wait = 3600*24*7;
 
 var g_fname = 'sample';
@@ -131,7 +131,7 @@ $("#navidown").click(function(){
     navi(cur+1);
 });
 
-function checkSupport(){
+function checkSupport(){    //http://caniuse.com/filereader
     if (window.File && window.FileReader && window.FileList && window.Blob) {
       return true;
     } else {
@@ -180,13 +180,22 @@ $("#file_encoding").change(function(evt){
 
 function get_pagetxt(){
     totalpage.val(Math.floor(g_contents.length/pagesize));
-    var startpos = pagesize * curpage.val();
-    var endpos = g_contents.indexOf("\n", startpos+pagesize);
-    if (endpos<0){  //not found
-      endpos = startpos+max_pagesize;
+    var start0 = pagesize * curpage.val();
+    var end = g_contents.indexOf("\n", start0 + pagesize);
+    var start = start0;
+    if(curpage.val()>0){
+        start = g_contents.indexOf("\n", start0); 
+        if (start<0){  //not found
+            start=start0+page_plus;
+        }else{
+            start+=1;
+        }
     }
-    console.log('start:', startpos, 'endpos:', endpos);
-    return g_contents.substr(startpos, endpos-startpos );
+    if (end<0){  //not found
+      end = start0 + pagesize + page_plus;
+    }
+    console.log('start:', start, 'end:', end);
+    return g_contents.substr(start, end-start );
 } 
 });
 
