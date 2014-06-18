@@ -17,12 +17,10 @@ pagesize=6000
 @benchmark
 def read(request):
     uid = request.user.id
-    print 'user:%s, uid:%d' %(request.user, uid)
     if request.method == 'GET':
         return render_to_response('read.html', context_instance=RequestContext(request))
     elif request.method == 'POST':
         fname, txt = [request.POST.get(i, '') for i in ('fname', 'txt')]
-        print fname, len(txt)
         assert len(txt) < pagesize
         dic = {'title':fname,
              'article': article_html(word_level.decorate(to_lines(txt), uid)),
@@ -69,7 +67,6 @@ def mywords(request):
             context_instance=RequestContext(request))
 
 
-@benchmark
 def word_repeat(request):
     uid = request.user.id
     if not request.method == 'POST':
