@@ -149,11 +149,12 @@ def repeat(w, uid):
         Mem.zadd(K_tl %uid, w, t)
 
 def time2wait(uid):
-    wait = sys.maxint
+    wait = Ebbinghaus.period[-1]
     res = Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, 1, withscores=True)
+    print uid, wait, res
     if res:
         w,t = res[0]
-        wait = t - now_timestamp()
+        wait = min(wait, t - now_timestamp())
     return wait
 
 def show_unknowns(uid, n=10, debug=False):
@@ -201,7 +202,7 @@ def mywords(uid):
         yield i, dic
 
 def test_show_unkdown(): 
-    uid, n = 4, 10 
+    uid, n = 4, 10000 
     res=Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, n, withscores=True) 
     for w, t in res:
         Mem.zadd(K_tl %uid, w, now)
