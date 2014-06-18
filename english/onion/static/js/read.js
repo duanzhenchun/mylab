@@ -170,7 +170,8 @@ $("#fileinput").change(function(evt){
     curpage.val(0);
     read_article();
   }
-  r.readAsText(f);
+  var label = $("#file_encoding option:selected").text();
+  r.readAsText(f, label);
 });
 
 function get_pagetxt(){

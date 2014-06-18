@@ -6,7 +6,15 @@
 
 {% block left %}
 <div class="file-box"> 
+<label>Choose file:</label>
 <input type="file" id="fileinput" accept="text/*" style= "width: 100%;"/>
+</div>
+<div>
+<label>encoding:</label>
+<select id="file_encoding">
+  <option value="UTF8">UTF8</option>
+  <option value="GB18030">GB18030</option>
+</select>
 </div>
 <br/>
 <a href="./mywords">mywords</a>
