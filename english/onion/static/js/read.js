@@ -24,6 +24,11 @@ function repeat_word(w){
         }
     });
 }
+var sh = setInterval(function(){
+    var ret = repeat_word('');
+    if (!ret){clearInterval(sh)};
+}, 3000);
+
 function selectText(){
     if(document.selection){
         return document.selection.createRange().text;// IE

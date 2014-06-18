@@ -32,7 +32,6 @@ def read(request):
     if is_post:
         return json_response(dic)
     else:
-        dic['unknown']=unknown_word_html(dict(word_level.show_unknowns(uid)))
         return render_to_response('read.html', dic,
                         context_instance=RequestContext(request))
 

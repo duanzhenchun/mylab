@@ -1,11 +1,11 @@
-String.prototype.format = function()
-{
+String.prototype.format = function(){
     var args = arguments;
     return this.replace(/\{(\d+)\}/g,                
         function(m,i){
             return args[i];
         });
 }
+
 // using jQuery
 function getCookie(name) {
     var cookieValue = null;
@@ -22,7 +22,6 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-var csrftoken = getCookie('csrftoken'); 
 
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
@@ -41,6 +40,7 @@ function sameOrigin(url) {
         // or any other URL that isn't scheme relative or absolute i.e relative.
         !(/^(\/\/|http:|https:).*/.test(url));
 }
+var csrftoken = getCookie('csrftoken'); 
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
         if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
@@ -51,4 +51,3 @@ $.ajaxSetup({
         }
     }
 });
-
