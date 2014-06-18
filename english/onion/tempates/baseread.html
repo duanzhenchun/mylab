@@ -18,11 +18,19 @@
 <br/>
 {% block left %}
 {% endblock %}    
+
 <div id="left_bottom">
 <div>word level:</div>
+<div>
 {% for i in "0123456" %}
-<span class='wl_{{i}}' />{{i}} 
+<span class='wl_{{i}}'>{{i}}</span>
 {% endfor %}
+</div>
+<div>word difficulty:</div>
+<div>
+<span class='mark_word'>normal</span>
+<span class='hard'>hard</span>
+</div>
 </div>
 </div>
 <div id="middle">

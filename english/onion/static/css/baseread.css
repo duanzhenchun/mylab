@@ -19,7 +19,8 @@ html, body { height: 100%; margin: 0; padding: 0; }
  bottom:40px;
  overflow: auto;
  height:auto!important;
- background:#ffc;
+/* background:#ffc; */
+ background:lightgreen;
  text-align:center;
  line-height: 200%
 }
@@ -64,7 +65,7 @@ html, body { height: 100%; margin: 0; padding: 0; }
 div.head_line{color:blue; font-size:200%}
 /* http://www.astrodigital.org/digital/htmlcolors.html */
 span.word_span, span.mark_word{background-color:yellow}
-span.hard{background:#ffc}
+span.hard{background-color:#ffc}
 span.unknown_word{font-size:150%;}
 span.wl_-1{background-color:white}
 span.wl_0{background-color:red}
