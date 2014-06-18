@@ -16,19 +16,20 @@ function repeat_word(w){
     $.ajax({
         type: "POST",
         url: '../word_repeat',
-        data:{
-                w:w,
+        data:{w:w,
             }, 
         success: function(data){
             $("#div_unknown_txt").html(data.unknown);
-            var t = parseInt(data.wait);
-            console.log('time2wait unkown words:', t);
-            if (t>0){
-                setTimeout(repeat_word(''), t*1000);
+            var wait = parseInt(data.wait);
+            console.log('time2wait unkown words:', wait);
+            if (wait>0){
+                setTimeout(function(){repeat_word('');}, wait*1000);
             }
         }
     });
 }
+
+// initial require
 read_article('sample');
 repeat_word('');
 
