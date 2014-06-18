@@ -18,22 +18,16 @@ pagesize=6000
 def read(request):
     uid = request.user.id
     print 'user:%s, uid:%d' %(request.user, uid)
-    is_post= request.method == 'POST'
-    if is_post:
+    if request.method == 'GET':
+        return render_to_response('read.html', context_instance=RequestContext(request))
+    elif request.method == 'POST':
         fname, txt = [request.POST.get(i, '') for i in ('fname', 'txt')]
         print fname, len(txt)
         assert len(txt) < pagesize
-    else:
-        fname, txt = Sample_article
-    dic = {
-         'title':fname,
-         'article': article_html(word_level.decorate(to_lines(txt), uid)),
-         }     
-    if is_post:
+        dic = {'title':fname,
+             'article': article_html(word_level.decorate(to_lines(txt), uid)),
+             }     
         return json_response(dic)
-    else:
-        return render_to_response('read.html', dic,
-                        context_instance=RequestContext(request))
 
 
 def article_html(lines):
