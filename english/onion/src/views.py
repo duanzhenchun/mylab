@@ -77,4 +77,6 @@ def word_repeat(request):
     w = request.POST.get('w').strip()
     if w:
         word_level.repeat(w, uid)
-    return json_response(unknown_word_html(dict(word_level.show_unknowns(uid))))
+    return json_response({'wait': word_level.time2wait(uid),
+                         'unknown': unknown_word_html(dict(word_level.show_unknowns(uid))),
+                         })

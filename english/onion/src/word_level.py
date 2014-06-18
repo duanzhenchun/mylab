@@ -133,7 +133,6 @@ def word_info(name, w):
         v = list(ast.literal_eval(v))
     return v
  
-
 def repeat(w, uid):
     name= K_unknown %uid
     v =  word_info(name, w)
@@ -148,6 +147,13 @@ def repeat(w, uid):
         toshow = Ebbinghaus.period[v[-1]]
         Mem.zadd(K_tl %uid, w, now_timestamp() + toshow)
 
+def time2wait(uid):
+    wait = sys.maxint
+    res = Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, 1, withscores=True)
+    if res:
+        wait = res[0][-1] - now_timestamp()
+    print wait
+    return wait
 
 @benchmark
 def show_unknowns(uid, n=10, debug=False):
@@ -156,7 +162,7 @@ def show_unknowns(uid, n=10, debug=False):
     res = Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, n, withscores=True)
     for (w, t) in res:
         diff = now - t 
-        #print 'w=%s, diff=%f' %(w,diff)
+        print 'w=%s, diff=%f' %(w,diff)
         if not debug:
             if diff<0:
                 break

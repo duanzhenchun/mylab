@@ -1,0 +1,11 @@
+aws deploy:
+    db move
+    static
+    uwsgi 
+    op.sh
+    log data for mining
+
+iPad touch:
+    span hover -> click
+    span click -> dclick
+    text select ->?

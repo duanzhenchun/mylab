@@ -20,15 +20,17 @@ function repeat_word(w){
                 w:w,
             }, 
         success: function(data){
-            $("#div_unknown_txt").html(data);
+            $("#div_unknown_txt").html(data.unknown);
+            var t = parseInt(data.wait);
+            console.log('time2wait unkown words:', t);
+            if (t>0){
+                setTimeout(repeat_word(''), t*1000);
+            }
         }
     });
 }
 read_article('sample');
-var sh = setInterval(function(){
-    var ret = repeat_word('');
-    if (!ret){clearInterval(sh)};
-}, 3000);
+repeat_word('');
 
 function selectText(){
     if(document.selection){
