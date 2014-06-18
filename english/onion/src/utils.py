@@ -16,7 +16,7 @@ def fit_urlpath(fname):
     return re.match('^[\w\.]+$', fname)
 
 def to_lines(txt):
-    return tounicode(txt).split('\n')
+    return tounicode(txt, 'utf8').split('\n')
 
 
 def time2now(created_at):
@@ -41,8 +41,9 @@ def benchmark(f):
 def get_encoding(txt):
     return chardet.detect(txt[:100])['encoding']
 
-def tounicode(s):
-    encoding = get_encoding(s) or 'utf8'
+def tounicode(s, encoding=None):
+    if not encoding:
+        encoding = get_encoding(s) or 'utf8'
     return isinstance(s, unicode) and s or s.decode(encoding, 'ignore') 
 
 

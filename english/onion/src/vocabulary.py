@@ -47,10 +47,7 @@ def get_K(uid):
         return K,0
 
 
-def set_K(K, uid, n=None):
-    if not n:
-        K, n = get_K(uid)
-        n+=1
+def set_K(K, uid, n):
     Mem.set(K_K %uid, (K,n))
     print 'new K:%s, n: %d' %(K,n)
 

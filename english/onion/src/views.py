@@ -14,7 +14,6 @@ from utils import *
 pagesize=6000
 
 
-@benchmark
 def read(request):
     uid = request.user.id
     if request.method == 'GET':
@@ -46,7 +45,6 @@ def json_response(dic):
     return HttpResponse(json_response, mimetype='application/json')
 
 
-@benchmark
 def word_mark(request):
     uid = request.user.id
     w, unknown, txt = [request.POST.get(i, '') for i in ('w', 'unknown', 'txt')]

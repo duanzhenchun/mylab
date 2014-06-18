@@ -65,7 +65,7 @@ html, body { height: 100%; margin: 0; padding: 0; }
 div.head_line{color:blue; font-size:200%}
 /* http://www.astrodigital.org/digital/htmlcolors.html */
 span.mark_word { border-bottom: 1px dotted;}
-span.word_span {background-color:yellow;}
+span.word_span, span.normal {background-color:yellow;}
 span.hard{background-color:#ffc}
 span.unknown_word{font-size:150%;}
 span.wl_-1{background-color:white}

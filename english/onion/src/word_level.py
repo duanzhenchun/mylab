@@ -69,8 +69,7 @@ def clo_target(ncache=10):
         if lst:
             a = (a * n + sum(lst)/len(lst)) /(n+1)
         newK = max(1, int(1.0/a))
-        vocabulary.set_K(newK, n+1)
-
+        vocabulary.set_K(newK, uid, n+1)
         for w, (v, unkwon) in cdic.iteritems():
             vocabulary.set_freq_K(w, unknown, uid)
         cdic.clear()
@@ -80,7 +79,7 @@ def clo_target(ncache=10):
             vocabulary.set_freq_K(w, unknown, uid) #pre-set
             cdic[w] = (v, unknown)
             print 'w:', w, 'cdic len:', len(cdic)
-        else:
+        if len(cdic)>=ncache:
             update(uid)
     return cache
 f_newK = clo_target()
@@ -151,7 +150,7 @@ def repeat(w, uid):
 def time2wait(uid):
     wait = Ebbinghaus.period[-1]
     res = Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, 1, withscores=True)
-    print uid, wait, res
+    print 'uid:%d, wait:%d' %(uid, wait)
     if res:
         w,t = res[0]
         wait = min(wait, t - now_timestamp())
