@@ -174,6 +174,10 @@ $("#fileinput").change(function(evt){
   r.readAsText(f, label);
 });
 
+$("#file_encoding").change(function(evt){
+    $("#fileinput").change();
+});
+
 function get_pagetxt(){
     totalpage.val(Math.floor(g_contents.length/pagesize));
     var startpos = pagesize * curpage.val();
