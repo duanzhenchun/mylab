@@ -152,7 +152,6 @@ $("#fileinput").change(function(evt){
       data: {fname:f.name,"txt":page_txt},
       success: function(data){
         $("#div_article").html(data.article);
-        $("#div_unknown_txt").html(data.unknown);
         cur_changed = false;
         console.log('cur_changed:', cur_changed);
       },

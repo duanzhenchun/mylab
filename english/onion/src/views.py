@@ -82,5 +82,6 @@ def word_repeat(request):
     if not request.method == 'POST':
         return HttpResponseBadRequest()
     w = request.POST.get('w').strip()
-    word_level.repeat(w, uid)
+    if w:
+        word_level.repeat(w, uid)
     return json_response(unknown_word_html(dict(word_level.show_unknowns(uid))))

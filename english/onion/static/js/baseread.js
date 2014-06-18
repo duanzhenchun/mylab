@@ -1,12 +1,3 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>{{ title }}</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
-<link rel="shortcut icon" href="{{ STATIC_URL }}/img/onion.ico" />
-<link rel="stylesheet" href="{{ STATIC_URL }}css/baseread.css" type="text/css">
-<script type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.8.3/jquery.min.js"></script>
-<script type="text/javascript">
 String.prototype.format = function()
 {
     var args = arguments;
@@ -61,36 +52,3 @@ $.ajaxSetup({
     }
 });
 
-</script>
-
-{% block head%}
-{% endblock %}
-
-</head>
-
-<body>
-<div id="left">
-<a href="/accounts/logout">logout</a>
-<br/>
-{% block left %}
-{% endblock %}    
-<div id="left_bottom">
-<div>word level:</div>
-{% for i in "0123456" %}
-<span class='wl_{{i}}' />{{i}} 
-{% endfor %}
-</div>
-</div>
-<div id="middle">
-    {% block middle%}
-    {% endblock %}
-</div>
-<div id="right">
-    {% block right %}
-    {% endblock %}
-</div>
-<div id="footer">
-    {% block footer %}
-    {% endblock %}
-</div>
-</body>

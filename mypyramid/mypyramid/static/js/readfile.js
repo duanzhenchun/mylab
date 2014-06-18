@@ -1,4 +1,4 @@
-$(document).ready(function(){       //$(function() {
+$(document).ready(function(){  
     var pagesize=5000;  // about 20kb data post, suitable for http transfer
     var curpage = $("#curpage");
     var totalpage = $("#totalpage"); 
