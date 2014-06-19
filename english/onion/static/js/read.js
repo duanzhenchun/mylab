@@ -63,8 +63,7 @@ function change_word(w, unknown, refresh){
         }
     });
 }
-$(".word_span ").live("click", function (evt){ // live response everytime
-//    evt.preventDefault();
+$(".word_span").live("click", function (evt){ // live response everytime
     w = $(this).text();
     yn = confirm("生词? "+w)
     change_word(w, yn, !yn);
@@ -87,7 +86,7 @@ function add_newword(){
 $("#div_article").mouseup(function(evt){
     add_newword();
 });
-$("#div_article").live( "touchend", function(evt){
+$("#div_article").live("touchend", function(evt){
     add_newword();
 });
 function navi(page){
