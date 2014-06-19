@@ -15,6 +15,7 @@ var curpage = $("#curpage");
 var cur_changed = false;
 var totalpage = $("#totalpage"); 
 var allnavis=[$("#navihome"),$("#naviend"),$("#naviup"),$("#navidown"),$("#navigoto")]
+$("#search").prop('disabled', true);
 
 function repeat_word(w){
     if (!w) {w=''}
@@ -97,12 +98,9 @@ function navi(page){
 function disable_navi(yn){
     keybusy = yn;
     for (var i in allnavis){
-        if(yn){
-            allnavis[i].attr('disabled','disabled');
-        }else{
-            allnavis[i].removeAttr('disabled');
-        }
+        allnavis[i].prop('disabled', yn);
     }
+    $('#search').prop('disabled', yn);
 };
 $("#curpage").change(function(){ 
     cur_changed = true; 
@@ -155,6 +153,7 @@ function read_article(){
       success: function(data){
         document.title = data.title;
         $("#div_article").html(data.article);
+        $("#middle").animate({ scrollTop: 0 }, "fast");
         cur_changed = false;
       },
       complete: function(msg){
@@ -185,23 +184,39 @@ $("#file_encoding").change(function(evt){
 
 function get_pagetxt(){
     totalpage.val(Math.floor(g_contents.length/pagesize));
-    var start0 = pagesize * curpage.val();
+    var res = page_start();
+    var start0 = res[0];
+    var start = res[1];
     var end = g_contents.indexOf("\n", start0 + pagesize);
-    var start = start0;
-    if(curpage.val()>0){
-        start = g_contents.indexOf("\n", start0); 
-        if (start<0){  //not found
-            start=start0+page_plus;
-        }else{
-            start+=1;
-        }
-    }
     if (end<0){  //not found
       end = start0 + pagesize + page_plus;
     }
     console.log('start:', start, 'end:', end);
     return g_contents.substr(start, end-start );
 } 
+function page_start(){
+    var start0 = pagesize * curpage.val();
+    var start = start0;
+    if(curpage.val()>0){
+        start = g_contents.indexOf("\n", start0); 
+        if (start<0){  //not found
+            start = start0 + page_plus;
+        }else{
+            start +=1;
+        }
+    }
+    return [start0, start];
+}
+$("#search").click(function(){
+    var s = $("#search_txt").val();
+    if (s.length<1){return;}
+    var start = page_start()[1];
+    var pos = g_contents.indexOf(s, start);
+    if (pos<0){return;}
+    var pos_page = Math.floor(pos/pagesize);
+    console.log('pos_page:', pos_page);
+    navi(pos_page);
+});
 });
 
 $(document).keydown(function(event){  

@@ -10,17 +10,21 @@
 <input type="file" id="fileinput" accept="text/*" style= "width: 100%;"/>
 </div>
 <div>
-<label>encoding:</label>
 <select id="file_encoding">
   <option value="GB18030">GB18030</option>
   <option value="UTF8">UTF8</option>
 </select>
 </div>
-<br/>
+
+<input id="search_txt" value="" style="width:100%;">
+<input type="button" id="search" value="Search text" >
+{% endblock %}
+
+{% block left_bottom %}
 <a href="./mywords">mywords</a>
 {% endblock %}
 
-{% block middle%}
+{% block middle %}
 <div id="div_article">
 </div>
 {% endblock %}

@@ -147,14 +147,16 @@ def repeat(w, uid):
         t = now_timestamp() + toshow
         Mem.zadd(K_tl %uid, w, t)
 
+
 def time2wait(uid):
+    start = now_timestamp()
     wait = Ebbinghaus.period[-1]
-    res = Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, 1, withscores=True)
-    print 'uid:%d, wait:%d' %(uid, wait)
+    res = Mem.zrangebyscore(K_tl %uid, start, start + wait, 0, 1, withscores=True)
     if res:
-        w,t = res[0]
-        wait = min(wait, t - now_timestamp())
+        wait = res[0][-1] - start
+    print 'uid:%d, wait:%d' %(uid, wait)
     return wait
+
 
 def show_unknowns(uid, n=10, debug=False):
     now = now_timestamp()
