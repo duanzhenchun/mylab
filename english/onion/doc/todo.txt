@@ -8,3 +8,10 @@ aws deploy:
 iPad touch:
     span hover -> click
     upload a txt
+
+api:
+    prevent calling limit
+
+data mining:
+    log action to collection file
+

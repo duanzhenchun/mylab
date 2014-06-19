@@ -76,26 +76,20 @@ $(".unknown_word").live("click", function (evt){
         repeat_word(w);
     }
 });
-
+function add_newword(){
+    var s = selectText().trim();
+    if (s.length>0 & like_word(s)) {
+        if(confirm("生词? "+s)) {
+            change_word(s, true, true);
+        }
+    } 
+}
 $("#div_article").mouseup(function(evt){
-    var s = selectText().trim();
-    if (s.length>0 & like_word(s)) {
-        if(confirm("生词? "+s)) {
-            change_word(s, true, true);
-        }
-    } 
+    add_newword();
 });
-
 $("#div_article").live( "touchend", function(evt){
-    var s = selectText().trim();
-    if (s.length>0 & like_word(s)) {
-        if(confirm("生词? "+s)) {
-            change_word(s, true, true);
-        }
-    } 
-//    $('div#div_article').delay(2000).fadeTo(1500, 0);
+    add_newword();
 });
-
 function navi(page){
     curpage.val(page);
     read_article();
