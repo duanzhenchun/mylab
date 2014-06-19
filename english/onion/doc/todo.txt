@@ -7,5 +7,4 @@ aws deploy:
 
 iPad touch:
     span hover -> click
-    span click -> dclick
-    text select ->?
+    upload a txt

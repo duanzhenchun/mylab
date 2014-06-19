@@ -63,20 +63,21 @@ function change_word(w, unknown, refresh){
         }
     });
 }
-$(".word_span ").live("click", function (){ // live response everytime
+$(".word_span ").live("click", function (evt){ // live response everytime
+//    evt.preventDefault();
     w = $(this).text();
     yn = confirm("生词? "+w)
     change_word(w, yn, !yn);
 });
 
-$(".unknown_word").live("click", function (){ 
+$(".unknown_word").live("click", function (evt){ 
     w = $(this).text();
     if (confirm("重复? "+w)){
         repeat_word(w);
     }
 });
 
-$("#div_article").mouseup(function(){
+$("#div_article").mouseup(function(evt){
     var s = selectText().trim();
     if (s.length>0 & like_word(s)) {
         if(confirm("生词? "+s)) {
@@ -84,6 +85,17 @@ $("#div_article").mouseup(function(){
         }
     } 
 });
+
+$("#div_article").live( "touchend", function(evt){
+    var s = selectText().trim();
+    if (s.length>0 & like_word(s)) {
+        if(confirm("生词? "+s)) {
+            change_word(s, true, true);
+        }
+    } 
+//    $('div#div_article').delay(2000).fadeTo(1500, 0);
+});
+
 function navi(page){
     curpage.val(page);
     read_article();
@@ -213,4 +225,3 @@ $(document).keydown(function(event){
        $( "#navigoto" ).trigger( "click" );
    };
 });
-
