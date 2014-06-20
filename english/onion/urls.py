@@ -25,6 +25,7 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += patterns(mainpath + '.views',
     (r'^$', 'read'),
     (r'^read$', 'read'),
+    (r'^lastpage$', 'lastpage'),
     (r'^word_mark$', 'word_mark'),    
     (r'^word_known$', 'word_known'),    
     (r'^word_unknown$', 'word_unknown'),    

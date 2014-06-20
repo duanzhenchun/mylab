@@ -50,7 +50,7 @@ function save_word(w){
 
 // initial require
 read_article();
-repeat_word('');
+repeat_word();
 
 function getSelectedTextWithin(el) {
     var selectedText = "";
@@ -146,7 +146,7 @@ $("#div_article").live("touchend", function(evt){
 });
 function navi(page){
     curpage.val(page);
-    read_article();
+    read_article(page);
 };
 
 function disable_navi(yn){
@@ -195,12 +195,14 @@ function checkSupport(){    //http://caniuse.com/filereader
       return false;
     }
 }
-function read_article(){
+function read_article(curpage){
+    if (!curpage) curpage=0;
     disable_navi(true);
     $.ajax({
       type: "POST",
       url: 'read',
       data: {fname:g_fname,
+             curpage:curpage,
              txt: get_pagetxt()
       },
       success: function(data){
@@ -214,6 +216,21 @@ function read_article(){
       },
     });
 }
+
+function lastpage_article(){
+    var last = 0;
+    $.ajax({
+      type:"GET",
+      url: 'lastpage',
+      data:{fname:g_fname},
+      success: function(data){
+        last = parseInt(data.last);
+        curpage.val(last);
+        read_article()
+      },
+    });
+}
+
 // main interaction happens here
 $("#fileinput").change(function(evt){
   if (!checkSupport())return; 
@@ -224,8 +241,7 @@ $("#fileinput").change(function(evt){
   r.onload = function(evt){   //file loaded successfuly
     g_fname=f.name;
     g_contents = evt.target.result;
-    curpage.val(0);
-    read_article();
+    lastpage_article();
   }
   var label = $("#file_encoding option:selected").text();
   r.readAsText(f, label);
@@ -244,7 +260,7 @@ function get_pagetxt(){
     if (end<0){  //not found
       end = start0 + pagesize + page_plus;
     }
-    console.log('start:', start, 'end:', end);
+    //console.log('start:', start, 'end:', end);
     return g_contents.substr(start, end-start );
 } 
 function page_start(){

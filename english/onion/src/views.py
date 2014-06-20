@@ -11,7 +11,7 @@ from conf import *
 from utils import *
 
 
-pagesize=6000
+pagesize=4000
 
 
 def read(request):
@@ -19,13 +19,20 @@ def read(request):
     if request.method == 'GET':
         return render_to_response('read.html', context_instance=RequestContext(request))
     elif request.method == 'POST':
-        fname, txt = [request.POST.get(i, '') for i in ('fname', 'txt')]
-        assert len(txt) < pagesize
+        fname, txt, curpage = [request.POST.get(i, '') for i in ('fname', 'txt', 'curpage')]
+        if len(txt) > pagesize:
+            return json_response({'error':'page size too long'})
+        word_level.set_lastpage(fname, curpage, uid) 
         dic = {'title':fname,
-             'article': article_html(word_level.decorate(to_lines(txt), uid)),
-             }     
+               'article': article_html(word_level.decorate(to_lines(txt), uid)),
+              }     
         return json_response(dic)
 
+
+def lastpage(request):
+    fname = request.GET.get('fname', '')
+    last = word_level.lastpage(fname, request.user.id)
+    return json_response({'last':last})
 
 def article_html(lines):
     res = ''

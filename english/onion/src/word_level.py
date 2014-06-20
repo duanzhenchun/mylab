@@ -222,6 +222,20 @@ def mywords(uid, wtype):
     return dic
 
 
+def set_lastpage(fname, curpage, uid):
+    curpage = ast.literal_eval(curpage)
+    if not isinstance(curpage, int) or curpage<=0:
+        return 0
+    Mem.hset(K_curpage %uid, fname, curpage)
+    print 'set lastpage', fname, curpage
+
+def lastpage(fname, uid):
+    last = Mem.hget(K_curpage %uid, fname )
+    if not last:
+        last = 0
+    return last
+
+
 def debug_refresh_show_unkdown(): 
     uid, n = 4, 10000 
     res=Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, n, withscores=True) 
