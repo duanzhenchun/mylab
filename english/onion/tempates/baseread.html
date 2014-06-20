@@ -6,9 +6,9 @@
 <link rel="stylesheet" href="{{ STATIC_URL }}css/baseread.css" type="text/css">
 <script type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/baseread.js"></script>
+
 {% block head%}
 {% endblock %}
-
 </head>
 
 <body>
@@ -19,15 +19,19 @@
 {% endblock %}    
 
 <div id="left_bottom">
+<a href="./word_forgotten">save mine~</a>
+<a href="./word_known">known</a>
+<a href="./word_unknown">unknown</a>
+
 {% block left_bottom %}
 {% endblock %}
-<div>word level:</div>
+<div>repeat times:</div>
 <div>
 {% for i in "0123456" %}
 <span class='wl_{{i}}'>{{i}}</span>
 {% endfor %}
 </div>
-<div>word difficulty:</div>
+<div>difficulty:</div>
 <div>
 <span class='normal'>normal</span>
 <span class='hard'>hard</span>

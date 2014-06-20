@@ -4,6 +4,7 @@ import redis
 K_K = 'onion_en_K:%d' 
 K_known = 'onion_en_known:%d' 
 K_unknown ='onion_en_unknown:%d' 
+K_forget='onion_en_forget:%d' 
 K_tl = 'onion_en_tl:%d'
 
 K_freq = 'onion_en_freq'

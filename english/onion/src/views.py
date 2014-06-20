@@ -55,15 +55,32 @@ def word_mark(request):
         return json_response({'lines': lines})
 
 
-@benchmark
-def mywords(request):
-    res={}
-    for i,dic in word_level.mywords(request.user.id):
-        res[i]=dic
+Myword_type={0:'known', 1:'unkown', -1:'forgotten'}
+
+def word_known(request):
+    return mywords(request, 0)
+
+def word_unknown(request):
+    return mywords(request, 1)
+
+def word_forgotten(request):
+    return mywords(request, -1)
+
+def mywords(request, wtype):
     return render_to_response('mywords.html', 
-            {'title':'mywords', 'result':res },
+            {'title': Myword_type.get(wtype,0), 
+            'dic': word_level.mywords(request.user.id, wtype)
+            },
             context_instance=RequestContext(request))
 
+def word_save(request):
+    uid = request.user.id
+    if not request.method == 'POST':
+        return HttpResponseBadRequest()
+    w = request.POST.get('w').strip()
+    if w:
+        word_level.save(w, uid)
+    return redirect('/word_forgottern')
 
 def word_repeat(request):
     uid = request.user.id

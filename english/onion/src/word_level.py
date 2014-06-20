@@ -4,6 +4,7 @@ import re
 import sys
 import os
 import ast
+import cgi
 from nltk.corpus import wordnet
 import Ebbinghaus
 import pronounce
@@ -28,7 +29,9 @@ def word_def(w, spname=Span_name):
 
 def decorate(lines, uid):
     for line in lines:
+        line = cgi.escape(line) #word_def will add span tag of html, so escape first
         yield ''.join(mark(line, uid))
+
 
 def mark(line, uid):
     K, n = vocabulary.get_K(uid)
@@ -70,7 +73,7 @@ def clo_target(ncache=10):
             a = (a * n + sum(lst)/len(lst)) /(n+1)
         newK = max(1, int(1.0/a))
         vocabulary.set_K(newK, uid, n+1)
-        for w, (v, unkwon) in cdic.iteritems():
+        for w, (v, unknown) in cdic.iteritems():
             vocabulary.set_freq_K(w, unknown, uid)
         cdic.clear()
 
@@ -78,7 +81,7 @@ def clo_target(ncache=10):
         if len(cdic)<ncache:
             vocabulary.set_freq_K(w, unknown, uid) #pre-set
             cdic[w] = (v, unknown)
-            print 'w:', w, 'cdic len:', len(cdic)
+            print 'w:', w, unknown, 'cdic len:', len(cdic)
         if len(cdic)>=ncache:
             update(uid)
     return cache
@@ -119,11 +122,14 @@ def remember(w, unknown, sentence, uid):
         v = (sentence, now, 0)
     Mem.hset(names[0] %uid, w, v)
     if unknown:
-        if new_w or Mem.zrank(K_tl %uid, w) == None:
-            toshow = Ebbinghaus.period[0]
-            Mem.zadd(K_tl %uid, w, now + toshow)
+        memo(w, uid, now, new_w)
     else:
         Mem.zrem(K_tl %uid, w)
+
+def memo(w, uid, now, new_w):
+    if new_w or Mem.zrank(K_tl %uid, w) == None:
+        toshow = Ebbinghaus.period[0]
+        Mem.zadd(K_tl %uid, w, now + toshow)
 
 
 def word_info(name, w):
@@ -154,7 +160,7 @@ def time2wait(uid):
     res = Mem.zrangebyscore(K_tl %uid, start, start + wait, 0, 1, withscores=True)
     if res:
         wait = res[0][-1] - start
-    print 'uid:%d, wait:%d' %(uid, wait)
+    print 'uid:%d, time2wait:%d' %(uid, wait)
     return wait
 
 
@@ -182,7 +188,17 @@ def forget(w, uid):
     name = K_unknown %uid
     v = word_info(name, w)
     v [-1] = -1
-    Mem.hset(name, w, v)
+    Mem.hset(K_forget %uid, w, v)
+    Mem.hdel(name, w)
+
+
+def save(w, uid):
+    name = K_forget %uid
+    v=word_info(name, w)
+    v[-1] =0
+    Mem.hset(K_unknown %uid, w, v)
+    Mem.hdel(name, w)
+    memo(w, uid, now= now_timestamp(), new_w=True)
 
 
 def reset_wlevel():
@@ -192,17 +208,19 @@ def reset_wlevel():
         Mem.hset(K_unknown, w, v)
 
 
-def mywords(uid):
-    for i, name in enumerate((K_known, K_unknown)):
-        name = name %uid
-        dic={}
-        for w in Mem.hkeys(name):
-            v = word_info(name, w)
-            v[1] = fmt_timestamp(v[1])
-            dic[w]=v
-        yield i, dic
+Myword_dbtype = {0: K_known, 1: K_unknown, -1: K_forget}
 
-def test_show_unkdown(): 
+def mywords(uid, wtype):
+    name = Myword_dbtype.get(wtype, 0) %uid
+    dic={}
+    for w in Mem.hkeys(name):
+        v = word_info(name, w)
+        v[1] = fmt_timestamp(v[1])
+        dic[w]=v
+    return dic
+
+
+def debug_refresh_show_unkdown(): 
     uid, n = 4, 10000 
     res=Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, n, withscores=True) 
     for w, t in res:
@@ -210,6 +228,4 @@ def test_show_unkdown():
 
 
 if __name__ == "__main__":
-    lines = 'Maugham remains the consummate craftsman.…[His writing is] so compact, so economical, so closely motivated, so skillfully written, that it rivets attention from the first page to last'.split(',')
-    for l in decorate(lines, Uid0):
-        print l
+    pass

@@ -1,13 +1,15 @@
 {% extends "baseread.html" %}
 
+{% block head%}
+<title>{{title}}</title>
+{% endblock %}
+
 {% block left %}
     <a href="../">homepage</a>
 {% endblock %}
 
 {% block middle %}
-{% for i, dic in result.items %}
 <br/>
-<div class='head_line'>{% if i %}un{% endif %}known:</div>
 {% for k, v in dic.items %}
     <div>
     <span class='unknown_word'>
@@ -16,7 +18,6 @@
     </div>
     <div class='dt'>{{v.1}}</div>
     <div>{{v.0|safe}}</div> 
-{% endfor %}
 {% endfor %}
 {% endblock %}
 
