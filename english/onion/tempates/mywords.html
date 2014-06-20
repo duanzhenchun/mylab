@@ -1,7 +1,7 @@
 {% extends "baseread.html" %}
 
 {% block head%}
-<title>{{title}}</title>
+<title>{{word_type}}</title>
 {% endblock %}
 
 {% block left %}
@@ -12,7 +12,7 @@
 <br/>
 {% for k, v in dic.items %}
     <div>
-    <span class='unknown_word'>
+        <span class='{{word_type}}'>
     <span class='wl_{{v.2}}'>{{k}}
     </span></span>
     </div>

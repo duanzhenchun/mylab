@@ -23,16 +23,27 @@ function repeat_word(w){
     $.ajax({
         type: "POST",
         url: '../word_repeat',
-        data:{w:w,
-            }, 
+        data:{w:w,}, 
         success: function(data){
-            $("#div_unknown_txt").html(data.unknown);
+            $("#div_2study").html(data.unknown);
             var wait = parseInt(data.wait);
             console.log('time2wait:', wait);
             if (wait>0){
                 wait = Math.min(wait, max_wait);
                 setTimeout(repeat_word, wait*1000);
             }
+        }
+    });
+}
+
+function save_word(w){
+    if (!w) {w=''}
+    $.ajax({
+        type: "POST",
+        url: '../word_save',
+        data:{w:w,}, 
+        success: function(data){
+            $("#div_2study").html(data.forgotten);
         }
     });
 }
@@ -84,7 +95,7 @@ function change_word(w, unknown, refresh){
         url: '../word_mark',
         data:{ w:w, 
                unknown:unknown,
-               txt: get_pagetxt(),
+               txt: get_pagetxt(), //page txt should be updated after unknown words changed
             },
         success: function(data){
             if (refresh){
@@ -96,19 +107,29 @@ function change_word(w, unknown, refresh){
     });
 }
 $(".word_span").live("click", function (evt){ // live response everytime
-    evt.preventDefault();
     w = $(this).text();
     yn = confirm("生词? "+w)
     change_word(w, yn, !yn);
 });
 
 $(".unknown_word").live("click", function (evt){ 
-    evt.preventDefault();
     w = $(this).text();
     if (confirm("重复? "+w)){
         repeat_word(w);
     }
 });
+
+$(".forgotten_word").live("click", function (evt){ 
+    w = $(this).text();
+    if (confirm("save? "+w)){
+        save_word(w);
+    }
+});
+
+$("#save_word").click(function(){
+    save_word('');
+});
+
 function add_newword(){
     var s =getSelectedTextWithin(document.getElementById("div_article")).trim();
     if (s.length>0 & like_word(s)) {
@@ -118,7 +139,6 @@ function add_newword(){
     } 
 }
 $("#div_article").mouseup(function(evt){
-    evt.preventDefault();
     add_newword();
 });
 $("#div_article").live("touchend", function(evt){
@@ -202,7 +222,6 @@ $("#fileinput").change(function(evt){
 
   var r = new FileReader();
   r.onload = function(evt){   //file loaded successfuly
-    evt.preventDefault();
     g_fname=f.name;
     g_contents = evt.target.result;
     curpage.val(0);

@@ -33,10 +33,10 @@ def article_html(lines):
         res +="<p class='p_txt'>%s</p>" %line
     return res
 
-def unknown_word_html(dic):
+def word_html(dic, wtype):
     res=''
     for k,v in dic.iteritems():
-        res += "<div><span class='unknown_word wl_%s'>%s</span> " %(v[2], k) +\
+        res += "<div><span class='wl_%s %s' >%s</span> " %(v[2], wtype, k) +\
             "<span class='dt'>%s</span></div><div>%s</div>" %(v[1], v[0])
     return res
 
@@ -63,12 +63,10 @@ def word_known(request):
 def word_unknown(request):
     return mywords(request, 1)
 
-def word_forgotten(request):
-    return mywords(request, -1)
 
 def mywords(request, wtype):
     return render_to_response('mywords.html', 
-            {'title': Myword_type.get(wtype,0), 
+            {'word_type': Myword_type.get(wtype,0)+'_word', 
             'dic': word_level.mywords(request.user.id, wtype)
             },
             context_instance=RequestContext(request))
@@ -80,7 +78,10 @@ def word_save(request):
     w = request.POST.get('w').strip()
     if w:
         word_level.save(w, uid)
-    return redirect('/word_forgottern')
+    dic = dict(word_level.show_forgotten(uid))
+    print 'forgotten', dic
+    return json_response({'forgotten': word_html(dic, 'forgotten_word'),
+                         })
 
 def word_repeat(request):
     uid = request.user.id
@@ -89,6 +90,7 @@ def word_repeat(request):
     w = request.POST.get('w').strip()
     if w:
         word_level.repeat(w, uid)
+    dic = dict(word_level.show_unknowns(uid))
     return json_response({'wait': word_level.time2wait(uid),
-                         'unknown': unknown_word_html(dict(word_level.show_unknowns(uid))),
+                         'unknown': word_html(dic, 'unknown_word'),
                          })

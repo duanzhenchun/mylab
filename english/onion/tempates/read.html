@@ -6,18 +6,21 @@
 
 {% block left %}
 <div class="file-box"> 
-<label>Choose file:</label>
+<label>Read</label>
 <input type="file" id="fileinput" accept="text/*" style= "width: 100%;"/>
 </div>
+
 <div>
+encoding:
 <select id="file_encoding">
   <option value="GB18030">GB18030</option>
   <option value="UTF8">UTF8</option>
 </select>
 </div>
-
+</br>
+<label>search article</label>
 <input id="search_txt" value="" style="width:100%;">
-<input type="button" id="search" value="Search text" >
+<input type="button" id="search" value="Search" >
 {% endblock %}
 
 {% block left_bottom %}
@@ -29,8 +32,11 @@
 {% endblock %}
 
 {% block right %}
-<div id="div_unknown_txt">
-<p>unknown:</p>
+<div>
+<input type="button" id="save_word" value="Save my words~" >
+</div>
+</br>
+<div id="div_2study">
 </div>
 {% endblock %}
 

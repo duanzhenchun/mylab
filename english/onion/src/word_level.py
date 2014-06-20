@@ -164,24 +164,26 @@ def time2wait(uid):
     return wait
 
 
-def show_unknowns(uid, n=10, debug=False):
+def show_unknowns(uid, n=10):
     now = now_timestamp()
     name = K_unknown %uid
     res = Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, n, withscores=True)
     for (w, t) in res:
         diff = now - t 
-        if not debug:
-            if diff<0:
-                break
+        if diff<0:
+            break
         v = word_info(name, w)
         v[1] = fmt_timestamp(v[1])
         if v[-1]<0 or Ebbinghaus.finished(v[-1]):
             continue
         if diff>Ebbinghaus.period[v[-1]+1]:
             forget(w, uid)
-            if not debug:
-                continue
+            continue
         yield w, v 
+
+def show_forgotten(uid):
+    for w, v in Mem.hgetall(K_forget %uid).iteritems():
+        yield w, list(ast.literal_eval(v))
 
 
 def forget(w, uid):

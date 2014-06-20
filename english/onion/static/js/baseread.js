@@ -40,6 +40,17 @@ function sameOrigin(url) {
         // or any other URL that isn't scheme relative or absolute i.e relative.
         !(/^(\/\/|http:|https:).*/.test(url));
 }
+
+function find_sentence(w, txt){
+    var tregex = /\n|([^\r\n.!?]+([.!?]+|$))/gim;
+    var lst = txt.match(tregex).map($.trim);
+    for(i in lst){
+        if (lst[i].indexOf(w)>=0)
+            return lst[i];
+    }
+    return '';
+}
+
 var csrftoken = getCookie('csrftoken'); 
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {

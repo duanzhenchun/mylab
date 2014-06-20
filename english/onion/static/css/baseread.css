@@ -22,7 +22,7 @@ html, body { height: 100%; margin: 0; padding: 0; }
 /* background:#ffc; */
  background:lightgreen;
  text-align:center;
- line-height: 200%
+ line-height: 150%
 }
 #left_bottom{
  position: absolute;
@@ -73,7 +73,7 @@ span.word_span, span.normal {
     cursor: help;
 }
 span.hard{background-color:#ffc}
-span.unknown_word{font-size:150%;}
+span.known_word .unknown_word .forgotten_word{font-size:150%;}
 span.wl_-1{background-color:white}
 span.wl_0{background-color:red}
 span.wl_1{background-color:#FF7F00}
