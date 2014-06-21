@@ -44,7 +44,7 @@ def word_html(dic, wtype):
     res=''
     for k,v in dic.iteritems():
         res += "<div><span class='wl_%s %s' >%s</span> " %(v[2], wtype, k) +\
-            "<span class='dt'>%s</span></div><div>%s</div>" %(v[1], v[0])
+            "<span class='dt'>%s</span></div><div>%s</div>" %( fmt_timestamp(v[1]), v[0])
     return res
 
 def json_response(dic):
@@ -52,7 +52,7 @@ def json_response(dic):
     return HttpResponse(json_response, mimetype='application/json')
 
 
-def word_mark(request):
+def word_change(request):
     uid = request.user.id
     w, unknown, txt = [request.POST.get(i, '') for i in ('w', 'unknown', 'txt')]
     w = w.strip()
@@ -86,7 +86,6 @@ def word_save(request):
     if w:
         word_level.save(w, uid)
     dic = dict(word_level.show_forgotten(uid))
-    print 'forgotten', dic
     return json_response({'forgotten': word_html(dic, 'forgotten_word'),
                          })
 

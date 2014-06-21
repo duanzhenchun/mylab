@@ -15,3 +15,5 @@ api:
 data mining:
     log action to collection file
 
+redis:
+    atomic operation

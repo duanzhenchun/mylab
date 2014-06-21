@@ -92,7 +92,7 @@ function getSelectedTextWithin(el) {
 function change_word(w, unknown, refresh){
     $.ajax({
         type: "POST",
-        url: '../word_mark',
+        url: '../word_change',
         data:{ w:w, 
                unknown:unknown,
                txt: get_pagetxt(), //page txt should be updated after unknown words changed
@@ -127,7 +127,14 @@ $(".forgotten_word").live("click", function (evt){
 });
 
 $("#save_word").click(function(){
-    save_word('');
+    var shows = ['Save my words~','wait to repeat'];
+    if ($(this).val() == shows[0]){
+        $(this).val(shows[1]);
+        save_word('');
+    }else{
+        $(this).val(shows[0]);
+        repeat_word();
+    }
 });
 
 function add_newword(){
@@ -225,6 +232,7 @@ function lastpage_article(){
       data:{fname:g_fname},
       success: function(data){
         last = parseInt(data.last);
+        last = Math.min(last, totalpage.val())
         curpage.val(last);
         read_article()
       },
@@ -241,6 +249,7 @@ $("#fileinput").change(function(evt){
   r.onload = function(evt){   //file loaded successfuly
     g_fname=f.name;
     g_contents = evt.target.result;
+    totalpage.val(Math.floor(g_contents.length/pagesize));
     lastpage_article();
   }
   var label = $("#file_encoding option:selected").text();
@@ -252,7 +261,6 @@ $("#file_encoding").change(function(evt){
 });
 
 function get_pagetxt(){
-    totalpage.val(Math.floor(g_contents.length/pagesize));
     var res = page_start();
     var start0 = res[0];
     var start = res[1];

@@ -26,6 +26,7 @@ def set_freq_K(w, unknown, uid):
     K, n = get_K(uid)
     set_freq(w, unknown and K-1 or K+1)
 
+
 def set_freq(w, v):
     Mem.hset(K_freq, w, v)
 
@@ -35,11 +36,12 @@ def get_freq(w):
     except:
         return 0
 
+
 def get_us(w):
     return Mem.hget(K_uk, w) or w
 
 def get_K(uid):
-    res = Mem.get(K_K %uid)
+    res = Mem.hget(K_K, uid)
     if res:
         return ast.literal_eval(res)
     else:
@@ -48,7 +50,7 @@ def get_K(uid):
 
 
 def set_K(K, uid, n):
-    Mem.set(K_K %uid, (K,n))
+    Mem.hset(K_K, uid, (K,n))
     print 'new K:%s, n: %d' %(K,n)
 
 
@@ -76,7 +78,7 @@ def to_mem(wdict, dic_uk, uid):
         Mem.hset(K_uk, uk, us)
     K = wdict.get(word_lem(Word0))
     print "K:%d" % K
-    Mem.set(K_K %uid, K)
+    Mem.hset(K_K, uid, (K,0))
 
 
 @benchmark
