@@ -62,7 +62,7 @@ def word_change(request):
         return json_response({'lines': lines})
 
 
-Myword_type={0:'known', 1:'unkown', -1:'forgotten'}
+Myword_type={0:'known', 1:'unknown', -1:'forgotten'}
 
 def word_known(request):
     return mywords(request, 0)

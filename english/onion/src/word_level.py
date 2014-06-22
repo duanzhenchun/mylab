@@ -186,6 +186,7 @@ def show_unknowns(uid, n=10):
             break
         v = word_info(name, w)
         if v[-1]<0 or Ebbinghaus.finished(v[-1]):
+            Mem.zrem(K_tl %uid, w)
             continue
         if diff>Ebbinghaus.period[v[-1]+1]:
             forget(w, uid)
@@ -203,6 +204,7 @@ def forget(w, uid):
     v [-1] = -1
     Mem.hset(K_forget %uid, w, v)
     Mem.hdel(name, w)
+    Mem.zrem(K_tl %uid, w)
 
 
 def save(w, uid):

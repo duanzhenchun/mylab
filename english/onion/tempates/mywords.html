@@ -12,11 +12,9 @@
 <br/>
 {% for k, v in dic.items %}
     <div>
-        <span class='{{word_type}}'>
-    <span class='wl_{{v.2}}'>{{k}}
-    </span></span>
+        <span class='{{word_type}} wl_{{v.2}}'>{{k}}</span>
+        <span class='dt'>{{v.1}}</span>
     </div>
-    <div class='dt'>{{v.1}}</div>
     <div>{{v.0|safe}}</div> 
 {% endfor %}
 {% endblock %}
