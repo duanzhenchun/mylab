@@ -26,7 +26,7 @@
 {% endblock %}
 <div>repeat times:</div>
 <div>
-{% for i in "0123456" %}
+{% for i in "01234" %}
 <span class='wl_{{i}}'>{{i}}</span>
 {% endfor %}
 </div>
@@ -41,12 +41,12 @@
     {% block middle%}
     {% endblock %}
 </div>
-<div id="right">
-    {% block right %}
-    {% endblock %}
-</div>
 <div id="footer">
     {% block footer %}
+    {% endblock %}
+</div>
+<div id="right">
+    {% block right %}
     {% endblock %}
 </div>
 </body>
