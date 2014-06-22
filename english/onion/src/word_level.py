@@ -38,6 +38,8 @@ def mark(line, uid):
     for w in Word_pat.findall(line):
         if not w.isalpha():
             yield w
+        elif len(w)<2:
+            yield w
         else:
             w0 = vocabulary.word_lem(w)
             freq = vocabulary.get_freq(w0)
@@ -155,9 +157,9 @@ def repeat(w, uid):
     Mem.hset(name, w, v)
     if Ebbinghaus.finished(v[-1]):
         Mem.zrem(K_tl %uid, w)
-        w0 = vocabulary.word_lem(w)
-        v = vocabulary.get_freq(w0)
-        update_freq(w0, v, True, uid)
+#        w0 = vocabulary.word_lem(w)
+#        v = vocabulary.get_freq(w0)
+#        update_freq(w0, v, True, uid)
     else:
         toshow = Ebbinghaus.period[v[-1]]
         t = now_timestamp() + toshow

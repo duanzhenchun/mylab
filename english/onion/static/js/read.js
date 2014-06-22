@@ -139,7 +139,7 @@ $("#save_word").click(function(){
 
 function add_newword(){
     var s =getSelectedTextWithin(document.getElementById("div_article")).trim();
-    if (s.length>0 & like_word(s)) {
+    if (s.length>1 & like_word(s)) {
         if(confirm("生词? "+s)) {
             change_word(s, true, true);
         }

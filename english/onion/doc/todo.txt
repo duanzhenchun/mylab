@@ -3,7 +3,6 @@ aws deploy:
     static
     uwsgi 
     op.sh
-    log data for mining
 
 iPad touch:
     span hover -> click
@@ -11,9 +10,16 @@ iPad touch:
 
 api:
     prevent calling limit
+    catcha
 
 data mining:
     log action to collection file
 
 redis:
     atomic operation
+
+vacabulary:
+    chinese diction
+    pronoucation
+
+prevent malicious use

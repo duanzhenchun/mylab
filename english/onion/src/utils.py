@@ -25,9 +25,9 @@ def time2now(created_at):
 def now_timestamp():
     return int(time.time())
 
-def fmt_timestamp(t):
+def fmt_timestamp(t, year=False):
     dt = datetime.datetime.fromtimestamp(t)
-    return dt.strftime('%Y-%m-%d %H:%M')
+    return dt.strftime((year and '%Y-' or '') + '%m-%d %H:%M')
 
 def benchmark(f):
     def wrapper(*args, **kwargs):
