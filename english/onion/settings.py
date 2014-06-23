@@ -7,7 +7,7 @@ TEMPLATE_DEBUG = DEBUG
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-#ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['onion.wicp.net']
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -55,9 +55,11 @@ USE_L10N = True
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
+MEDIA_ROOT = 'tmp/media'
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/tmp/static'
+
 STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, 'static'),
 )

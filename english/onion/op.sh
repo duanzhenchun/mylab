@@ -12,3 +12,7 @@ done
 #sudo mv data/onion*.rdb /var/lib/redis/dump.rdb
 #service start redis
 #import nltk; nltk.download(); d wordnet;q
+#setting.py:
+#DEBUG = FALSE
+#python manager.py collectstatic
+#set nginx.conf for static, like /tmp/static
