@@ -3,3 +3,6 @@ django>=1.4.3
 django-allauth>=0.13.0
 requests>=1.0.3
 requests-oauthlib>=0.3.0
+django-simple-captcha
+chardet
+nltk

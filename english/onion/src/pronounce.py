@@ -42,7 +42,7 @@ def prepare():
         if res:
             w, alp =(res.group(i) for i in (1, 4))
             Dic[w].append(alp)
-    Mem = redis.Redis()
+    Mem = redis.Redis(db=1)
     for w, lst in Dic.iteritems():
         Mem.hset(K_IPA, w, lst)
     
