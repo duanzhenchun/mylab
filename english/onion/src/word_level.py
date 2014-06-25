@@ -70,14 +70,12 @@ def update_freq(w, v, unknown, uid, ncache=10):
         vcache = Mem.hget(name, w)
         if vcache:
             # rollback cache word
-            print 'rollback', w, vcache
             freq, _ = ast.literal_eval(vcache)
             vocabulary.set_freq(w, freq)
             Mem.hdel(name, w)
             return
     vocabulary.set_freq_K(w, unknown, uid) #pre-set
     Mem.hset(name, w, (v, unknown))
-    print 'w:', w, unknown, 'cache len:', Mem.hlen(name)
     # flush cache
     if Mem.hlen(name)>=ncache:
         lst=[]
@@ -172,7 +170,6 @@ def time2wait(uid):
     res = Mem.zrangebyscore(K_tl %uid, start, start + wait, 0, 1, withscores=True)
     if res:
         wait = res[0][-1] - start
-    print 'uid:%d, time2wait:%d' %(uid, wait)
     return wait
 
 
@@ -240,7 +237,6 @@ def set_lastpage(fname, curpage, uid):
     if not isinstance(curpage, int) or curpage<=0:
         return 0
     Mem.hset(K_curpage %uid, fname, curpage)
-    print 'set lastpage', fname, curpage
 
 def lastpage(fname, uid):
     last = Mem.hget(K_curpage %uid, fname )

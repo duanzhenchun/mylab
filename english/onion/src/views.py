@@ -44,7 +44,7 @@ def word_html(dic, wtype):
     res=''
     for k,v in dic.iteritems():
         res += "<div><span class='wl_%s %s' >%s</span> " %(v[2], wtype, k) +\
-            "<span class='dt'>%s</span></div><div>%s</div>" %( fmt_timestamp(v[1]), v[0])
+            "<span class='dt'>%s</span></div><div>%s</div></br>" %( fmt_timestamp(v[1]), v[0])
     return res
 
 def json_response(dic):

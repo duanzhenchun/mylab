@@ -6,6 +6,7 @@ api:
     prevent calling freq limit
     catcha
     prevent malicious use
+        change K_K violently
 
 data mining:
     log action to collection file
