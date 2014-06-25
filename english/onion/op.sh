@@ -4,15 +4,17 @@
 
 for i in 54.250.166.126 
 do
-    rsync -avz --cvs-exclude '.git/ *~ .pyc *.swp' "-e ssh" ../onion ec2-user@$i:src/ 
+    rsync -avz --cvs-exclude '.git/ *~ .pyc .swp' "-e ssh" ../onion ec2-user@$i:src/ 
 done
 
-#aws
+#aws prepare
 #service stop redis
 #sudo mv data/onion*.rdb /var/lib/redis/dump.rdb
 #service start redis
 #import nltk; nltk.download(); d wordnet;q
+#set nginx.conf for static, like /tmp/static
+
+#aws update
 #setting.py:
 #DEBUG = FALSE
 #python manager.py collectstatic
-#set nginx.conf for static, like /tmp/static
