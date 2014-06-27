@@ -11,12 +11,14 @@ import time
 import re
 from conf import *
 
+Sent_join= re.compile(u'(?<=[\w,][—\-\s])\n(?=\w)')
 
 def fit_urlpath(fname):
     return re.match('^[\w\.]+$', fname)
 
 def to_lines(txt):
-    return tounicode(txt, 'utf8').split('\n')
+    txt = tounicode(txt, 'utf8')
+    return Sent_join.sub('', txt).split('\n')
 
 
 def time2now(created_at):

@@ -1,5 +1,9 @@
 html, body { height: 100%; bottom:0; margin: 0; padding: 0; }
-.p_txt { text-indent:2em }
+.p_txt { 
+ text-indent:2em; 
+ margin-top: 0.5em; 
+ margin-bottom: 0.5em; 
+}
 #left{
  position: absolute!important;
  position: relative;
@@ -62,9 +66,11 @@ html, body { height: 100%; bottom:0; margin: 0; padding: 0; }
  text-align:left; 
  width:100%; 
  margin:0 auto;
- line-height: 150%
+ line-height: 125%
 } 
 div.head_line{color:blue; font-size:200%}
+#div_2study{ font-size:80%; }
+
 /* http://www.astrodigital.org/digital/htmlcolors.html */
 span.mark_word { 
     border-bottom: 1px dotted;
@@ -76,7 +82,7 @@ span.word_span, span.normal {
 }
 span.hard{background-color:#ffc}
 span.known_word, span.unknown_word, span.forgotten_word {
-    font-size:150%;
+    font-size:125%; 
     cursor:pointer;
 }
 span.wl_-1{background-color:red}

@@ -16,5 +16,7 @@ done
 
 #aws update
 #setting.py:
-#DEBUG = FALSE
-#python manager.py collectstatic
+#DEBUG = False
+#ln -s $HOME/env/lib/python2.7/site-packages/django/contrib/admin static/
+#python manage.py collectstatic
+# uwsgi --reload uwsgi.pid 

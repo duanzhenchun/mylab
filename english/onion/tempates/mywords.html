@@ -5,15 +5,15 @@
 {% endblock %}
 
 {% block left %}
-    <a href="../">homepage</a>
+    <a href="../read">read</a>
 {% endblock %}
 
 {% block middle %}
 <br/>
 {% for k, v in dic.items %}
     <div>
-        <span class='{{word_type}} wl_{{v.2}}'>{{k}}</span>
-        <span class='dt'>{{v.1}}</span>
+        <span class='{{word_type}} wl_{{v.1}}'>{{k}}</span>
+        <span class='dt'>{{v.2}}</span>
     </div>
     <div>{{v.0|safe}}</div> 
     </br>

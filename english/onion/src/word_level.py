@@ -114,29 +114,21 @@ def remember_lines(lines, w, unknown, uid):
                 return
 
 def remember(w, unknown, sentence, uid):
-    names = (K_known, K_unknown)
     if unknown:
-        names = names[::-1]
-    Mem.hdel(names[1] %uid, w)
-    now = now_timestamp()
-
-    v = word_info(names[0] %uid, w)
-    new_w=True
-    if v:
-        v [0] = sentence
-        new_w=False
+        name = K_unknown %uid
+        v = word_info(name, w)
+        if not v:
+            v = (sentence, 0)
+            Mem.hset(name, w, v)
+            memo(w, uid)
     else:
-        v = (sentence, now, 0)
-    Mem.hset(names[0] %uid, w, v)
-    if unknown:
-        memo(w, uid, now, new_w)
-    else:
+        Mem.hdel(K_unknown %uid, w)
         Mem.zrem(K_tl %uid, w)
 
-def memo(w, uid, now, new_w):
-    if new_w or Mem.zrank(K_tl %uid, w) == None:
-        toshow = Ebbinghaus.period[0]
-        Mem.zadd(K_tl %uid, w, now + toshow)
+def memo(w, uid):
+    now = now_timestamp()
+    toshow = Ebbinghaus.period[0]
+    Mem.zadd(K_tl %uid, w, now + toshow)
 
 
 def word_info(name, w):
@@ -148,9 +140,6 @@ def word_info(name, w):
 def repeat(w, uid):
     name= K_unknown %uid
     v =  word_info(name, w)
-    if not v:
-        print w, 'not found!'
-        return
     v[-1]+=1
     Mem.hset(name, w, v)
     if Ebbinghaus.finished(v[-1]):
@@ -188,7 +177,7 @@ def show_unknowns(uid, n=10):
         if diff>Ebbinghaus.period[v[-1]+1]:
             forget(w, uid)
             continue
-        yield w, v 
+        yield w, v+[t]
 
 def show_forgotten(uid):
     for w, v in Mem.hgetall(K_forget %uid).iteritems():
@@ -204,31 +193,30 @@ def forget(w, uid):
     Mem.zrem(K_tl %uid, w)
 
 
-def save(w, uid):
+def rescue(w, uid):
     name = K_forget %uid
     v=word_info(name, w)
-    v[-1] =0
+    v[-1] = 0
     Mem.hset(K_unknown %uid, w, v)
     Mem.hdel(name, w)
-    memo(w, uid, now= now_timestamp(), new_w=True)
+    memo(w, uid)
 
 
-def reset_wlevel():
-    for w,v in Mem.hgetall(K_unknown).iteritems():
+def reset_wlevel(uid):
+    name = K_unknown %uid
+    for w,v in Mem.hgetall(name).iteritems():
         v=list(ast.literal_eval(v))
         v[-1] = 0
-        Mem.hset(K_unknown, w, v)
+        Mem.hset(name, w, v)
 
 
-Myword_dbtype = {0: K_known, 1: K_unknown, -1: K_forget}
-
-def mywords(uid, wtype):
-    name = Myword_dbtype.get(wtype, 0) %uid
+def unknowns(uid):
+    name = K_unknown %uid
     dic={}
     for w in Mem.hkeys(name):
         v = word_info(name, w)
-        v[1] = fmt_timestamp(v[1])
-        dic[w]=v
+        t = fmt_timestamp(Mem.zscore(K_tl %uid, w))
+        dic[w]=v+[t]
     return dic
 
 

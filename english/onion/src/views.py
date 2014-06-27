@@ -43,8 +43,11 @@ def article_html(lines):
 def word_html(dic, wtype):
     res=''
     for k,v in dic.iteritems():
-        res += "<div><span class='wl_%s %s' >%s</span> " %(v[2], wtype, k) +\
-            "<span class='dt'>%s</span></div><div>%s</div></br>" %( fmt_timestamp(v[1]), v[0])
+        res += "<div><span class='wl_%s %s' >%s</span> " %(v[1], wtype, k)
+        if wtype == 'unknown_word':
+            res += "<span class='dt'>%s</span></div><div>%s</div></br>" %( fmt_timestamp(v[2]), v[0])
+        else:
+            res += "</div><div>%s</div></br>" %v[0]
     return res
 
 def json_response(dic):
@@ -62,29 +65,19 @@ def word_change(request):
         return json_response({'lines': lines})
 
 
-Myword_type={0:'known', 1:'unknown', -1:'forgotten'}
-
-def word_known(request):
-    return mywords(request, 0)
-
 def word_unknown(request):
-    return mywords(request, 1)
-
-
-def mywords(request, wtype):
     return render_to_response('mywords.html', 
-            {'word_type': Myword_type.get(wtype,0)+'_word', 
-            'dic': word_level.mywords(request.user.id, wtype)
+            {'dic': word_level.unknowns(request.user.id )
             },
             context_instance=RequestContext(request))
 
-def word_save(request):
+def word_rescue(request):
     uid = request.user.id
     if not request.method == 'POST':
         return HttpResponseBadRequest()
     w = request.POST.get('w').strip()
     if w:
-        word_level.save(w, uid)
+        word_level.rescue(w, uid)
     dic = dict(word_level.show_forgotten(uid))
     return json_response({'forgotten': word_html(dic, 'forgotten_word'),
                          })

@@ -27,9 +27,8 @@ urlpatterns += patterns(mainpath + '.views',
     (r'^read$', 'read'),
     (r'^lastpage$', 'lastpage'),
     (r'^word_change$', 'word_change'),    
-    (r'^word_known$', 'word_known'),    
     (r'^word_unknown$', 'word_unknown'),    
     (r'^word_repeat$', 'word_repeat'),    
-    (r'^word_save$', 'word_save'),    
+    (r'^word_rescue$', 'word_rescue'),    
 )
 

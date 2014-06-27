@@ -36,11 +36,11 @@ function repeat_word(w){
     });
 }
 
-function save_word(w){
+function rescue_word(w){
     if (!w) {w=''}
     $.ajax({
         type: "POST",
-        url: '../word_save',
+        url: '../word_rescue',
         data:{w:w,}, 
         success: function(data){
             $("#div_2study").html(data.forgotten);
@@ -121,16 +121,16 @@ $(".unknown_word").live("click", function (evt){
 
 $(".forgotten_word").live("click", function (evt){ 
     w = $(this).text();
-    if (confirm("save? "+w)){
-        save_word(w);
+    if (confirm("rescue? "+w)){
+        rescue_word(w);
     }
 });
 
-$("#save_word").click(function(){
-    var shows = ['Save my words~','wait to repeat'];
+$("#rescue_word").click(function(){
+    var shows = ['Rescue my words~','wait to repeat'];
     if ($(this).val() == shows[0]){
         $(this).val(shows[1]);
-        save_word('');
+        rescue_word('');
     }else{
         $(this).val(shows[0]);
         repeat_word();

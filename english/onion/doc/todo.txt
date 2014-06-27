@@ -3,6 +3,7 @@ iPad touch:
     upload a txt
 
 api:
+    stop sign up
     prevent calling freq limit
     catcha
     prevent malicious use
@@ -13,8 +14,30 @@ data mining:
 
 redis:
     atomic operation
+    crontab backup
 
 vacabulary:
     chinese diction
     pronoucation
+
+forgot:
+    limit num/user
+
+usage:
+    root /: info
+    after login => /read
+
+zoom out:
+    fix size/pixel
+
+
+competitor:
+    http://www.wordengine.cn.com/
+        http://www.wordengine.cn.com/vflash
+
+allauth:
+    weibo
+    baidu
+    qq
+
 
