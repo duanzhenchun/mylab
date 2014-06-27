@@ -128,6 +128,12 @@ def remember(w, unknown, sentence, uid):
 def memo(w, uid):
     now = now_timestamp()
     toshow = Ebbinghaus.period[0]
+    name = K_tl %uid
+    if Mem.zcard(name)>Limit_memo:
+        oldest = Mem.zrange(name, 0,0)[0]
+        print 'remove oldest:', oldest
+        Mem.zrem(name, oldest)
+        Mem.hdel(K_unknown %uid, oldest)
     Mem.zadd(K_tl %uid, w, now + toshow)
 
 
@@ -165,7 +171,7 @@ def time2wait(uid):
 def show_unknowns(uid, n=10):
     now = now_timestamp()
     name = K_unknown %uid
-    res = Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, n, withscores=True)
+    res = Mem.zrange(K_tl %uid, 0, n-1, withscores=True)
     for (w, t) in res:
         diff = now - t 
         if diff<0:
@@ -188,7 +194,11 @@ def forget(w, uid):
     name = K_unknown %uid
     v = word_info(name, w)
     v [-1] = -1
-    Mem.hset(K_forget %uid, w, v)
+    if Mem.hlen(K_forget %uid)<=Limit_forget:
+        Mem.hset(K_forget %uid, w, v)
+    else:
+        #for simplicity
+        print 'forget limit reached'    
     Mem.hdel(name, w)
     Mem.zrem(K_tl %uid, w)
 
@@ -231,13 +241,6 @@ def lastpage(fname, uid):
     if not last:
         last = 0
     return last
-
-
-def debug_refresh_show_unkdown(): 
-    uid, n = 4, 10000 
-    res=Mem.zrangebyscore(K_tl %uid, 0, sys.maxint, 0, n, withscores=True) 
-    for w, t in res:
-        Mem.zadd(K_tl %uid, w, now)
 
 
 if __name__ == "__main__":

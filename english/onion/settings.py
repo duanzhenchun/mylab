@@ -85,7 +85,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'middleware.LoginRequiredMiddleware',
+    'src.middleware.LoginRequiredMiddleware',
 )
 
 LOGIN_REDIRECT_URL = '/read'
@@ -142,6 +142,7 @@ INSTALLED_APPS = (
 
 ACCOUNT_AUTHENTICATION_METHOD ="email"
 ACCOUNT_EMAIL_REQUIRED=True
+ACCOUNT_ADAPTER = 'src.adapter.MyAccountAdapter'
 
 """
 SOCIALACCOUNT_PROVIDERS = \

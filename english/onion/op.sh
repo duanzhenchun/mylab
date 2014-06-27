@@ -1,6 +1,6 @@
 #now=$(date +"%Y_%m%d_%H%M")
 #mysqldump -h localhost -uroot -p onion>data/onion_$now.sql
-#dump db=1 redis to /var/lib/dump.rdb, cp to data/
+#redis-cli bgsave cp /var/lib/dump.rdb data/
 
 for i in 54.250.166.126 
 do
@@ -20,3 +20,9 @@ done
 #ln -s $HOME/env/lib/python2.7/site-packages/django/contrib/admin static/
 #python manage.py collectstatic
 # uwsgi --reload uwsgi.pid 
+
+#db backup
+#http://redis4you.com/articles.php?id=010
+#crontab -e
+#@weekly redis-cli bgsave
+#@weekly mysqldump -h localhost -uroot -p12345 onion>/home/whille/bak/onion.sql

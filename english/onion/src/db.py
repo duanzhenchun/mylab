@@ -16,6 +16,9 @@ K_cache = 'onion_en_cache:%d'
 Word0 = 'pointedly'
 Uid0 = 4
 
+Limit_memo = 1000
+Limit_forget = 100
+
 Mem =redis.Redis(db=1)
 
 def movedb():
