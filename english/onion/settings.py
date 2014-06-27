@@ -88,7 +88,7 @@ MIDDLEWARE_CLASSES = (
     'middleware.LoginRequiredMiddleware',
 )
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/read'
 
 LOGIN_EXEMPT_URLS = (
  r'^about\.html$',

@@ -23,10 +23,6 @@ vacabulary:
 forgot:
     limit num/user
 
-usage:
-    root /: info
-    after login => /read
-
 zoom out:
     fix size/pixel
 
