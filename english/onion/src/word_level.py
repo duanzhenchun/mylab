@@ -203,8 +203,11 @@ def show_unknowns(uid, n=10):
             continue
         yield w, v+[t]
 
-def show_forgotten(uid):
-    for w, v in Mem.hgetall(K_forget %uid).iteritems():
+def show_forgotten(uid, n=10):
+    name = K_forget %uid
+    ws = Mem.hkeys(name)[:n]
+    for w in ws:
+        v = Mem.hget(name, w)
         yield w, list(ast.literal_eval(v))
 
 
@@ -216,7 +219,7 @@ def forget(w, uid):
         Mem.hset(K_forget %uid, w, v)
     else:
         #for simplicity
-        print 'forget limit reached'    
+        print w, 'forget limit reached'    
     Mem.hdel(name, w)
     Mem.zrem(K_tl %uid, w)
 
@@ -224,9 +227,11 @@ def forget(w, uid):
 def rescue(w, uid):
     name = K_forget %uid
     v=word_info(name, w)
+    Mem.hdel(name, w)
+    if Mem.hexists(K_unknown %uid, w):   #may be remembered again
+        return
     v[-1] = 0
     Mem.hset(K_unknown %uid, w, v)
-    Mem.hdel(name, w)
     memo(w, uid)
 
 
