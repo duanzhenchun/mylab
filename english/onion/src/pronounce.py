@@ -11,21 +11,11 @@ from utils import *
 #http://en.wikipedia.org/wiki/Arpabet
 
 
-def phonetic(w):
-    res = Mem.hget(K_IPA, w)
-    if res:
-        res = ast.literal_eval(res)
-    return res
-
 def show(w):
-    res = phonetic(w)
-    if res:
-        res = '[%s]' %('], ['.join(res))
-    else:
-        res=''
-    return res
+    res = Mem.hget(K_IPA, w)
+    return res and tounicode(res, 'utf8') or ''
 
-
+# abandoned, used cmudict instead
 def prepare():
     import zipfile
     from collections import defaultdict

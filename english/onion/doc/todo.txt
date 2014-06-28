@@ -13,6 +13,7 @@ data mining:
 
 vacabulary:
     chinese diction
+        http://code.google.com/p/ppdict/wiki/stardict
     pronoucation
 
 competitor:
@@ -23,3 +24,9 @@ allauth:
     weibo
     baidu
     qq
+
+words:
+    oxford-gb
+    langdao
+    if only show form:
+        vocabulary lookup input

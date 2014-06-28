@@ -16,14 +16,32 @@ from utils import *
 Word_pat = re.compile(u"[\w’']+|\W+")
 Sep_sent = re.compile(u'(?<=[\.\?!:]) ') 
 Span_name='word_span'
+Pos_dict={'J':wordnet.ADJ, 'V':wordnet.VERB, 'N':wordnet.NOUN, 'R':wordnet.ADV}
 
+def t_pos():
+    """pos_tag is time-cosumming, ommit it currently."""
+    from nltk.tag import pos_tag
+    from nltk.tokenize import word_tokenize
+    sent = "John's big idea isn't all that bad."
+#    ws = word_tokenize(sent)
+    ws = Word_pat.findall(sent)
+    for w, pos in pos_tag(ws):
+        pos = wn_pos(pos)
+        ss = wordnet.synsets(w,pos)
+        if not ss:
+            continue
+        print w, ss[0].name, ss[0].definition
+
+    
+def wn_pos(pos):
+    return Pos_dict.get(pos[0],'')    
 
 def word_def(w, spname=Span_name):
     ss = wordnet.synsets(w)
     if not ss:
         return w
     else:
-        info = '\n'.join((ss[0].name, pronounce.show(w), ss[0].definition))
+        info = '\n'.join((pronounce.show(w), ss[0].definition))
         return '<span class="%s" title="%s" >%s</span>' % (spname, info, w)
 
 
