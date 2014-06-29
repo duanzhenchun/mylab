@@ -14,14 +14,16 @@
 <body>
 <div id="left">
 <a href="/accounts/logout">logout</a>
-</br></br>
+</br>
 {% block left %}
 {% endblock %}    
 
-<div id="left_bottom">
-
-{% block left_bottom %}
+<div id="left_middle">
+{% block left_middle%}
 {% endblock %}
+</div>
+
+<div id="left_bottom">
 <div>repeat times:</div>
 <div>
 {% for i in "0123456" %}

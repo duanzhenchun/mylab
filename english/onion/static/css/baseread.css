@@ -19,11 +19,16 @@ html, body { height: 100%; bottom:0; margin: 0; padding: 0; }
  text-align:center;
  line-height: 150%
 }
+#left_middle{
+ position: absolute;
+ top:30%;
+ height:25%;
+ width:100%;
+}
 #left_bottom{
  position: absolute;
  bottom:0;
- height:50%;
- top: auto;
+ height:25%;
  width:100%;
 }
 #middle{
