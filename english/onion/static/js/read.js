@@ -50,11 +50,13 @@ function repeat_word(w){
             if (wait>0){
                 wait = Math.min(wait, max_wait);
                 setTimeout(repeat_word, wait*1000);
+                $("#time2show").text(time_str(wait)+' to repeat');
             }
-            $("#time2show").text(time_str(wait)+' to repeat');
-            setTimeout(function(){
-                $("#time2show").text('');    
-            }, 59000);
+            if (wait>60){
+                setTimeout(function(){
+                    $("#time2show").text('');    
+                }, 59000);
+            }
         }
     });
 }
@@ -310,7 +312,7 @@ function page_start(){
 $("#search").click(function(){
     var s = $("#search_txt").val();
     if (s.length<1){return;}
-    var start = page_start()[1];
+    var start = page_start()[1] + pagesize;
     var pos = g_contents.indexOf(s, start);
     if (pos<0){return;}
     var pos_page = Math.floor(pos/pagesize);

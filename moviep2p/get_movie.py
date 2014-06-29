@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 # coding=utf-8
+import os
+import filecmp
 from conf import *
 from utils import *
 
 douban_token = '26813bd953cdac9e'
+src_url = 'http://oabt.org/?cid=%d'
+movie_type = 7 #720p
+movie_thold = 7
 
 
 def douban_cli():
@@ -19,7 +24,7 @@ def douban_cli():
     client.auth_with_code(douban_token)
     return client
 
-def bestmovie(title, doubancli, thold=7):
+def bestmovie(title, doubancli):
     title = title.split(u'.1080p.')[0]
 #     dic = {'q':title.encode('utf8'), 'count':3}
 #     qstr = urllib.urlencode(dic)
@@ -31,43 +36,31 @@ def bestmovie(title, doubancli, thold=7):
     best = None
     for sub in dic['subjects']:
         score = sub['rating']['average']
-        if score < thold:
+        if score < movie_thold:
             continue
         if not best or best['rating']['average'] < score:
             best = sub
     return best
 
-def getinfo(red, doubancli):
+def getinfo(tr, doubancli):
+    td= tr.find('td', {'class':'name magTitle'})
+    title = td.find('a').text
+    dow=tr.find('td', {'class':'dow'})
+    a = dow.find('a', attrs={'class' : re.compile("ed2k.*")})
+    ed2k = a.get('ed2k') 
+    #print title, ed2k
     dic = {}
-    best = bestmovie(red.text, doubancli)
+    best = bestmovie(title, doubancli)
     if not best:
         return None
-    dic['text'] = red.text
+    dic['text'] = title
     dic['score'] = best['rating']['average']
     for i in ('title', 'original_title', 'year', 'alt'):
         dic[i] = best[i]
     dic['img'] = best['images']['large']
-    dow = red.findParent('tbody').findAll('td', {'class':'dow'})
-    ed2k = dow[0].findAll('a', attrs={'class' : re.compile("ed2k.*")})
-    dic['ed2k'] = ed2k[0].get('ed2k') 
+    dic['ed2k'] = ed2k
     return dic
-    
-def main():
-    doubancli = douban_cli()
-    urlstr = 'http://oabt.org/?cid=11'  # 1080P
-    data = getpage(urlstr)
-    soup = BeautifulSoup(data)
-    # print soup.prettify()
-    aims = []
-    for toplist in soup.findAll('div', {"class" : "toplist"}):
-        aims += toplist.findAll('a', href=re.compile(u'show\.php\?tid=\d+?'))
-    lst = [movieinfo(getinfo(aim, doubancli)) for aim in aims]
-    infos = htmlinfo(lst)
-        
-    with open(CUR_MOVIES, 'w') as f:
-        f.write(infos.encode('utf8'))
-        f.close()
-
+   
 MOVIE_FMT = """<li>
 <a href="%s" target="_blank"><img src="%s" width="150px"></a>
 <p>score: %s</p>
@@ -79,53 +72,44 @@ MOVIE_FMT = """<li>
 """
 
 def movieinfo(dic):
-    if not dic:
-        return ''
     return MOVIE_FMT % (dic['alt'], dic['img'], dic['score'], dic['title'], dic['original_title'], dic['year'], dic['ed2k'], dic['text'])
     
+
+def send_mail():
+    import mailer 
+    if filecmp.cmp(CUR_MOVIES, CUR_MOVIES+'.new'):
+        os.remove(CUR_MOVIES+'.new')
+        return
+    os.rename(CUR_MOVIES+'.new', CUR_MOVIES)    
+    Tos=['whille@163.com',]
+    with open(CUR_MOVIES) as f:
+        infos = f.read().decode('utf8')
+        if len(infos)>10:
+            mailer.send(infos, Tos)
+ 
+def main():
+    doubancli = douban_cli()
+    urlstr = src_url %movie_type
+    print urlstr
+    data = getpage(urlstr)
+    soup = BeautifulSoup(data)
+    toplist =soup.find('div', {"class" : "toplist"})
+    trs=toplist.findAll('tr')
+    trs=trs[1:] #cut table head
+    print len(trs)
+    lst=[]
+    for tr in trs:
+        dic = getinfo(tr, doubancli)
+        if dic:
+            lst.append(movieinfo(dic))
+    if not lst:
+        return
+    infos = htmlinfo(lst)
+    with open(CUR_MOVIES+'.new', 'w') as f:
+        f.write(infos.encode('utf8'))
+        f.close()
+        
+
 if __name__ == '__main__':  
      main()
-
-"""
-{
-count: 3,
-start: 0,
-total: 1,
-subjects: [
-{
-rating: {
-max: 10,
-average: 8.1,
-stars: "40",
-min: 0
-},
-title: "冲浪英豪",
-original_title: "Chasing Mavericks",
-subtype: "movie",
-year: "2012",
-images: {
-small: "http://img3.douban.com/spic/s11139149.jpg",
-large: "http://img3.douban.com/lpic/s11139149.jpg",
-medium: "http://img3.douban.com/mpic/s11139149.jpg"
-},
-alt: "http://movie.douban.com/subject/5153883/",
-id: "5153883"
-}
-],
-title: "搜索 "Chasing.Mavericks.2012.冲浪英豪.双语字幕.HR-HDTV.AC3.1024X576.x264" 的结果"
-}
-
-score: 7.5
-title: 派对恐龙
-original_title: Partysaurus Rex
-year: 2012
-alt: http://movie.douban.com/subject/11599090/
-ed2k://|file|Partysaurus.Rex.2012.%E6%B4%BE%E5%AF%B9%E6%81%90%E9%BE%99.%E5%8F%8C%E8%AF%AD%E5%AD%97%E5%B9%95.HR-HDTV.AC3.1024X576.x264-%E4%BA%BA%E4%BA%BA%E5%BD%B1%E8%A7%86%E5%88%B6%E4%BD%9C.mkv|107660838|f962951c476e04593ef6f18be144d2e2|h=etn26u55g67q3ycmwcgbnk6bwd47jc24|/
-score: 8.1
-title: 霍比特人1：意外之旅
-original_title: The Hobbit: An Unexpected Journey
-year: 2012
-alt: http://movie.douban.com/subject/1966182/
-ed2k://|file|The.Hobbit.An.Unexpected.Journey.2012.%E9%9C%8D%E6%AF%94%E7%89%B9%E4%BA%BA%EF%BC%9A%E6%84%8F%E5%A4%96%E6%97%85%E7%A8%8B.%E5%8F%8C%E8%AF%AD%E5%AD%97%E5%B9%95.HR-HDTV.AC3.1024X576.x264-%E4%BA%BA%E4%BA%BA%E5%BD%B1%E8%A7%86%E5%88%B6%E4%BD%9CV3.mkv|2780244159|277143a94c8a20446c90b30d8bea5ef1|h=o7oujkwbhncwwd4ncr2y6hmlmz7g6qsv|/
-
-"""
+     send_mail()
