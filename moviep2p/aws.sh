@@ -1,1 +1,1 @@
-rsync -avz -e ssh ../moviep2p/ ec2-user@54.248.72.225:moviep2p
+rsync -avz --cvs-exclude '.git/ *~ .pyc .swp' -e ssh ../moviep2p/ ec2-user@54.250.166.126:src/moviep2p

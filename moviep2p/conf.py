@@ -3,5 +3,5 @@
 SUBSCRIBE_MOVIE = '订阅电影'
 CUR_MOVIES = 'current_movies.html'
 
-ME = 'zg.whille'
-PASSWORD = 'wzg072207'
+ME = 'english.onion.op'
+PASSWORD = 'OP_english'
