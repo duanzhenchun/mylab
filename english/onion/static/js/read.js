@@ -10,6 +10,25 @@ var g_contents = 'Sample:\nAlthough born to the ease of plantation life, waited 
 function like_word(s) {
     return /^[\w\d]+$/i.test(s);
 }
+function time_str(t){
+    var m = Math.floor(t/60);
+    var str ='';
+    if (m>0){
+        var h = Math.floor(m/60);
+        m %= 60;
+        if (h>0){
+            var d = Math.floor(h/24);
+            h %= 24;
+            if(d>0){
+                str+=d + ' days, ';
+            }
+            str += h + ' hours, ';
+        }
+    }
+    str += m + ' mins'
+    return str;
+}
+
 $(document).ready(function() {
 
 var curpage = $("#curpage");
@@ -27,11 +46,15 @@ function repeat_word(w){
         success: function(data){
             $("#div_2study").html(data.unknown);
             var wait = parseInt(data.wait);
-            console.log('time2wait:', wait);
+            wait = Math.ceil(wait/60)*60;
             if (wait>0){
                 wait = Math.min(wait, max_wait);
                 setTimeout(repeat_word, wait*1000);
             }
+            $("#time2show").text(time_str(wait)+' to repeat');
+            setTimeout(function(){
+                $("#time2show").text('');    
+            }, 59000);
         }
     });
 }
@@ -291,7 +314,6 @@ $("#search").click(function(){
     var pos = g_contents.indexOf(s, start);
     if (pos<0){return;}
     var pos_page = Math.floor(pos/pagesize);
-    console.log('found pos_page:', pos_page);
     navi(pos_page);
 });
 });

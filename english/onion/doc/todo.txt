@@ -11,11 +11,6 @@ api:
 data mining:
     log action to collection file
 
-vacabulary:
-    chinese diction
-        http://code.google.com/p/ppdict/wiki/stardict
-    pronoucation
-
 competitor:
     http://www.wordengine.cn.com/
         http://www.wordengine.cn.com/vflash
@@ -25,7 +20,9 @@ allauth:
     baidu
     qq
 
-words:
+vacabulary:
+    chinese diction
+        http://code.google.com/p/ppdict/wiki/stardict
     oxford-gb
     langdao
     if only show form:
