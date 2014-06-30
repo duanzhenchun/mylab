@@ -137,20 +137,24 @@ function change_word(w, unknown, refresh){
 }
 $(".word_span").live("click", function (evt){ // live response everytime
     w = $(this).text();
-    yn = confirm("生词? "+w)
+    if(evt.ctrlKey) {
+        var yn = true;
+    }else{
+        var yn = confirm("生词? "+w)
+    }
     change_word(w, yn, !yn);
 });
 
 $(".unknown_word").live("click", function (evt){ 
     w = $(this).text();
-    if (confirm("重复? "+w)){
+    if (evt.ctrlKey || confirm("重复? "+w)){
         repeat_word(w);
     }
 });
 
 $(".forgotten_word").live("click", function (evt){ 
     w = $(this).text();
-    if (confirm("rescue? "+w)){
+    if (evt.ctrlKey || confirm("rescue? "+w)){
         rescue_word(w);
     }
 });
