@@ -36,6 +36,8 @@ var cur_changed = false;
 var totalpage = $("#totalpage"); 
 var allnavis=[$("#navihome"),$("#naviend"),$("#naviup"),$("#navidown"),$("#navigoto")]
 $("#search").prop('disabled', true);
+var tshow=NaN;
+var tinfo = NaN;
 
 function repeat_word(w){
     if (!w) {w=''}
@@ -49,11 +51,13 @@ function repeat_word(w){
             wait = Math.ceil(wait/60)*60;
             if (wait>0){
                 wait = Math.min(wait, max_wait);
-                setTimeout(repeat_word, wait*1000);
+                clearTimeout(tshow);
+                tshow = setTimeout(repeat_word, wait*1000);
                 $("#time2show").text(time_str(wait)+' to repeat');
             }
             if (wait>60){
-                setTimeout(function(){
+                clearTimeout(tinfo);
+                tinfo = setTimeout(function(){
                     $("#time2show").text('');    
                 }, 59000);
             }

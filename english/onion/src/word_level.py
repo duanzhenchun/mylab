@@ -34,7 +34,7 @@ def t_pos():
 
     
 def wn_pos(pos):
-    return Pos_dict.get(pos[0],'')    
+    return Pos_dict.get(pos[0],'')
 
 def word_def(w, spname=Span_name):
     ss = wordnet.synsets(w)
@@ -54,9 +54,7 @@ def decorate(lines, uid):
 def mark(line, uid):
     K, n = vocabulary.get_K(uid)
     for w in Word_pat.findall(line):
-        if not w.isalpha():
-            yield w
-        elif len(w)<2:
+        if not w.isalpha() or len(w)<2:
             yield w
         else:
             w0 = vocabulary.word_lem(w)
