@@ -3,6 +3,9 @@ iPad touch:
     upload a txt
         blob data FileReader
 
+compare:
+    K_freq: marshal with rdb
+
 api:
     prevent calling freq limit
     catcha
