@@ -75,6 +75,18 @@ def movieinfo(dic):
     return MOVIE_FMT % (dic['alt'], dic['img'], dic['score'], dic['title'], dic['original_title'], dic['year'], dic['ed2k'], dic['text'])
     
 
+def insanity():
+    soup=BeautifulSoup(data)
+    d=soup.find('div', {'class':'file_src file_list liebiao'})
+    lis=d.findAll('li')
+    f=open('/home/whille/Desktop/out.txt', 'w')
+    for li in lis:
+        a=li.find('a', {'class':re.compile('file_name .*')})
+        if a:
+            f.write('%s, %s\n' %(a.get('title'), a.get('href')))
+    f.close()
+
+
 def send_mail():
     import mailer 
     if filecmp.cmp(CUR_MOVIES, CUR_MOVIES+'.new'):
