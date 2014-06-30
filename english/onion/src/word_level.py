@@ -45,9 +45,7 @@ def word_def0(w, spname=Span_name):
         return '<span class="%s" title="%s" >%s</span>' % (spname, info, w)
 
 def word_def(w, spname=Span_name):
-    v = Mem.hget(K_encs, w)
-    if not v:
-        v = Mem.hget(K_encs, vocabulary.word_lem(w))
+    v = Mem.hget(K_encs, vocabulary.word_lem(w))
     if not v:
         return w
     else:
@@ -67,8 +65,8 @@ def mark(line, uid):
         if not w.isalpha() or len(w)<2:
             yield w
         else:
-            w0 = vocabulary.word_lem(w)
-            freq = vocabulary.get_freq(w0)
+            w1 = vocabulary.word_lem(w)
+            freq = vocabulary.get_freq(w1)
             if freq and freq <= K:
                 spname = Span_name
                 if freq <=K/2:
@@ -83,50 +81,8 @@ def mark_word(line, w):
     pat = '(?<!\w)%s(?!\w)' %w
     return aim.join(re.split(pat, line))
 
-
-# as zipf-law, if rank(w)>1000 and freq(w)>10: rank * freq = C
-Usual_wfreq=(4, 7600)
-
-def update_freq(w, v, unknown, uid, ncache=10):
-    K, n = vocabulary.get_K(uid)
-    name = K_cache %uid
-    if unknown and v<K: #neglect
-        return
-    if not unknown:
-        vcache = Mem.hget(name, w)
-        if vcache:
-            # rollback cache word
-            freq, _ = ast.literal_eval(vcache)
-            vocabulary.set_freq(w, freq)
-            Mem.hdel(name, w)
-            return
-    vocabulary.set_freq_K(w, unknown, uid) #pre-set
-    Mem.hset(name, w, (v, unknown))
-    # flush cache
-    if Mem.hlen(name)>=ncache:
-        lst=[]
-        for w, v in Mem.hgetall(name).iteritems():
-            v, unknown = ast.literal_eval(v)
-            if v < Usual_wfreq[0] or v > Usual_wfreq[1]:
-                continue 
-            lst.append(1.0/v)
-        a = 1.0/K 
-        if lst:
-            a = (a * n + sum(lst)/len(lst)) /(n+1)
-        newK = max(1, int(1.0/a))
-        n = min(n+1, 10**6)    #assume user do not update to this big 
-        vocabulary.set_K(newK, uid, n)
-        for w, v in Mem.hgetall(name).iteritems():
-            _, unknown = ast.literal_eval(v)
-            vocabulary.set_freq_K(w, unknown, uid)
-        Mem.delete(name)
-
 def updateK(w, unknown, txt, uid):
-    w0 = vocabulary.word_lem(w)
-    v = vocabulary.get_freq(w0)
-    if v < 0:
-        return ''
-    update_freq(w0, v, unknown, uid)
+    vocabulary.update_freq(w, unknown, uid)
     lines = to_lines(txt)
     remember_lines(lines, w, unknown, uid)
     return decorate(lines, uid)
@@ -176,9 +132,6 @@ def repeat(w, uid):
     Mem.hset(name, w, v)
     if Ebbinghaus.finished(v[-1]):
         Mem.zrem(K_tl %uid, w)
-#        w0 = vocabulary.word_lem(w)
-#        v = vocabulary.get_freq(w0)
-#        update_freq(w0, v, True, uid)
     else:
         toshow = Ebbinghaus.period[v[-1]]
         t = now_timestamp() + toshow

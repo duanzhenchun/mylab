@@ -9,23 +9,14 @@ Default_cache = os.path.join(tempfile.gettempdir(), 'en_word_freq.cache')
 Fdata = '../data'
 
 from nltk.stem import WordNetLemmatizer
-from nltk.stem.porter import PorterStemmer
-ST = PorterStemmer()
+#from nltk.stem.porter import PorterStemmer
+#ST = PorterStemmer()
 Wnl = WordNetLemmatizer()
 
 def word_lem(w):
-    w = get_us(w.lower())
-    try:
-        res= Wnl.lemmatize(w)
-        return ST.stem(Wnl.lemmatize(w))
-    except Exception, e:
-        print w, e
-
-
-def set_freq_K(w, unknown, uid):
-    K, n = get_K(uid)
-    set_freq(w, unknown and K-1 or K+1)
-
+    w = Mem.hget(K_uk, w.lower()) or w
+    return Wnl.lemmatize(w)
+        #return ST.stem(res)
 
 def set_freq(w, v):
     Mem.hset(K_freq, w, v)
@@ -35,10 +26,6 @@ def get_freq(w):
         return int(Mem.hget(K_freq, w))
     except:
         return 0
-
-
-def get_us(w):
-    return Mem.hget(K_uk, w) or w
 
 def get_K(uid):
     res = Mem.hget(K_K, uid)
@@ -80,7 +67,6 @@ def to_mem(wdict, dic_uk, uid):
     print "K:%d" % K
     Mem.hset(K_K, uid, (K,0))
 
-
 @benchmark
 def to_marshal():
     wdict = Mem.hgetall(K_freq)
@@ -108,7 +94,7 @@ def init_dict():
     f = open(fname)
     lst = f.readlines()
     dic = {}
-    for l in lst[-1:0:-1]:
+    for l in lst[-1:0:-1]:  #from hard to easy
         t = l.strip().split(' ')
         w = word_lem(t[1])
         dic[w] = max(dic.get(w, 0), int(t[0]))
@@ -124,10 +110,79 @@ def uk_us():
         dic[uk.strip()] = us.strip()
     return dic
 
+
+# as zipf-law, if rank(w)>1000 and freq(w)>10: rank * freq = C
+Usual_wfreq=(4, 7600)
+
+def update_freq(w0, unknown, uid, ncache=10):
+    w = word_lem(w0)
+    v = get_freq(w)
+    if v < 0:
+        return ''
+    K, n = get_K(uid)
+    name = K_cache %uid
+    if unknown and v<K: #neglect
+        return
+    if not unknown:
+        vcache = Mem.hget(name, w)
+        if vcache:
+            # rollback cache word
+            freq, _ = ast.literal_eval(vcache)
+            set_freq(w, freq)
+            Mem.hdel(name, w)
+            return
+    set_freq(w, unknown and K-1 or K+1) #pre-set
+
+    Mem.hset(name, w, (v, unknown))
+    # flush cache
+    if Mem.hlen(name)>=ncache:
+        lst=[]
+        for w, v in Mem.hgetall(name).iteritems():
+            v, unknown = ast.literal_eval(v)
+            if v < Usual_wfreq[0] or v > Usual_wfreq[1]:
+                continue 
+            lst.append(1.0/v)
+        a = 1.0/K 
+        if lst:
+            a = (a * n + sum(lst)/len(lst)) /(n+1)
+        newK = max(1, int(1.0/a))
+        n = min(n+1, 10**6)    #assume user do not update to this big 
+        set_K(newK, uid, n)
+        for w, v in Mem.hgetall(name).iteritems():
+            _, unknown = ast.literal_eval(v)
+
+            if n>=10:   #reliable user
+                set_freq(w, unknown and K-1 or K+1)
+            else:       #new user
+                vnew = 2./(1./K + 1./v)
+                set_freq(w, vnew)
+        Mem.delete(name)
+
+
 def test_zipf(wdict):
     from matplotlib import pyplot as plt
     lst = sorted(wdict.values(), reverse=True)
     plt.loglog(lst)
+    plt.show()
+
+def stats():
+    from matplotlib import pyplot as plt
+
+    Diff={}
+    for w in wdict:
+        try:
+            v = int(Mem.hget(K_freq, w))
+        except:
+            print w, v
+        if wdict[w] != v:
+            Diff[w]=[wdict[w],v]
+    res=sorted(Diff.iteritems(), key=lambda (w,v):v[0])
+    f=open('../data/Diff.txt','w')
+    for w,vs in res:
+        f.write('%s: %s, %s\n' %(w, vs[0],vs[1]))
+    f.close()
+    ys=Diff.values()
+    plt.scatter(*zip(*ys))
     plt.show()
 
 
