@@ -36,12 +36,22 @@ def t_pos():
 def wn_pos(pos):
     return Pos_dict.get(pos[0],'')
 
-def word_def(w, spname=Span_name):
+def word_def0(w, spname=Span_name):
     ss = wordnet.synsets(w)
     if not ss:
         return w
     else:
         info = '\n'.join((pronounce.show(w), ss[0].definition))
+        return '<span class="%s" title="%s" >%s</span>' % (spname, info, w)
+
+def word_def(w, spname=Span_name):
+    v = Mem.hget(K_encs, w)
+    if not v:
+        v = Mem.hget(K_encs, vocabulary.word_lem(w))
+    if not v:
+        return w
+    else:
+        info = tounicode(v, 'utf8')
         return '<span class="%s" title="%s" >%s</span>' % (spname, info, w)
 
 

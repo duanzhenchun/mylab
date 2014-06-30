@@ -38,6 +38,7 @@ var allnavis=[$("#navihome"),$("#naviend"),$("#naviup"),$("#navidown"),$("#navig
 $("#search").prop('disabled', true);
 var tshow=NaN;
 var tinfo = NaN;
+var lastword = '';
 
 function repeat_word(w){
     if (!w) {w=''}
@@ -138,9 +139,15 @@ function change_word(w, unknown, refresh){
 $(".word_span").live("click", function (evt){ // live response everytime
     w = $(this).text();
     if(evt.ctrlKey) {
+        if (w == lastword)return;   //avoid frequent request
+        lastword = w;
         var yn = true;
     }else{
         var yn = confirm("生词? "+w)
+        if (yn){
+            if (w == lastword)return;
+            lastword = w;
+        }
     }
     change_word(w, yn, !yn);
 });

@@ -1,6 +1,7 @@
 iPad touch:
     span hover -> click
     upload a txt
+        blob data FileReader
 
 api:
     prevent calling freq limit
@@ -11,19 +12,25 @@ api:
 data mining:
     log action to collection file
 
-competitor:
-    http://www.wordengine.cn.com/
-        http://www.wordengine.cn.com/vflash
 
 allauth:
     weibo
     baidu
     qq
 
-vacabulary:
+
+design:
+    repeating words are not garanteed to remembered or affect K. users are
+    self responsible.
+    cold start:
+        user's K_K should ajusted according to K_freq at beginning, and affect
+        K_freq less. later and along with repeating successes, K_freq is
+        affected more.
     chinese diction
         http://code.google.com/p/ppdict/wiki/stardict
-    oxford-gb
-    langdao
-    if only show form:
-        vocabulary lookup input
+domain:
+    onion.wicp.net -> first level
+
+competitor:
+    http://www.wordengine.cn.com/
+        http://www.wordengine.cn.com/vflash
