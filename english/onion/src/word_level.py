@@ -119,8 +119,8 @@ def memo(w, uid):
     if Mem.zcard(name)>Limit_memo:
         oldest = Mem.zrange(name, 0,0)[0]
         print 'remove oldest:', oldest
-        Mem.zrem(name, oldest)
         Mem.hdel(K_unknown %uid, oldest)
+        Mem.zrem(name, oldest)
     Mem.zadd(K_tl %uid, w, now + toshow)
 
 
@@ -130,8 +130,12 @@ def word_info(name, w):
         v = list(ast.literal_eval(v))
     return v
  
-def repeat(w, uid):
+def repeat(w, uid, yn):
     name= K_unknown %uid
+    if not yn:
+        Mem.hdel(name, w)
+        Mem.zrem(K_tl %uid, w)
+        return
     v =  word_info(name, w)
     v[-1]+=1
     Mem.hset(name, w, v)
@@ -183,9 +187,9 @@ def forget(w, uid):
     v [-1] = -1
     if Mem.hlen(K_forget %uid)<=Limit_forget:
         Mem.hset(K_forget %uid, w, v)
-    else:
+#    else:
         #for simplicity
-        print w, 'forget limit reached'    
+#        print w, 'forget limit reached'    
     Mem.hdel(name, w)
     Mem.zrem(K_tl %uid, w)
 

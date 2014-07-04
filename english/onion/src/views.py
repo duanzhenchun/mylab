@@ -88,9 +88,11 @@ def word_repeat(request):
     uid = request.user.id
     if not request.method == 'POST':
         return HttpResponseBadRequest()
-    w = request.POST.get('w').strip()
+    w, yn = (request.POST.get(i) for i in ('w', 'yn'))
+    w=w.strip()
+    yn = (yn == 'true') and True or False
     if w:
-        word_level.repeat(w, uid)
+        word_level.repeat(w, uid, yn)
     dic = dict(word_level.show_unknowns(uid))
     return json_response({'wait': word_level.time2wait(uid),
                          'unknown': word_html(dic, 'unknown_word'),

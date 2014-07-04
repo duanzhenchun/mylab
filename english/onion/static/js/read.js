@@ -40,12 +40,12 @@ var tshow=NaN;
 var tinfo = NaN;
 var lastword = '';
 
-function repeat_word(w){
+function repeat_word(w,yn){
     if (!w) {w=''}
     $.ajax({
         type: "POST",
         url: '../word_repeat',
-        data:{w:w,}, 
+        data:{w:w,yn:yn}, 
         success: function(data){
             $("#div_2study").html(data.unknown);
             var wait = parseInt(data.wait);
@@ -154,9 +154,12 @@ $(".word_span").live("click", function (evt){ // live response everytime
 
 $(".unknown_word").live("click", function (evt){ 
     w = $(this).text();
-    if (evt.ctrlKey || confirm("重复? "+w)){
-        repeat_word(w);
+    if (evt.ctrlKey){
+        var yn = true;
+    }else{
+        var yn = confirm("repeat? "+w);
     }
+    repeat_word(w, yn);
 });
 
 $(".forgotten_word").live("click", function (evt){ 
