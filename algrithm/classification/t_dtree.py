@@ -202,9 +202,9 @@ def multi_Y(X, Y, Ylabels):
     Y=zip(*Y)
     for i in range(len(Y)):
         print Ylabels[i], '=' * 10
-#        dtree(X, Y[i])
+        dtree(X, Y[i])
 #         random_forest(X,Y[i])
-        t_svm(X,Y[i])
+#        t_svm(X,Y[i])
         
 if __name__ == '__main__':
 #     X, Y, Ylabels = load_cocadata()
