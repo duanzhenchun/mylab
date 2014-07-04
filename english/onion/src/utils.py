@@ -11,7 +11,7 @@ import time
 import re
 from conf import *
 
-Sent_join= re.compile(u'(?<=[^."”][—\-\s])\n(?=\w)')
+Sent_join= re.compile(u'(?<=[^."”][—\-\s])\n(?=[\w-])')
 
 def fit_urlpath(fname):
     return re.match('^[\w\.]+$', fname)

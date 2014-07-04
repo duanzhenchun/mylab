@@ -8,15 +8,25 @@ from utils import *
 Default_cache = os.path.join(tempfile.gettempdir(), 'en_word_freq.cache')
 Fdata = '../data'
 
-from nltk.stem import WordNetLemmatizer
-#from nltk.stem.porter import PorterStemmer
-#ST = PorterStemmer()
-Wnl = WordNetLemmatizer()
+#from nltk.stem import WordNetLemmatizer
+#Wnl = WordNetLemmatizer()
+from nltk.stem.porter import PorterStemmer
+ST = PorterStemmer()
 
 def word_lem(w):
-    w = Mem.hget(K_uk, w.lower()) or w
-    return Wnl.lemmatize(w)
-        #return ST.stem(res)
+    w = w.lower()
+    w = Mem.hget(K_uk, w) or w
+    if Mem.hexists(K_encs, w):
+        wd = w
+    else:
+        wd = ST.stem(w)
+    return wd
+
+def t_wordlem():
+    ws = 'brothers bulked Guard shrieking dressed debating'
+    res=[word_lem(w) for w in ws.split()]
+    print ws
+    print ' '.join(res)
 
 def set_freq(w, v):
     Mem.hset(K_freq, w, v)
@@ -94,10 +104,12 @@ def init_dict():
     f = open(fname)
     lst = f.readlines()
     dic = {}
-    for l in lst[-1:0:-1]:  #from hard to easy
+    for l in lst:  #from easy to hard
         t = l.strip().split(' ')
         w = word_lem(t[1])
-        dic[w] = max(dic.get(w, 0), int(t[0]))
+        if w in dic:
+            continue
+        dic[w] = int(t[0])
     return dic
 
 
@@ -133,10 +145,11 @@ def update_freq(w0, unknown, uid, ncache=10):
             return
     set_freq(w, unknown and K-1 or K+1) #pre-set
 
+    print 'set cache:', w, v, unknown
     Mem.hset(name, w, (v, unknown))
     # flush cache
     if Mem.hlen(name)>=ncache:
-        lst=[]
+        lst = []
         for w, v in Mem.hgetall(name).iteritems():
             v, unknown = ast.literal_eval(v)
             if v < Usual_wfreq[0] or v > Usual_wfreq[1]:

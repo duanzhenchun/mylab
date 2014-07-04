@@ -59,6 +59,12 @@ def oxford_dict():
     fname='oxford-gb'
     Wdict=get_dict(folder, fname)
 
+def add2langdao(Wdict):
+    for w in Wdict:
+        w1=word_lem(w)
+        if not Mem.hexists(K_encs, w1):
+            Mem.hset(K_encs, w1, Wdict[w])
+
 def langdao_ec_dict():
     folder='%s/.stardict/dic/%s' %(os.path.expanduser('~'),'stardict-langdao-ec-gb-2.4.2')
     fname='langdao-ec-gb'

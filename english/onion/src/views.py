@@ -59,7 +59,7 @@ def word_change(request):
     uid = request.user.id
     w, unknown, txt = [request.POST.get(i, '') for i in ('w', 'unknown', 'txt')]
     w = w.strip()
-    unknown = unknown == 'true' and True or False
+    unknown = (unknown == 'true') and True or False
     if w:
         lines = list(word_level.updateK(w.strip(), unknown, txt, uid))
         return json_response({'lines': lines})
@@ -75,9 +75,11 @@ def word_rescue(request):
     uid = request.user.id
     if not request.method == 'POST':
         return HttpResponseBadRequest()
-    w = request.POST.get('w').strip()
+    w, yn = (request.POST.get(i) for i in ('w', 'yn'))
+    w=w.strip()
+    yn = (yn == 'true') and True or False
     if w:
-        word_level.rescue(w, uid)
+        word_level.rescue(w, uid, yn)
     dic = dict(word_level.show_forgotten(uid))
     return json_response({'forgotten': word_html(dic, 'forgotten_word'),
                          })

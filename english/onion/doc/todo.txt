@@ -21,6 +21,15 @@ allauth:
     baidu
     qq
 
+file:
+    pdf 2 text
+        http://ff-pdf2txt.fileformat.cloudbees.net/convert.jsp
+    python:
+        pdfminer
+        http://stackoverflow.com/questions/25665/python-module-for-converting-pdf-to-text
+
+webpage:
+    like youdao web translation
 
 design:
     repeating words are not garanteed to remembered or affect K. users are
@@ -37,3 +46,4 @@ domain:
 competitor:
     http://www.wordengine.cn.com/
         http://www.wordengine.cn.com/vflash
+

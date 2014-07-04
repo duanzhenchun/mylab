@@ -5,7 +5,6 @@ import sys
 import os
 import ast
 import cgi
-from nltk.corpus import wordnet
 import Ebbinghaus
 import pronounce
 import vocabulary
@@ -14,14 +13,19 @@ from utils import *
 
 
 Word_pat = re.compile(u"[\w’']+|\W+")
-Sep_sent = re.compile(u'(?<=[\.\?!:]) ') 
+Sep_sent = re.compile(u'(?<=[\.\?!:-]) ') 
 Span_name='word_span'
-Pos_dict={'J':wordnet.ADJ, 'V':wordnet.VERB, 'N':wordnet.NOUN, 'R':wordnet.ADV}
 
 def t_pos():
     """pos_tag is time-cosumming, ommit it currently."""
+    from nltk.corpus import wordnet
     from nltk.tag import pos_tag
     from nltk.tokenize import word_tokenize
+
+    def wn_pos(pos):
+        Pos_dict={'J':wordnet.ADJ, 'V':wordnet.VERB, 'N':wordnet.NOUN, 'R':wordnet.ADV}
+        return Pos_dict.get(pos[0],'')
+
     sent = "John's big idea isn't all that bad."
 #    ws = word_tokenize(sent)
     ws = Word_pat.findall(sent)
@@ -32,11 +36,9 @@ def t_pos():
             continue
         print w, ss[0].name, ss[0].definition
 
-    
-def wn_pos(pos):
-    return Pos_dict.get(pos[0],'')
 
 def word_def0(w, spname=Span_name):
+    from nltk.corpus import wordnet
     ss = wordnet.synsets(w)
     if not ss:
         return w
@@ -44,13 +46,16 @@ def word_def0(w, spname=Span_name):
         info = '\n'.join((pronounce.show(w), ss[0].definition))
         return '<span class="%s" title="%s" >%s</span>' % (spname, info, w)
 
-def word_def(w, spname=Span_name):
-    v = Mem.hget(K_encs, vocabulary.word_lem(w))
+def word_def(w0, spname=Span_name):
+    w = vocabulary.word_lem(w0)
+    v = Mem.hget(K_encs, w)
     if not v:
-        return w
+        return w0
     else:
         info = tounicode(v, 'utf8')
-        return '<span class="%s" title="%s" >%s</span>' % (spname, info, w)
+        if w != w0:
+            info='%s\n' %w + info
+        return '<span class="%s" title="%s" >%s</span>' % (spname, info, w0)
 
 
 def decorate(lines, uid):
@@ -147,7 +152,7 @@ def time2wait(uid):
     return wait
 
 
-def show_unknowns(uid, n=10):
+def show_unknowns(uid, n=5):
     now = now_timestamp()
     name = K_unknown %uid
     res = Mem.zrange(K_tl %uid, 0, n-1, withscores=True)
@@ -164,7 +169,7 @@ def show_unknowns(uid, n=10):
             continue
         yield w, v+[t]
 
-def show_forgotten(uid, n=10):
+def show_forgotten(uid, n=5):
     name = K_forget %uid
     ws = Mem.hkeys(name)[:n]
     for w in ws:
@@ -185,11 +190,13 @@ def forget(w, uid):
     Mem.zrem(K_tl %uid, w)
 
 
-def rescue(w, uid):
+def rescue(w, uid, yn):
     name = K_forget %uid
     v=word_info(name, w)
     Mem.hdel(name, w)
     if Mem.hexists(K_unknown %uid, w):   #may be remembered again
+        return
+    elif yn=='false':
         return
     v[-1] = 0
     Mem.hset(K_unknown %uid, w, v)
