@@ -25,7 +25,6 @@ def word_lem(w):
 def t_wordlem():
     ws = 'brothers bulked Guard shrieking dressed debating'
     res=[word_lem(w) for w in ws.split()]
-    print ws
     print ' '.join(res)
 
 def set_freq(w, v):
@@ -129,12 +128,12 @@ Usual_wfreq=(4, 7600)
 def update_freq(w0, unknown, uid, ncache=10):
     w = word_lem(w0)
     v = get_freq(w)
-    if v < 0:
-        return ''
     K, n = get_K(uid)
-    name = K_cache %uid
-    if unknown and v<K: #neglect
+    if v <= 0 and not Mem.hexists(K_encs, w): #word freq not recorded
+        return 
+    elif unknown and 0<v<K: #neglect
         return
+    name = K_cache %uid
     if not unknown:
         vcache = Mem.hget(name, w)
         if vcache:
@@ -154,11 +153,16 @@ def update_freq(w0, unknown, uid, ncache=10):
             v, unknown = ast.literal_eval(v)
             if v < Usual_wfreq[0] or v > Usual_wfreq[1]:
                 continue 
+            if v>K*4 or v<K/4:  #neglect (1/4, 4) change of K
+                continue
             lst.append(1.0/v)
         a = 1.0/K 
+        print K, n, lst
         if lst:
-            a = (a * n + sum(lst)/len(lst)) /(n+1)
+            ncut=n>4 and 4 or n
+            a = (a * ncut + sum(lst)/len(lst)) /(ncut+1)
         newK = max(1, int(1.0/a))
+        print a, newK
         n = min(n+1, 10**6)    #assume user do not update to this big 
         set_K(newK, uid, n)
         for w, v in Mem.hgetall(name).iteritems():

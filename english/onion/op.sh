@@ -2,15 +2,17 @@
 #mysqldump -h localhost -uroot -p onion>data/onion_$now.sql
 #redis-cli bgsave cp /var/lib/dump.rdb data/
 
+sudo cp /var/lib/redis/dump.rdb data/
+
 for i in 54.250.166.126 
 do
     rsync -avz --cvs-exclude '.git/ *~ .pyc .swp' "-e ssh" ../onion ec2-user@$i:src/ 
 done
 
 #aws prepare
-#service stop redis
-#sudo mv data/onion*.rdb /var/lib/redis/dump.rdb
-#service start redis
+#service redis stop
+#sudo mv data/dump.rdb /var/lib/redis/dump.rdb
+#service redis start
 #import nltk; nltk.download(); d wordnet;q
 #set nginx.conf for static, like /tmp/static
 

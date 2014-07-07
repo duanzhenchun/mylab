@@ -67,7 +67,7 @@ def decorate(lines, uid):
 def mark(line, uid):
     K, n = vocabulary.get_K(uid)
     for w in Word_pat.findall(line):
-        if not w.isalpha() or len(w)<2:
+        if not w.isalpha() or len(w)<3:
             yield w
         else:
             w1 = vocabulary.word_lem(w)
@@ -182,6 +182,7 @@ def show_forgotten(uid, n=5):
 
 
 def forget(w, uid):
+    print 'forget', w
     name = K_unknown %uid
     v = word_info(name, w)
     v [-1] = -1
