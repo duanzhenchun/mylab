@@ -157,12 +157,10 @@ def update_freq(w0, unknown, uid, ncache=10):
                 continue
             lst.append(1.0/v)
         a = 1.0/K 
-        print K, n, lst
         if lst:
             ncut=n>4 and 4 or n
             a = (a * ncut + sum(lst)/len(lst)) /(ncut+1)
         newK = max(1, int(1.0/a))
-        print a, newK
         n = min(n+1, 10**6)    #assume user do not update to this big 
         set_K(newK, uid, n)
         for w, v in Mem.hgetall(name).iteritems():

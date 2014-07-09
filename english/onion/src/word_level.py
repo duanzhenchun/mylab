@@ -12,7 +12,7 @@ from db import *
 from utils import *
 
 
-Word_pat = re.compile(u"[\w’]+|\W+")
+Word_pat = re.compile(u"[\w’']+|\W+")
 Sep_sent = re.compile(u'(?<=[\.\?!:-]) ') 
 Span_name='word_span'
 
@@ -176,13 +176,15 @@ def show_unknowns(uid, n=5):
 def show_forgotten(uid, n=5):
     name = K_forget %uid
     ws = Mem.hkeys(name)[:n]
+    if not ws:
+        list(show_unknowns(uid))    #fetch forgotten
+        ws = Mem.hkeys(name)[:n]
     for w in ws:
         v = Mem.hget(name, w)
         yield w, list(ast.literal_eval(v))
 
 
 def forget(w, uid):
-    print 'forget', w
     name = K_unknown %uid
     v = word_info(name, w)
     v [-1] = -1

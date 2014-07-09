@@ -1,8 +1,7 @@
 #now=$(date +"%Y_%m%d_%H%M")
 #mysqldump -h localhost -uroot -p onion>data/onion_$now.sql
-#redis-cli bgsave cp /var/lib/dump.rdb data/
-
-sudo cp /var/lib/redis/dump.rdb data/
+#redis-cli bgsave 
+#sudo cp /var/lib/redis/dump.rdb data/
 
 for i in 54.250.166.126 
 do
@@ -19,6 +18,7 @@ done
 #aws update
 #setting.py:
 #DEBUG = False
+#rm static/admin
 #ln -s $HOME/env/lib/python2.7/site-packages/django/contrib/admin static/
 #python manage.py collectstatic
 # uwsgi --reload uwsgi.pid 
