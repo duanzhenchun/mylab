@@ -4,10 +4,6 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/read.js"></script>
 {% endblock %}
 
-{% block left %}
-<a href="./word_unknown">unknown</a>
-{% endblock %}
-
 {% block left_middle%}
 <div class="file-box"> 
 <input type="file" id="fileinput" accept="text/*" style= "width: 100%;"/>
@@ -21,6 +17,8 @@
 
 <input id="search_txt" value="" style= "width: 96%;"/>
 <input type="button" id="search" value="Search" > in article
+</br>
+<a href="./word_unknown">unknown</a>
 {% endblock %}
 
 {% block middle %}
