@@ -41,7 +41,7 @@ def get_K(uid):
     if res:
         return ast.literal_eval(res)
     else:
-        K = get_freq(Word0)
+        K = get_freq(word_lem(Word0))
         return K,0
 
 
@@ -164,12 +164,12 @@ def update_freq(w0, unknown, uid, ncache=10):
         n = min(n+1, 10**6)    #assume user do not update to this big 
         set_K(newK, uid, n)
         for w, v in Mem.hgetall(name).iteritems():
-            _, unknown = ast.literal_eval(v)
+            v, unknown = ast.literal_eval(v)
 
             if n>=10:   #reliable user
                 set_freq(w, unknown and K-1 or K+1)
             else:       #new user
-                vnew = 2./(1./K + 1./v)
+                vnew = 2./(1./K + 1./(v+1))
                 set_freq(w, vnew)
         Mem.delete(name)
 

@@ -16,13 +16,6 @@ done
 #set nginx.conf for static, like /tmp/static
 
 #aws update
-#setting.py:
-#DEBUG = False
-#rm static/admin
-#ln -s $HOME/env/lib/python2.7/site-packages/django/contrib/admin static/
-#python manage.py collectstatic
-# uwsgi --reload uwsgi.pid 
-
 #db backup
 #http://redis4you.com/articles.php?id=010
 #crontab -e
