@@ -6,3 +6,6 @@ requests-oauthlib>=0.3.0
 django-simple-captcha
 chardet
 nltk
+redis
+uwsgi
+mysql-python

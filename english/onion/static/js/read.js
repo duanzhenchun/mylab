@@ -136,41 +136,6 @@ function change_word(w, unknown, refresh){
         }
     });
 }
-$(".word_span").live("click", function (evt){ // live response everytime
-    w = $(this).text();
-    if(evt.ctrlKey) {
-        if (w == lastword)return;   //avoid frequent request
-        lastword = w;
-        var yn = true;
-    }else{
-        var yn = confirm("生词? "+w)
-        if (yn){
-            if (w == lastword)return;
-            lastword = w;
-        }
-    }
-    change_word(w, yn, !yn);
-});
-
-$(".unknown_word").live("click", function (evt){ 
-    w = $(this).text();
-    if (evt.ctrlKey){
-        var yn = true;
-    }else{
-        var yn = confirm("repeat? "+w);
-    }
-    repeat_word(w, yn);
-});
-
-$(".forgotten_word").live("click", function (evt){ 
-    w = $(this).text();
-    if (evt.ctrlKey){
-        var yn = true;
-    }else{
-        var yn = confirm("rescue? "+w);
-    }
-    rescue_word(w, yn);
-});
 
 $("#rescue_word").click(function(){
     var shows = ['Rescue my words~','wait to repeat'];
@@ -192,9 +157,6 @@ function add_newword(){
     } 
 }
 $("#div_article").mouseup(function(evt){
-    add_newword();
-});
-$("#div_article").live("touchend", function(evt){
     add_newword();
 });
 function navi(page){
@@ -338,6 +300,43 @@ $("#search").click(function(){
     if (pos<0){return;}
     var pos_page = Math.floor(pos/pagesize);
     navi(pos_page);
+});
+$( document ).on( "click", "span.word_span", function (evt){ 
+    w = $(this).text();
+    if(evt.ctrlKey) {
+        if (w == lastword)return;   //avoid frequent request
+        lastword = w;
+        var yn = true;
+    }else{
+        var yn = confirm("生词? "+w)
+        if (yn){
+            if (w == lastword)return;
+            lastword = w;
+        }
+    }
+    change_word(w, yn, !yn);
+});
+
+$( document ).on( "click", "span.unknown_word", function (evt){ 
+    w = $(this).text();
+    if (evt.ctrlKey){
+        var yn = true;
+    }else{
+        var yn = confirm("repeat? "+w);
+    }
+    repeat_word(w, yn);
+});
+$( document ).on( "click", "span.forgotten_word", function (evt){ 
+    w = $(this).text();
+    if (evt.ctrlKey){
+        var yn = true;
+    }else{
+        var yn = confirm("rescue? "+w);
+    }
+    rescue_word(w, yn);
+});
+$( document ).on( "touchend", "#div_article", function(evt){
+    add_newword();
 });
 });
 

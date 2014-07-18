@@ -83,6 +83,8 @@ def mark(line, uid):
 
 def mark_word(line, w):
     aim = word_def(w, 'mark_word')
+    if aim == w:
+        return None
     pat = '(?<!\w)%s(?!\w)' %w
     return aim.join(re.split(pat, line))
 
@@ -97,7 +99,8 @@ def remember_lines(lines, w, unknown, uid):
         for sent in Sep_sent.split(line):
             if w in sent:
                 sent = mark_word(sent, w)
-                remember(w, unknown, sent, uid)
+                if sent:
+                    remember(w, unknown, sent, uid)
                 return
 
 def remember(w, unknown, sentence, uid):
