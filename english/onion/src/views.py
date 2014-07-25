@@ -7,6 +7,12 @@ from django.template import Template, RequestContext
 from django import forms
 from captcha.fields import CaptchaField 
 import word_level
+from PIL import Image
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
+import base64
 from conf import *
 from utils import *
 
@@ -20,6 +26,14 @@ def read(request):
         return render_to_response('read.html', context_instance=RequestContext(request))
     elif request.method == 'POST':
         fname, txt, curpage = [request.POST.get(i, '') for i in ('fname', 'txt', 'curpage')]
+        if fname.endswith('.png'):
+            print fname
+            s=base64.b64decode(txt.split(';base64,')[1])
+            bs = StringIO.StringIO(s)
+            im = Image.open(bs)
+            print im.size, im.mode
+            ts = im.tostring()
+            print len(ts)
         if len(txt) > pagesize:
             return json_response({'error':'page size too long'})
         word_level.set_lastpage(fname, curpage, uid) 
@@ -52,7 +66,7 @@ def word_html(dic, wtype):
 
 def json_response(dic):
     json_response = json.dumps(dic)
-    return HttpResponse(json_response, mimetype='application/json')
+    return HttpResponse(json_response, content_type='application/json')
 
 
 def word_change(request):

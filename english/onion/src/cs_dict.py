@@ -3,6 +3,7 @@ import os
 import logging
 import gzip
 import struct
+import re
 from db import *
 from utils import *
 
@@ -36,10 +37,11 @@ def get_dict(folder, fname):
 
     encoding=get_encoding(f.read(200))
     print encoding
-
+    cut=re.compile('\[.+\]|/.+/ ')
     f.seek(0)
     start = 0
     Wdict={}
+    last=('','')
     for i in range(wordcount):
         pos = idxdata.find('\0', start, -1)
         fmt = "%ds" % (pos-start)
@@ -50,6 +52,12 @@ def get_dict(folder, fname):
         start += struct.calcsize(">LL")
         f.seek(off,0)
         v = f.read(size)
+        if len(cut.sub('', v))<5:
+            print wordstr, v, last
+            raw_input(wordstr)
+            #Mem.hset(K_encs, wordstr, v+'\n%s:\n%s' %(last))
+        else:
+            last = (wordstr,v)
         Wdict[wordstr] = v #tounicode(v, encoding)
     return Wdict
 

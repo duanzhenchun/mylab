@@ -53,3 +53,13 @@ game:
         new word and it's coccurence words:
             wordvect by gooogle
     compete
+
+word net def:
+    for definition and test memorize
+    squalid:
+        near words:
+            smell: weight; dinct: ,...
+            freq should be small than w
+        ex: I smell a rotten squid.
+
+

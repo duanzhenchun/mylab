@@ -143,6 +143,7 @@ def repeat(w, uid, yn):
     v[-1]+=1
     Mem.hset(name, w, v)
     if Ebbinghaus.finished(v[-1]):
+        Mem.hdel(name,w)
         Mem.zrem(K_tl %uid, w)
     else:
         toshow = Ebbinghaus.period[v[-1]]
@@ -159,22 +160,35 @@ def time2wait(uid):
     return wait
 
 
-def show_unknowns(uid, n=5):
+def show_unknowns(uid, n=3):
+    def gen_unknowns():
+        for (w, t) in res:
+            diff = now - t 
+            if diff<0:
+                break
+            v = word_info(name, w)
+            if v[-1]<0 or Ebbinghaus.finished(v[-1]):
+                Mem.hdel(name, w)
+                Mem.zrem(K_tl %uid, w)
+                continue
+            if diff>Ebbinghaus.period[v[-1]+1]:
+                forget(w, uid)
+                continue
+            yield w, v+[t]
+
     now = now_timestamp()
     name = K_unknown %uid
     res = Mem.zrange(K_tl %uid, 0, n-1, withscores=True)
-    for (w, t) in res:
-        diff = now - t 
-        if diff<0:
-            break
-        v = word_info(name, w)
-        if v[-1]<0 or Ebbinghaus.finished(v[-1]):
-            Mem.zrem(K_tl %uid, w)
-            continue
-        if diff>Ebbinghaus.period[v[-1]+1]:
-            forget(w, uid)
-            continue
-        yield w, v+[t]
+    #oldest
+    for i in gen_unknowns():
+        yield i
+    #newest
+    latest = res and res[-1][1] or 0
+    N=Mem.zcount(K_tl %uid, latest, now)
+    res = Mem.zrangebyscore(K_tl %uid, latest, now, start=N-n, num=n, withscores=True)
+    for i in gen_unknowns():
+        yield i
+
 
 def show_forgotten(uid, n=5):
     name = K_forget %uid

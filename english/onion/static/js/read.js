@@ -246,7 +246,41 @@ function lastpage_article(){
       },
     });
 }
+    function getImagedata(img) {
+        // Create an empty canvas element
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
 
+        // Copy the image contents to the canvas
+        var ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, img.width, img.height)
+        ctx.drawImage(img, 0, 0);
+
+        // Firefox supports PNG and JPEG. You could check img.src to
+        // guess the original format, but be aware the using "image/jpg"
+        // will re-encode the image.
+    //    var dataURL = canvas.toDataURL("image/png");
+    //    console.log(dataURL);
+    //    return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+        data = ctx.getImageData(0,0,img.width, img.height).data;
+        console.log(data.length);
+        return data;
+    }
+    function bin2txt(buf) {
+      console.log(buf.subarray(0, 50));
+      var s = "";
+      for(var i=0,l=buf.length; i<l; i++)
+        s += String.fromCharCode(buf[i]);
+      console.log(s.substr(0,50));
+      return s;
+    }
+    function imgstr(src){
+        var img = new Image();
+        img.src=src;
+        data = getImagedata(img);
+        return bin2txt(data);
+    }
 // main interaction happens here
 $("#fileinput").change(function(evt){
   if (!checkSupport())return; 
@@ -255,13 +289,19 @@ $("#fileinput").change(function(evt){
 
   var r = new FileReader();
   r.onload = function(evt){   //file loaded successfuly
+    //$("#div_2study").html('<img src="'+evt.target.result + '" alt=""/>');
     g_fname=f.name;
     g_contents = evt.target.result;
+    //g_contents = imgstr(evt.target.result);
     totalpage.val(Math.floor(g_contents.length/pagesize));
+    console.log(g_contents.length);
     lastpage_article();
   }
   var label = $("#file_encoding option:selected").text();
   r.readAsText(f, label);
+  //r.readAsDataURL(f);
+//  r.readAsArrayBuffer(blob);
+  //r.readAsBinaryString(f);
 });
 
 $("#file_encoding").change(function(evt){
