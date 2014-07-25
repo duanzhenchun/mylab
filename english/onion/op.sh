@@ -3,9 +3,10 @@
 #redis-cli bgsave 
 #sudo cp /var/lib/redis/dump.rdb data/
 
-for i in 54.250.166.126 
+#for i in 54.250.166.126 
+for i in 182.92.99.134
 do
-    rsync -avz --cvs-exclude '.git/ *~ .pyc .swp' "-e ssh" ../onion ec2-user@$i:src/ 
+    rsync -avz --cvs-exclude '.git/ *~ .pyc .swp' "-e ssh" ../onion root@$i:src/ 
 done
 
 #aws prepare

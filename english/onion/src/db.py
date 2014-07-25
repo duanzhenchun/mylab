@@ -32,3 +32,19 @@ def movedb():
     db1= redis.Redis(db=1)
     db1.save()
 
+
+def backup(uid):
+    Mem =redis.Redis(db=1)
+    dic={}
+    for k in (K_known, K_unknown, K_forget, K_curpage, K_cache):
+        dic[k] = Mem.hgetall(k %uid)
+    dic[K_tl] = Mem.zrange(K_tl %uid, 0, 10**5, withscores=True)
+    return dic
+
+def update(uid):
+    for k in (K_known, K_unknown, K_forget, K_curpage, K_cache):
+        for k1,v1 in dic[k].iteritems():
+            Mem.hset(k %uid, k1,v1)
+    for (k,v) in dic[K_tl]:
+        Mem.zadd(K_tl %uid, k,v)
+

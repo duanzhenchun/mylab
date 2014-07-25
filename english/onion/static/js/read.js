@@ -39,8 +39,10 @@ $("#search").prop('disabled', true);
 var tshow=NaN;
 var tinfo = NaN;
 var lastword = '';
+var shows = ['Rescue my words~','wait to repeat'];
 
 function repeat_word(w,yn){
+    $("#rescue_word").val(shows[0]);
     if (!w) {w=''}
     $.ajax({
         type: "POST",
@@ -67,6 +69,7 @@ function repeat_word(w,yn){
 }
 
 function rescue_word(w, yn){
+    $("#rescue_word").val(shows[1]);
     if (!w) {w=''}
     $.ajax({
         type: "POST",
@@ -138,12 +141,9 @@ function change_word(w, unknown, refresh){
 }
 
 $("#rescue_word").click(function(){
-    var shows = ['Rescue my words~','wait to repeat'];
     if ($(this).val() == shows[0]){
-        $(this).val(shows[1]);
         rescue_word('', true);
     }else{
-        $(this).val(shows[0]);
         repeat_word();
     }
 });
