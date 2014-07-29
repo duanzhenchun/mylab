@@ -37,28 +37,30 @@ def get_dict(folder, fname):
 
     encoding=get_encoding(f.read(200))
     print encoding
-    cut=re.compile('\[.+\]|/.+/ ')
+    Vocut=re.compile('\[.+?\]|/.+?/ ')
     f.seek(0)
     start = 0
     Wdict={}
     last=('','')
+    Egcut = re.compile(u':.+?(?=\n)')
     for i in range(wordcount):
         pos = idxdata.find('\0', start, -1)
         fmt = "%ds" % (pos-start)
-        wordstr = struct.unpack_from(fmt, idxdata, start)[0]
+        w = struct.unpack_from(fmt, idxdata, start)[0]
         start += struct.calcsize(fmt) + 1
 
         (off, size) = struct.unpack_from(">LL",idxdata, start)
         start += struct.calcsize(">LL")
         f.seek(off,0)
         v = f.read(size)
-        if len(cut.sub('', v))<5:
-            print wordstr, v, last
-            raw_input(wordstr)
-            #Mem.hset(K_encs, wordstr, v+'\n%s:\n%s' %(last))
+        v = Egcut.sub('', v+'\n').strip()
+        if len(Vocut.sub('', v))<5:
+            v += '\n%s:\n%s' %last
+            #Wdict[w]= v 
+            #Mem.hset(K_encs, w, v)
         else:
-            last = (wordstr,v)
-        Wdict[wordstr] = v #tounicode(v, encoding)
+            last = (w,v)
+        Wdict[w] = v 
     return Wdict
 
 

@@ -13,7 +13,7 @@ from utils import *
 
 
 Word_pat = re.compile(u"[\w’']+|\W+")
-Sep_sent = re.compile(u'(?<=[\.\?!:-]) ') 
+Sep_sent = re.compile(u'(?<=[\.\?!’:-]) ') 
 Span_name='word_span'
 
 def t_pos():

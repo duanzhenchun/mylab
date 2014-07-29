@@ -233,6 +233,8 @@ function read_article(curpage){
 }
 
 function lastpage_article(){
+    g_contents = g_contents.replace(/-\n/g, '').replace(/([\w,])\n/g, "$1 ");
+    //$("#compact").prop('disabled', false);
     var last = 0;
     $.ajax({
       type:"GET",
@@ -294,7 +296,6 @@ $("#fileinput").change(function(evt){
     g_contents = evt.target.result;
     //g_contents = imgstr(evt.target.result);
     totalpage.val(Math.floor(g_contents.length/pagesize));
-    console.log(g_contents.length);
     lastpage_article();
   }
   var label = $("#file_encoding option:selected").text();
@@ -341,6 +342,7 @@ $("#search").click(function(){
     var pos_page = Math.floor(pos/pagesize);
     navi(pos_page);
 });
+
 $( document ).on( "click", "span.word_span", function (evt){ 
     w = $(this).text();
     if(evt.ctrlKey) {
