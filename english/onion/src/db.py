@@ -48,3 +48,9 @@ def update(uid):
     for (k,v) in dic[K_tl]:
         Mem.zadd(K_tl %uid, k,v)
 
+
+def detect_int():
+    dici={}
+    for w in Mem.hkeys(K_encs):
+        if Mem.hget(K_encs,w).isdigit():
+            dici[w]=v

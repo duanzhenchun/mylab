@@ -66,19 +66,3 @@ txt modification:
     :%s/-\n//g
     :%s/^\d/+\n//g
 
-words:
-    placid
-    grievous
-    solicit
-    buzzard
-    ceaselessly
-    unctuously
-    premeditate
-    fluffy
-    traumatically
-    internally
-    infernal
-
-K:
-    Doctor
-    cannot

@@ -7,6 +7,11 @@ import re
 from db import *
 from utils import *
 
+
+Vocut = re.compile('\[.+?\]|/.+?/ ')
+Egcut = re.compile(u':.+?(?=\n)')
+Origin = ('adj ', 'adv ')
+
 def dict_info(ifoloc):
     logging.info("parse stardict info file %s" % ifoloc)
     try:
@@ -37,22 +42,21 @@ def get_dict(folder, fname):
 
     encoding=get_encoding(f.read(200))
     print encoding
-    Vocut=re.compile('\[.+?\]|/.+?/ ')
     f.seek(0)
     start = 0
     Wdict={}
     last=('','')
-    Egcut = re.compile(u':.+?(?=\n)')
     for i in range(wordcount):
         pos = idxdata.find('\0', start, -1)
         fmt = "%ds" % (pos-start)
         w = struct.unpack_from(fmt, idxdata, start)[0]
         start += struct.calcsize(fmt) + 1
-
         (off, size) = struct.unpack_from(">LL",idxdata, start)
         start += struct.calcsize(">LL")
         f.seek(off,0)
         v = f.read(size)
+        if w.find(' ')>=0:    #exclude phrase
+            continue
         v = Egcut.sub('', v+'\n').strip()
         if len(Vocut.sub('', v))<5:
             v += '\n%s:\n%s' %last
@@ -71,7 +75,10 @@ def oxford_dict():
 
 def add2langdao(Wdict):
     for w in Wdict:
-        w1=word_lem(w)
+        if Vocut.sub('', v)[:4] in Origin:
+            w1=w
+        else:
+            w1=word_lem(w)
         if not Mem.hexists(K_encs, w1):
             Mem.hset(K_encs, w1, Wdict[w])
 

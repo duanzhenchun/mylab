@@ -100,15 +100,27 @@ def dump_dicts(wdict, dict_uk, fname=Default_cache):
 @benchmark
 def init_dict():
     fname='%s/all.num' %Fdata
+    Origin =('adj ', 'adv ')
+    Vocut=re.compile('\[.+?\]|/.+?/ ')
+    Illegal = ",.&;_'0123456789"
     f = open(fname)
     lst = f.readlines()
     dic = {}
     for l in lst:  #from easy to hard
         t = l.strip().split(' ')
-        w = word_lem(t[1])
-        if w in dic:
-            continue
-        dic[w] = int(t[0])
+        w = t[1]
+        for ill in Illegal:
+            if ill in w:
+                break
+        else:
+            v = Mem.hget(K_encs, w)
+            if v and Vocut.sub('', v)[:4] in Origin:
+                pass
+            else:
+                w = word_lem(w)
+            if w in dic and w!=t[1]:
+                continue
+            dic[w] = int(t[0])
     return dic
 
 
