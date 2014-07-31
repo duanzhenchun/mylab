@@ -135,6 +135,7 @@ def uk_us():
 
 
 # as zipf-law, if rank(w)>1000 and freq(w)>10: rank * freq = C
+# C = 6*10**5, sum(k<10)=5k
 Usual_wfreq=(4, 7600)
 
 def update_freq(w0, unknown, uid, ncache=10):

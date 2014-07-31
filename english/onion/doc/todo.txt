@@ -3,8 +3,8 @@ iPad touch:
     upload a txt
         blob data FileReader
 
-compare:
-    K_freq: marshal with rdb
+K_freq compare:
+    marshal with rdb
 
 api:
     prevent calling freq limit
@@ -15,9 +15,9 @@ api:
 data mining:
     log action to collection file
 
-
 allauth:
     weibo
+        http://open.weibo.com/webmaster/build/?siteid=1055809077
     baidu
     qq
 
@@ -36,7 +36,9 @@ design:
 
 domain:
     onion.wicp.net 
+        https://console.oray.com/domain/free/
     enonion.com
+        http://dns.www.net.cn/dns.jsp?domain=enonion.com
 
 unknown words:
     page view
@@ -65,4 +67,8 @@ txt modification:
     :%s/\([\w,]\)\n/\1 /g
     :%s/-\n//g
     :%s/^\d/+\n//g
+
+words:
+    impersonate
+    imminent
 

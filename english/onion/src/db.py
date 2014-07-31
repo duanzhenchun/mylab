@@ -34,7 +34,6 @@ def movedb():
 
 
 def backup(uid):
-    Mem =redis.Redis(db=1)
     dic={}
     for k in (K_known, K_unknown, K_forget, K_curpage, K_cache):
         dic[k] = Mem.hgetall(k %uid)
@@ -54,3 +53,16 @@ def detect_int():
     for w in Mem.hkeys(K_encs):
         if Mem.hget(K_encs,w).isdigit():
             dici[w]=v
+
+def stats():
+    k=K_cache.split('%')[0]+'*'
+    uids = set([i.split(':')[1] for i in Mem.keys(k)])
+    uids.update(set(Mem.hkeys(K_K)))
+    print "#format:\nuid, #file, #timeline, (K_K, n/10)"
+    for uid in uids:
+        uid=int(uid)
+        print uid, Mem.hlen(K_curpage %uid), Mem.zcard(K_tl %uid), Mem.hget(K_K, uid)
+
+
+if __name__=="__main__":
+    stats()

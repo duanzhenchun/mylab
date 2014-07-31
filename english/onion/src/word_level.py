@@ -244,7 +244,7 @@ def unknowns(uid):
         dic[w]=v+[t]
     return dic
 
-
+# todo: limit fnames/user
 def set_lastpage(fname, curpage, uid):
     curpage = ast.literal_eval(curpage)
     if not isinstance(curpage, int) or curpage<=0:

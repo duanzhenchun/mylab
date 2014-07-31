@@ -233,7 +233,7 @@ function read_article(curpage){
 }
 
 function lastpage_article(){
-    g_contents = g_contents.replace(/-\n/g, '').replace(/([\w,])\n/g, "$1 ");
+    g_contents = g_contents.replace(/-\n/g, '').replace(/([\w,;])\n/g, "$1 ");
     //$("#compact").prop('disabled', false);
     var last = 0;
     $.ajax({

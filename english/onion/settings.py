@@ -7,7 +7,7 @@ TEMPLATE_DEBUG = DEBUG
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['onion.wicp.net']
+ALLOWED_HOSTS = ['onion.wicp.net', 'enonion.com']
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -162,12 +162,3 @@ EMAIL_HOST_USER = 'english.onion.op@gmail.com'
 EMAIL_HOST_PASSWORD = 'OP_english'
 ROOT_URLCONF = 'urls'
 
-
-"""
-domain:
-onion.wicp.net
-https://console.oray.com/domain/free/
-
-oauth:
-http://open.weibo.com/webmaster/build/?siteid=1055809077
-"""
