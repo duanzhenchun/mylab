@@ -111,3 +111,11 @@ def word_repeat(request):
     return json_response({'wait': word_level.time2wait(uid),
                          'unknown': word_html(dic, 'unknown_word'),
                          })
+
+def stats(request):
+    import db
+    uid = request.user.id
+    if uid != 4:
+        return HttpResponseBadRequest()
+    res = db.stats()
+    return json_response(res)

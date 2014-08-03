@@ -30,5 +30,6 @@ urlpatterns += patterns(mainpath + '.views',
     (r'^word_unknown$', 'word_unknown'),    
     (r'^word_repeat$', 'word_repeat'),    
     (r'^word_rescue$', 'word_rescue'),    
+    (r'^stats$', 'stats'),    
 )
 
