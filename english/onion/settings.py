@@ -8,6 +8,12 @@ TEMPLATE_DEBUG = DEBUG
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ['onion.wicp.net', 'enonion.com', 'www.enonion.com']
+"""
+onion.wicp.net 
+    https://console.oray.com/domain/free/
+enonion.com
+    http://dns.www.net.cn/dns.jsp?domain=enonion.com
+"""
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -19,18 +25,12 @@ LANGUAGE_CODE = 'zh-CN'
 
 TIME_ZONE='Asia/Shanghai'
 
- 
-if 'SERVER_SOFTWARE' in os.environ:
-    from sae.const import (
-        MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASS, MYSQL_DB
-    )
-else:
-    MYSQL_DB = 'onion'
-    MYSQL_HOST = '127.0.0.1'
-    MYSQL_PORT = '3306'
-    MYSQL_USER = 'root'
-    MYSQL_PASS = '12345'
-    
+MYSQL_DB = 'onion'
+MYSQL_HOST = '127.0.0.1'
+MYSQL_PORT = '3306'
+MYSQL_USER = 'root'
+MYSQL_PASS = '12345'
+
 DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql',

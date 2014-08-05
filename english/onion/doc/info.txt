@@ -1,0 +1,15 @@
+design:
+    repeating words are not garanteed to remembered or affect K. users are
+    self responsible.
+    cold start:
+        user's K_K should ajusted according to K_freq at beginning, and affect
+        K_freq less. later and along with repeating successes, K_freq is
+        affected more.
+    chinese diction
+        http://code.google.com/p/ppdict/wiki/stardict
+
+competitor:
+    http://www.wordengine.cn.com/
+        http://www.wordengine.cn.com/vflash
+    youdao web translation
+

@@ -55,15 +55,15 @@ def detect_int():
             dici[w]=v
 
 def stats():
-    k=K_cache.split('%')[0]+'*'
-    uids = set([i.split(':')[1] for i in Mem.keys(k)])
-    uids.update(set(Mem.hkeys(K_K)))
-    dic = {'format':"uid, #file, #unknown, #forget, (K_K, n/10)", 'res':[]}
-    for uid in uids:
+    from mysqlcli import mysqlStorer
+    dic = {'format':"uid, email, #file, #unknown, #forget, (K_K, n/10)", 'res':[]}
+    dbcli = mysqlStorer()
+    res = dbcli.get_DB('select id,email from auth_user')
+    for uid, email in res:
         uid=int(uid)
-        lst = (uid, Mem.hlen(K_curpage %uid), Mem.zcard(K_tl %uid), Mem.hlen(K_forget %uid), Mem.hget(K_K, uid))
+        lst = (uid, email, Mem.hlen(K_curpage %uid), Mem.zcard(K_tl %uid), Mem.hlen(K_forget %uid), Mem.hget(K_K, uid))
         dic['res'] += lst
     return dic 
 
 if __name__=="__main__":
-    pass
+    print stats()

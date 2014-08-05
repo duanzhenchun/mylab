@@ -1,4 +1,6 @@
 iPad touch:
+    chaosconst
+        html
     span hover -> click
     upload a txt
         blob data FileReader
@@ -21,33 +23,6 @@ allauth:
     baidu
     qq
 
-webpage:
-    like youdao web translation
-
-design:
-    repeating words are not garanteed to remembered or affect K. users are
-    self responsible.
-    cold start:
-        user's K_K should ajusted according to K_freq at beginning, and affect
-        K_freq less. later and along with repeating successes, K_freq is
-        affected more.
-    chinese diction
-        http://code.google.com/p/ppdict/wiki/stardict
-
-domain:
-    onion.wicp.net 
-        https://console.oray.com/domain/free/
-    enonion.com
-        http://dns.www.net.cn/dns.jsp?domain=enonion.com
-
-unknown words:
-    page view
-
-competitor:
-    http://www.wordengine.cn.com/
-        http://www.wordengine.cn.com/vflash
-
-
 game:
     link two cloumns
         new word and it's coccurence words:
@@ -62,13 +37,19 @@ word net def:
             freq should be small than w
         e.g.: I smell a rotten squid.
 
+unknown words:
+    page view
 
-txt modification:
-    :%s/\([\w,]\)\n/\1 /g
-    :%s/-\n//g
-    :%s/^\d/+\n//g
+user name & uid
+    db
 
 words:
-    impersonate
-    imminent
-
+   banquet 
+   hunk
+   earshattering
+   aberration
+   Gallic
+   Corroboration
+   detested
+   embossed 
+   traumatizing
