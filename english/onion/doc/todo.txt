@@ -40,16 +40,47 @@ word net def:
 unknown words:
     page view
 
-user name & uid
-    db
+tutorial:
+    video
+        youku
+    frontend hint 
+
+device:
+    android
+       adt 
+    ios
+
 
 words:
-   banquet 
-   hunk
-   earshattering
-   aberration
-   Gallic
-   Corroboration
-   detested
-   embossed 
-   traumatizing
+    symptom
+    mellifluous
+    intrigue
+    lasagne
+    commendation
+    erudiction
+    disquietingly
+    baronial
+    orchestra
+    contemplate
+    soliciting
+    encase
+    chronology
+    riveted
+    interrogate
+    collectivist
+    indictment
+    concession
+    Arctic
+    incarnation
+    failsafe
+    conically
+    orchestrate
+    anesthetic
+    warily
+
+
+ad:
+    看英文, 不查单词: 上到原著下到书虫.
+    背单词, 自动提示: 艾宾浩斯记忆曲线.
+
+

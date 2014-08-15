@@ -65,5 +65,20 @@ def stats():
         dic['res'] += lst
     return dic 
 
+
+def word_lab():
+    import re
+    from word_level import Word_pat
+    dic = Mem.hgetall(K_unknown %4)
+    for w, v in dic.iteritems():
+        sent = ast.literal_eval(v)[0]
+        sent = re.sub('<span class=".+>(\w+)</span>', w, sent.replace('\n',''))
+        ws = Word_pat.findall(sent)[::2]
+        print w,':', Mem.hget(K_freq, word_lem(w))
+        for w1 in ws:
+            print w1,':', Mem.hget(K_freq, word_lem(w1)),
+        print
+
+
 if __name__=="__main__":
     print stats()
