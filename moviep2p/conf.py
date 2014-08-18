@@ -24,20 +24,20 @@ Movie_head = """
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
 <style type="text/css">
-.clearfix{display:block}
-.subject{float:left;}
-#mainpic{margin:3px 0 0 0;float:left;text-align:center;margin:3px 12px 0 0;max-width:155px;overflow:hidden}
+.item{overflow:hidden}
+.pic{margin:3px 0 0 0;float:left;text-align:center;margin:3px 12px 0 0;overflow:hidden}
+.info{float:left;width:60%;overflow:hidden}
 </style>
 </head>
 <body>
 """
   
 MOVIE_FMT = """
-<div class="subject clearfix">
-<div id="mainpic">
+<div class="item">
+<div class="pic">
 <a href="%s" target="_blank"><img src="%s" width="150px"></a>
 </div>
-<div>
+<div class="info">
 <p>score: %s</p>
 <p>title: %s</p>
 <p>original_title: %s</p>
@@ -46,4 +46,3 @@ MOVIE_FMT = """
 </div>
 </div>
 """
- 
