@@ -5,18 +5,8 @@ import filecmp
 from conf import *
 from utils import *
 
-douban_token = '26813bd953cdac9e'
-src_url = 'http://oabt.org/?cid=%d'
-movie_type = 7 #720p
-movie_thold = 7
-
-
 def douban_cli():
     from douban_client import DoubanClient
-    API_KEY = '09e7e2ad76917ac81db7a80863b47058'
-    API_SECRET = '42764a7149130882'
-    redirect_uri = 'http://54.250.166.126/spam/auth'
-    SCOPE = 'douban_basic_common,movie_basic_r'
     client = DoubanClient(API_KEY, API_SECRET, redirect_uri, SCOPE)
     if not douban_token:
         print client.authorize_url
@@ -26,17 +16,13 @@ def douban_cli():
 
 def bestmovie(title, doubancli):
     title = title.split(u'.1080p.')[0]
-#     dic = {'q':title.encode('utf8'), 'count':3}
-#     qstr = urllib.urlencode(dic)
-#     urlstr = "http://api.douban.com/v2/movie/search?%s" % qstr
-#     page = urllib2.urlopen(urlstr)
-#     res = urllib.urlopen(urlstr).read()
-#     dic = json.loads(res)
-    dic = doubancli.movie.search(q=title, count=3)
+    dic = doubancli.movie.search(q=title.split('HR-HDTV')[0], count=3)
     best = None
+    if dic['total']<1:
+        return
     for sub in dic['subjects']:
         score = sub['rating']['average']
-        if score < movie_thold:
+        if score < Movie_thold:
             continue
         if not best or best['rating']['average'] < score:
             best = sub
@@ -47,6 +33,8 @@ def getinfo(tr, doubancli):
     title = td.find('a').text
     dow=tr.find('td', {'class':'dow'})
     a = dow.find('a', attrs={'class' : re.compile("ed2k.*")})
+    if not a:
+        return
     ed2k = a.get('ed2k') 
     #print title, ed2k
     dic = {}
@@ -60,16 +48,11 @@ def getinfo(tr, doubancli):
     dic['img'] = best['images']['large']
     dic['ed2k'] = ed2k
     return dic
-   
-MOVIE_FMT = """<li>
-<a href="%s" target="_blank"><img src="%s" width="150px"></a>
-<p>score: %s</p>
-<p>title: %s</p>
-<p>original_title: %s</p>
-<p>year: %s</p>
-<a href="%s">%s</a>
-</li>
-"""
+
+def htmlinfo(lst):
+    if not lst:
+        return None
+    return Movie_head + ''.join(lst) + '</body>'
 
 def movieinfo(dic):
     return MOVIE_FMT % (dic['alt'], dic['img'], dic['score'], dic['title'], dic['original_title'], dic['year'], dic['ed2k'], dic['text'])
@@ -89,11 +72,11 @@ def insanity():
 
 def send_mail():
     import mailer 
-    if filecmp.cmp(CUR_MOVIES, CUR_MOVIES+'.new'):
+    newfname = CUR_MOVIES+'.new'
+    if filecmp.cmp(CUR_MOVIES, newfname):
         os.remove(CUR_MOVIES+'.new')
         return
     os.rename(CUR_MOVIES+'.new', CUR_MOVIES)    
-    Tos=['whille@163.com',]
     with open(CUR_MOVIES) as f:
         infos = f.read().decode('utf8')
         if len(infos)>10:
@@ -101,7 +84,7 @@ def send_mail():
  
 def main():
     doubancli = douban_cli()
-    urlstr = src_url %movie_type
+    urlstr = src_url %Movie_type
     print urlstr
     data = getpage(urlstr)
     soup = BeautifulSoup(data)
@@ -120,8 +103,7 @@ def main():
     with open(CUR_MOVIES+'.new', 'w') as f:
         f.write(infos.encode('utf8'))
         f.close()
-        
+    send_mail()
 
 if __name__ == '__main__':  
      main()
-     send_mail()
