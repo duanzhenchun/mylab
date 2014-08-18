@@ -26,7 +26,7 @@ Movie_head = """
 <style type="text/css">
 .item{overflow:hidden}
 .pic{margin:3px 0 0 0;float:left;text-align:center;margin:3px 12px 0 0;overflow:hidden}
-.info{float:left;width:60%;overflow:hidden}
+.info{float:left;overflow:hidden}
 </style>
 </head>
 <body>
