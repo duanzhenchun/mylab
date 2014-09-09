@@ -1,0 +1,27 @@
+IP: 172.16.100.84
+
+#login
+ssh -p4816 whille.wang@$IP
+
+#project loc
+/usr/local/project/accountindex
+
+#DB
+DB在同一台机器，数据库已经安装完成，并创建数据库：ACCOUNT_INDEX、SOCIAL_GRP
+数据库账号如下
+    1、后端：SOCIAL_STORE/ kd9*@n7a  （权限：select,insert,update,delete,create,index,alter）
+    2、前端：SOCIAL_WEB/ rts54y*&    （权限：select,insert,update,delete,create,index,alter）
+    3、运维：SOCIAL_OPR/cicdata      （权限：select）
+    
+mysql -h i$IP -u SOCIAL_STORE -p
+show databases;
+use ACCOUNT_INDEX;
+show tables;
+
+
+crontab -l
+10 * * * * cd /usr/local/project/accountindex/src && /usr/local/python2.7/bin/python scheduler.py hourly >> /home/nolan.liu/log/hourly.log
+0 13 * * * cd /usr/local/project/accountindex/src && /usr/local/python2.7/bin/python scheduler.py daily >> /home/nolan.liu/log/daily.log
+
+#TODO
+log with level and timestamp

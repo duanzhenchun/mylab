@@ -1,0 +1,10 @@
+f=open('weibo.log','r')
+data=f.readlines()
+lst=[list(int(j) for j in i.split()[2:]) for i in (filter( lambda i:i.startswith('accepted'), data))]
+import pylab
+pylab.plot(lst,'b*')
+pylab.ylabel('accepted')
+pylab.xlabel('iteration')
+#pylab.show()
+pylab.savefig('ter.png')
+

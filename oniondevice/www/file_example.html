@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>FileReader Example</title>
+            <link rel="stylesheet" type="text/css" href="css/app.css" />
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+    var g_contents='abc';
+    // Wait for PhoneGap to load
+    //
+    function onLoad() {
+        document.addEventListener("deviceready", onDeviceReady, false);
+    }
+
+    function onDeviceReady() {
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+    }
+
+    function gotFS(fileSystem) {
+        fileSystem.root.getFile("readme.txt", null, gotFileEntry, fail);
+    }
+
+    function gotFileEntry(fileEntry) {
+        fileEntry.file(gotFile, fail);
+    }
+
+    function gotFile(file){
+        readAsText(file);
+    }
+
+    function readAsText(file) {
+        var reader = new FileReader();
+        reader.onload= function(evt) {
+            console.log("Read as text");
+            g_contents = evt.target.result;
+            alert(g_contents.length);
+            alert(g_contents.substr(0,500));
+            document.querySelector("#textArea").innerHTML = evt.target.result.substr(0,500);;
+        };
+        reader.readAsText(file);
+    }
+
+    function fail(evt) {
+        console.log(evt.target.error.code);
+    }
+
+    </script>
+  </head>
+  <body>
+    <h1>Example</h1>
+    <p>Read File</p>
+    <div class="file-box"> 
+    <input type="file" id="fileinput" accept="text/*,image/png" style= "width: 100%;"/>
+    </div>
+    	<textarea id="textArea"></textarea>
+  </body>
+</html>

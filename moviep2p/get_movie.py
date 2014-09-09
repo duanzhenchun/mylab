@@ -74,9 +74,9 @@ def send_mail():
     import mailer 
     newfname = CUR_MOVIES+'.new'
     if filecmp.cmp(CUR_MOVIES, newfname):
-        os.remove(CUR_MOVIES+'.new')
+        os.remove(newfname)
         return
-    os.rename(CUR_MOVIES+'.new', CUR_MOVIES)    
+    os.rename(newfname, CUR_MOVIES)    
     with open(CUR_MOVIES) as f:
         infos = f.read().decode('utf8')
         if len(infos)>10:

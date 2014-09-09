@@ -1,0 +1,7 @@
+business api lag , affect weekly report, maybe several hours later:
+    need investigate and find a solution
+    
+account token:
+	need auth, script update db:account
+	read from db
+	

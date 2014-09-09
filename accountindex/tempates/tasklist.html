@@ -1,0 +1,60 @@
+<html>
+<!--
+<meta http-equiv="refresh"content="10;url=/">
+-->
+<title>任务列表</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+
+<body>
+{% if not onlydatashow %}
+<h2>任务表单 </h2>
+
+<br>
+<div style="text-align: right;" id="nav">
+{% include "nav.html" %}
+</div>
+{% endif %}
+
+
+<!--
+<div id="taskshow"  onclick="update_div();"> 
+-->
+<div id="taskshow" >
+
+
+
+<table border="1" cellpadding="5">
+<tr>
+<th> 统计时间</th>
+<th> 下载分析结果</th>
+</td>
+{% for row in rows %}
+<tr>
+<td> {{ row.0|date:'Y-m-d' }} </td>
+
+
+
+<td>
+<form id="{{  row.0|date:'Y-m-d' }}" method="post" action="/download/" style="display:none;">
+<input type="hidden" name="taskcontent" value="{{  row.0|date:'Y-m-d' }}" />
+<input type="hidden" name="T2" value="23456" />
+</form>
+<a href="javascript:document.getElementById('{{  row.0|date:'Y-m-d' }}').submit();void(0);">下载分析结果</a>
+</td>
+
+
+
+</tr>
+
+{% endfor %}
+
+</table>
+</div>
+
+	{% if not onlydatashow %}
+	<br>
+{% include "nav.html" %}
+{% endif %}
+</body>
+</html>

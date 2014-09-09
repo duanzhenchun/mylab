@@ -1,0 +1,58 @@
+dbname = 'ACCOUNT_INDEX'
+dbuser = 'SOCIAL_STORE'
+dbpwd = 'kd9*@n7a'
+dbhost = '127.0.0.1'
+dbport = '3306'
+
+weibo:user:2631312691:toPredict:1
+
+2635412981 is spam
+2635436131
+
+accepted, total:  217033961 228681889
+iteration 2...
+accepted, total:  224350629 228681889
+iteration 5...
+accepted, total:  224784618 228681889
+iteration 6...
+accepted, total:  225075962 228681889
+iteration 7...
+accepted, total:  225287290 228681889
+iteration 8...
+accepted, total:  225447361 228681889
+iteration 9...
+accepted, total:  225568478 228681889
+0.0
+guess 2.106831 sec
+doc_w len: 2563789
+
+save_diction 3479.308903 sec
+ 
+iter: 1
+iteration 10...
+accepted, total:  225665920 228681890
+iteration 11...
+
+mysql -h 10.8.0.84 -uSOCIAL_STORE -pkd9*@n7a ACCOUNT_INDEX
+
+select count(1) from cic_dict;
+4469451
+
+select * from cic_dict where p>.8 limit 10;
+
+select * from cic_dict where doc_w like '七匹狼' and p>.1;
++-----------+-----------+----------+
+| doc_w     | title_w   | p        |
++-----------+-----------+----------+
+| 七匹狼    | 七匹狼    | 0.531368 |
+| 七匹狼    | 周少明    | 0.268971 |
+| 七匹狼    | 朱晓卫    | 0.134466 |
+
+select * from cic_dict where doc_w like '乐视' and p>.05 limit 40;
++--------+-----------+----------+
+| doc_w  | title_w   | p        |
++--------+-----------+----------+
+| 乐视   | 乐视      | 0.515168 |
+| 乐视   | 乐视则    | 0.151666 |
+| 乐视   | 贾跃亭    | 0.184862 |
++--------+-----------+----------+

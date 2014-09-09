@@ -1,0 +1,352 @@
+<map version="0.9.0">
+<!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
+<node COLOR="#000000" CREATED="1370822583816" ID="ID_1486721778" MODIFIED="1372402622960" TEXT="Word Alignment Model">
+<font NAME="SansSerif" SIZE="20"/>
+<hook NAME="accessories/plugins/AutomaticLayout.properties"/>
+<node COLOR="#0033ff" CREATED="1370831038687" ID="ID_105167961" MODIFIED="1370831086266" POSITION="left" TEXT="aim">
+<edge STYLE="sharp_bezier" WIDTH="8"/>
+<font NAME="SansSerif" SIZE="18"/>
+<node COLOR="#00b439" CREATED="1370831041569" ID="ID_1734828813" MODIFIED="1370831111031" TEXT="latent semantic">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1370831075795" ID="ID_1299945433" MODIFIED="1370831118294" TEXT="ipad">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370831081907" ID="ID_239027143" MODIFIED="1370831118295" TEXT="apple">
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+<node COLOR="#990000" CREATED="1370831122033" ID="ID_1183650680" MODIFIED="1370831474060" TEXT=" &#x4e03;&#x5339;&#x72fc;">
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370831143843" ID="ID_1091098363" MODIFIED="1370831488299" TEXT="&#x5939;&#x514b;"/>
+</node>
+</node>
+<node COLOR="#00b439" CREATED="1370831100737" ID="ID_573469418" MODIFIED="1370831104379" TEXT="word level">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1370831514721" ID="ID_1906021253" MODIFIED="1370831523149" TEXT="t(f|e)">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+</node>
+</node>
+<node COLOR="#0033ff" CREATED="1370824414110" ID="ID_1205877678" MODIFIED="1370824825775" POSITION="right" TEXT="application">
+<edge STYLE="sharp_bezier" WIDTH="8"/>
+<font NAME="SansSerif" SIZE="18"/>
+<node COLOR="#00b439" CREATED="1370824450514" ID="ID_517562002" MODIFIED="1370824454116" TEXT="keywords">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1370823309288" ID="ID_1552816651" MODIFIED="1370824490761" TEXT="doc: english">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1370823317632" ID="ID_1600374488" MODIFIED="1370824492972" TEXT="titile: foreign">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370824517636" ID="ID_965601089" MODIFIED="1370824532747" TEXT="supervising"/>
+<node COLOR="#111111" CREATED="1370823371712" ID="ID_413461943" MODIFIED="1370824492972" TEXT="auto generation">
+<font NAME="SansSerif" SIZE="12"/>
+<node COLOR="#111111" CREATED="1370823358015" ID="ID_755185770" MODIFIED="1370823398173" TEXT="translation ratio">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+<node COLOR="#111111" CREATED="1370823401254" ID="ID_557474563" MODIFIED="1370823420333" TEXT="0.1~0.5"/>
+</node>
+<node COLOR="#111111" CREATED="1370823434558" ID="ID_464617263" MODIFIED="1370823450827" TEXT="sampling with weight">
+<node COLOR="#111111" CREATED="1370823423864" ID="ID_1114358479" MODIFIED="1370823433949" TEXT="tf_idf"/>
+</node>
+</node>
+</node>
+</node>
+<node COLOR="#00b439" CREATED="1370824454836" ID="ID_1591959897" MODIFIED="1370824459697" TEXT="clustering">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1370824462678" ID="ID_1350605340" MODIFIED="1370824480774" TEXT="cosine distance by kewords">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+</node>
+</node>
+<node COLOR="#0033ff" CREATED="1370831656921" ID="ID_1989911257" MODIFIED="1370831666258" POSITION="right" TEXT="training">
+<edge STYLE="sharp_bezier" WIDTH="8"/>
+<font NAME="SansSerif" SIZE="18"/>
+<node COLOR="#00b439" CREATED="1370831668107" ID="ID_94465894" MODIFIED="1370831878925" TEXT="docs">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1370831675475" ID="ID_1706470498" MODIFIED="1370831682830" TEXT="nounce">
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370831840480" ID="ID_1993927172" MODIFIED="1370831846042" TEXT="mostly meaningful"/>
+</node>
+<node COLOR="#990000" CREATED="1370831683231" ID="ID_1250517814" MODIFIED="1370831783642" TEXT="space seperated">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1370831902400" ID="ID_334178496" MODIFIED="1370831951586" TEXT="natually semantic related">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1370831954426" ID="ID_1832337700" MODIFIED="1370831957395" TEXT="e.g.">
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370831738425" ID="ID_1636261486" MODIFIED="1370831960052" TEXT="account">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+<node COLOR="#111111" CREATED="1370831719981" ID="ID_301740385" MODIFIED="1370831974290" TEXT="latest 200 tweets">
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+</node>
+</node>
+<node COLOR="#0033ff" CREATED="1370824833599" ID="ID_1190621173" MODIFIED="1370824920663" POSITION="right" TEXT="guess keywords">
+<edge STYLE="sharp_bezier" WIDTH="8"/>
+<font NAME="SansSerif" SIZE="18"/>
+<node COLOR="#00b439" CREATED="1370824839083" ID="ID_1120988148" MODIFIED="1370824889741" TEXT="&#x3a3;(t(f|e) * tf_idf">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+<node COLOR="#00b439" CREATED="1370824932503" ID="ID_1722258930" MODIFIED="1370824936507" TEXT="top n">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+<node COLOR="#00b439" CREATED="1370832011522" ID="ID_1909101261" MODIFIED="1370832015065" TEXT="e.g.">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1370832016533" ID="ID_953348880" LINK="&#x4e94;&#x7f8a;.txt" MODIFIED="1370832376205" TEXT="wuyang.txt">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1370832234517" FOLDED="true" ID="ID_1142070595" MODIFIED="1372403020148" TEXT="http://app.thunlp.org/weibo/">
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370832169939" ID="ID_1460419640" MODIFIED="1370832181475">
+<richcontent TYPE="NODE"><html>
+  <head>
+    
+  </head>
+  <body>
+    <img src="whille.png" />
+  </body>
+</html></richcontent>
+</node>
+</node>
+<node COLOR="#990000" CREATED="1370832171871" ID="ID_475456613" LINK="whille.txt" MODIFIED="1370832356928" TEXT="whille.txt">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+</node>
+</node>
+<node COLOR="#0033ff" CREATED="1370831797410" ID="ID_1451552037" MODIFIED="1370831812155" POSITION="right" TEXT="result">
+<edge STYLE="sharp_bezier" WIDTH="8"/>
+<font NAME="SansSerif" SIZE="18"/>
+<node COLOR="#00b439" CREATED="1370823034265" ID="ID_1347949409" MODIFIED="1370831815686" TEXT="precision">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1370823083999" ID="ID_1845610953" MODIFIED="1370831815686" TEXT="index">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370823063515" ID="ID_1678647160" MODIFIED="1370831815687" TEXT="correctness">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+<node COLOR="#111111" CREATED="1370823069747" ID="ID_580132808" MODIFIED="1370831815687" TEXT="recall rate">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+<node COLOR="#990000" CREATED="1370823103843" ID="ID_1128258352" MODIFIED="1370831815688" TEXT="infect">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370823040405" ID="ID_837182964" MODIFIED="1370831815689" TEXT="training data">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+<node COLOR="#111111" CREATED="1370823038495" ID="ID_908204129" MODIFIED="1370831815689" TEXT="bias">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+<node COLOR="#990000" CREATED="1370823825789" ID="ID_1865612159" MODIFIED="1370831815690" TEXT="convergence">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370824726130" ID="ID_453428293" MODIFIED="1370831815691" TEXT="accept ratio">
+<font NAME="SansSerif" SIZE="12"/>
+<node COLOR="#111111" CREATED="1370824744530" ID="ID_1345155174" MODIFIED="1370824752920" TEXT="1e2"/>
+</node>
+<node COLOR="#111111" CREATED="1370824655572" FOLDED="true" ID="ID_1353131037" MODIFIED="1372403149491" TEXT="iter.png">
+<font NAME="SansSerif" SIZE="12"/>
+<node COLOR="#111111" CREATED="1370823783567" ID="ID_242557483" MODIFIED="1370824663418">
+<richcontent TYPE="NODE"><html>
+  <head>
+    
+  </head>
+  <body>
+    <img src="iter.png" />
+  </body>
+</html></richcontent>
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+<node COLOR="#111111" CREATED="1370823850728" ID="ID_799004279" MODIFIED="1370831815693" TEXT="iter.txt">
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+<node COLOR="#990000" CREATED="1370823652337" ID="ID_229740044" MODIFIED="1370831815694" TEXT="todo">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370823742533" ID="ID_1572692126" MODIFIED="1370831815695" TEXT="data">
+<font NAME="SansSerif" SIZE="12"/>
+<node COLOR="#111111" CREATED="1370831628337" ID="ID_1735150141" MODIFIED="1370831631734" TEXT="suitable"/>
+<node COLOR="#111111" CREATED="1370831632057" ID="ID_398891041" MODIFIED="1370831633214" TEXT="more"/>
+</node>
+<node COLOR="#111111" CREATED="1370823748783" ID="ID_1751841324" MODIFIED="1370831815696" TEXT="sina news with keywords">
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+</node>
+<node COLOR="#00b439" CREATED="1370822964566" ID="ID_1456690203" MODIFIED="1370831820349" TEXT="performance">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1370822968859" ID="ID_283770721" MODIFIED="1370831820349" TEXT="O(iter*len(E)*len(F))">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1370823017857" ID="ID_1213259255" MODIFIED="1370831820350" TEXT="todo">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370823024691" ID="ID_305804728" MODIFIED="1370831820350" TEXT="map reduce">
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+</node>
+</node>
+<node COLOR="#0033ff" CREATED="1370822617575" ID="ID_641686586" MODIFIED="1370824817916" POSITION="left" TEXT="tf-idf">
+<edge STYLE="sharp_bezier" WIDTH="8"/>
+<font NAME="SansSerif" SIZE="18"/>
+<node COLOR="#00b439" CREATED="1370831540241" ID="ID_1539219475" MODIFIED="1370831573283" TEXT="tf">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1370831546207" ID="ID_1290865630" MODIFIED="1370831610744" TEXT="nword in doc">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+</node>
+<node COLOR="#00b439" CREATED="1370823152503" ID="ID_902738185" MODIFIED="1370823195270" TEXT="idf">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1370823162621" ID="ID_1009407626" MODIFIED="1370823192102" TEXT="log(ndoc/ndoc_w)">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1370823233577" ID="ID_1966705401" MODIFIED="1370823239196" TEXT="e.g.">
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370823207815" ID="ID_365162490" MODIFIED="1370823241904" TEXT="of">
+<font NAME="SansSerif" SIZE="12"/>
+<node COLOR="#111111" CREATED="1370823256159" ID="ID_166425927" MODIFIED="1370823277390" TEXT="small value"/>
+</node>
+<node COLOR="#111111" CREATED="1370823214701" ID="ID_1478789888" MODIFIED="1370823242836" TEXT="sunday">
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+</node>
+<node COLOR="#00b439" CREATED="1370823142235" ID="ID_1679826688" MODIFIED="1370831538727" TEXT=": = tf*idf">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+</node>
+<node COLOR="#0033ff" CREATED="1370823721965" ID="ID_1320953526" MODIFIED="1370823724551" POSITION="right" TEXT="refer">
+<edge STYLE="sharp_bezier" WIDTH="8"/>
+<font NAME="SansSerif" SIZE="18"/>
+<node COLOR="#00b439" CREATED="1370823730963" ID="ID_1323608722" LINK="/home/whille/ebook/machine.learning/SMT/conll2011.pdf" MODIFIED="1370824249903" TEXT="Zhiyuan Liu, 2011, Automatic Keyphrase Extraction by Bridging Vocabulary Gap">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+<node COLOR="#00b439" CREATED="1370823727613" ID="ID_52045089" MODIFIED="1370823729728" TEXT="m1.py">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+</node>
+<node COLOR="#0033ff" CREATED="1370822622833" ID="ID_1529350130" MODIFIED="1371808481326" POSITION="left" TEXT="SMT">
+<edge STYLE="sharp_bezier" WIDTH="8"/>
+<font NAME="SansSerif" SIZE="18"/>
+<node COLOR="#00b439" CREATED="1370822641549" ID="ID_260438453" LINK="http://zh.wikipedia.org/wiki/%E7%BB%9F%E8%AE%A1%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91" MODIFIED="1371808492879" TEXT="state machine translation">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+<node COLOR="#00b439" CREATED="1371610142813" ID="ID_1921564808" MODIFIED="1371808481326">
+<richcontent TYPE="NODE"><html>
+  <head>
+    
+  </head>
+  <body>
+    <img src="../../../../../../mydoc/math/450px-ChineseWordAlignment.png" />
+  </body>
+</html></richcontent>
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+<node COLOR="#00b439" CREATED="1370822649267" ID="ID_1183644757" MODIFIED="1371808507478" TEXT="IBM models">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1370823488412" ID="ID_327779893" MODIFIED="1371808481329" TEXT="model">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370822709195" ID="ID_918837545" MODIFIED="1371808456439" TEXT="setences pair (e,f)">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+<node COLOR="#111111" CREATED="1370822674257" ID="ID_568186343" MODIFIED="1371808456440" TEXT="English">
+<font NAME="SansSerif" SIZE="12"/>
+<node COLOR="#111111" CREATED="1370822690835" ID="ID_409663448" MODIFIED="1370822699724" TEXT="len l"/>
+</node>
+<node COLOR="#111111" CREATED="1370822684529" ID="ID_1382834813" MODIFIED="1371808456441" TEXT="Foreign">
+<font NAME="SansSerif" SIZE="12"/>
+<node COLOR="#111111" CREATED="1370822702561" ID="ID_712055548" MODIFIED="1370822704626" TEXT="len m"/>
+</node>
+<node COLOR="#111111" CREATED="1370822783560" ID="ID_879342872" MODIFIED="1371808456442" TEXT="Alignment">
+<font NAME="SansSerif" SIZE="12"/>
+<node COLOR="#111111" CREATED="1370822721998" ID="ID_1545005310" MODIFIED="1370822941789" TEXT="single direction">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+<node COLOR="#111111" CREATED="1370822807423" ID="ID_1411242598" MODIFIED="1370822927599" TEXT="multiple alignment">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+</node>
+<node COLOR="#990000" CREATED="1370823498068" ID="ID_1257760892" MODIFIED="1371808569536" TEXT="EM algrithm">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1370823514134" ID="ID_1655852946" MODIFIED="1371808487056" TEXT="iteration">
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+<node COLOR="#111111" CREATED="1370823518442" ID="ID_672798629" MODIFIED="1371808487056" TEXT="convergent">
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+<node COLOR="#990000" CREATED="1370822660653" ID="ID_1725139565" MODIFIED="1371808592828" TEXT="model 1">
+<edge STYLE="sharp_bezier" WIDTH="8"/>
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1371808550460" ID="ID_884236859" MODIFIED="1371808581965" TEXT=" t(f|e)"/>
+<node COLOR="#111111" CREATED="1370823605443" ID="ID_902731142" MODIFIED="1371808487058" TEXT="e.g.">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+<node COLOR="#111111" CREATED="1370823617287" ID="ID_1626495106" MODIFIED="1371808487058" TEXT="abc =&gt; ABC">
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+<node COLOR="#111111" CREATED="1370823629809" ID="ID_408946953" MODIFIED="1371808487058" TEXT="python t_m1.py">
+<font NAME="SansSerif" SIZE="12"/>
+</node>
+</node>
+</node>
+<node COLOR="#990000" CREATED="1371808513092" ID="ID_268800483" MODIFIED="1371808516117" TEXT="model 2">
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1371808526844" ID="ID_886762478" MODIFIED="1371810017608" TEXT="d(aj|j,l.m)">
+<node COLOR="#111111" CREATED="1371809123851" ID="ID_1379770436" MODIFIED="1371810034744" TEXT="reverse distortion"/>
+</node>
+</node>
+<node COLOR="#990000" CREATED="1371808594556" ID="ID_1796970069" MODIFIED="1371808596819" TEXT="model 3">
+<font NAME="SansSerif" SIZE="14"/>
+<node COLOR="#111111" CREATED="1371808598116" ID="ID_1675259284" MODIFIED="1371809134626" TEXT="n(phi|ei)">
+<node COLOR="#111111" CREATED="1371809118803" ID="ID_910170380" MODIFIED="1371809121674" TEXT="fertility"/>
+</node>
+<node COLOR="#111111" CREATED="1371808602244" ID="ID_1411805774" MODIFIED="1371808603507" TEXT="p1">
+<node COLOR="#111111" CREATED="1371809164059" ID="ID_238479021" MODIFIED="1371809176338" TEXT="p1 = n(0 | NULL)"/>
+<node COLOR="#111111" CREATED="1371809177507" ID="ID_1868367017" MODIFIED="1371809182180" TEXT="p0 = 1 - p1"/>
+</node>
+</node>
+</node>
+</node>
+</node>
+</map>

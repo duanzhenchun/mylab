@@ -1,0 +1,2 @@
+yum install mysql-devel
+pip install nltk python-dateutil django mysql-python MySQL_python sinaweibopy
