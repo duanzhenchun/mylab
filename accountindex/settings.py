@@ -1,5 +1,4 @@
 # coding=utf-8
-# Django settings for accountindex project.
 import os
 
 #指定JS CSS 图片存放地址
@@ -13,20 +12,11 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-#dbname = 'tiffany'
-#dbhost = '10.160.0.59'
-#dbpwd = 'a2692224'
-dbname = 'accountindex'
-dbuser = 'root'
-dbpwd = '12345'
-dbhost = 'localhost'
-"""
-#dbname = 'ACCOUNT_INDEX'
-#dbuser = 'SOCIAL_STORE'
-#dbpwd = 'kd9*@n7a'
-#dbhost = '10.8.0.84'
-"""
-dbport = '3306'
+dbname = 'WeiboPanel'
+dbuser = 'leo'
+dbpwd = 'cicdata'
+dbhost = '118.25.206.182'
+dbport = '3307'
 
 DATABASES = {
     'default': {
