@@ -5,6 +5,7 @@ yum -y install readline-devel mysql mysql-devel gcc pcre pcre-devel zlib zlib-de
 #/usr/local/lib64
 ldconfig
 
+cd ~/
 wget http://python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2
 tar -jxvf Python-2.7.3.tar.bz2 
 cd Python-2.7.3
@@ -12,13 +13,22 @@ cd Python-2.7.3
 make && make install
 cd ..
 
+# modify for yum
+mv /usr/bin/python /usr/bin/python.bak
+ln -s /usr/local/bin/python2.7 /usr/bin/python
+sed -ie 's#/usr/bin/python$#/usr/bin/python2.6#g' /usr/bin/yum
+
 # verify
 python -V
 
 #pip
 wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py --no-check-certificate
-sudo python get-pip.py
+python get-pip.py
 
 pip install django MySQL-python 
 
 #mysql -u leo -p -h 118.25.206.182 -P 3307 WeiboPanel<access_token.sql
+#cd src/crawl/ && nohup python crawl_relation.py>out.txt&
+
+crontab -e
+0 */4 * * * echo $(date "+%Y-%m-%d %H:%M:%S") `mysql -N -e  "select count(1) from Weibo_User_Relationship; select count(1) from Weibo_User_Profile"  -u leo -p -h 118.25.206.182 -P 3307 -pcicdata WeiboPanel` >>/root/src/stats.txt

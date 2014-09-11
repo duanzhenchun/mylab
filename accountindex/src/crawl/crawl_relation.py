@@ -22,15 +22,16 @@ class CrawlRelation(Base):
         dic['created_at'] = fmt_create_at(dic['created_at'])
         dic['description'] = self.get_normal_text(dic['description'])
         last_tweet = weibouser.get('status')
+        raw_input(last_tweet)
         if last_tweet:
             pre='last_tweet_'
             for k in ('id','source'):
-                dic[pre+k] = last_tweet[k]
+                dic[pre+k] = last_tweet.get(k,'')
             dic[pre+'text'] = self.get_normal_text(last_tweet['text'])
             dic[pre+'publish_time']= fmt_create_at(last_tweet['created_at'])
-            dic[pre+'rt']= last_tweet['reposts_count']
-            dic[pre+'ct']= last_tweet['comments_count']
-            dic[pre+'attitudes']= last_tweet['attitudes_count']
+            dic[pre+'rt']= last_tweet.get('reposts_count',0)
+            dic[pre+'ct']= last_tweet.get('comments_count',0)
+            dic[pre+'attitudes']= last_tweet.get('attitudes_count',0)
 
         return self.insertDB(tablename, dic)
         
@@ -260,7 +261,6 @@ def seed_uids():
 
 @benchmark()
 def main():
-    print 'Start!'
     fw=open('./friends.txt','w')
     for uid in seed_uids():
         if not uid:
@@ -269,7 +269,6 @@ def main():
         process.get_friends(fw, trim_status=0)
         fw.flush()
     fw.close()
-    print 'Done!'
 
 
 if __name__ == '__main__':
