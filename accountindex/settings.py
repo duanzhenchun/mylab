@@ -15,8 +15,9 @@ MANAGERS = ADMINS
 dbname = 'WeiboPanel'
 dbuser = 'leo'
 dbpwd = 'cicdata'
-dbhost = '118.25.206.182'
+dbhost = '118.25.206.182' #192.168.5.235:3306
 dbport = '3307'
+#dbhost, dbport, dbuser = 'localhost', 3306, 'root'
 
 DATABASES = {
     'default': {

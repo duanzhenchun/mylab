@@ -15,14 +15,12 @@ class CrawlRelation(Base):
     
     def save_user(self, tablename, weibouser):
         dic = {}
-               
         for k in USER_FIELDS:
             dic[k] = weibouser.get(k,'')
         dic['idstr']=str(dic['id'])
         dic['created_at'] = fmt_create_at(dic['created_at'])
         dic['description'] = self.get_normal_text(dic['description'])
         last_tweet = weibouser.get('status')
-        raw_input(last_tweet)
         if last_tweet:
             pre='last_tweet_'
             for k in ('id','source'):
@@ -37,7 +35,7 @@ class CrawlRelation(Base):
         
     def save_relation(self, id, original_uid):
         dic = {'id':int(id), 'original_uid': original_uid}
-        print original_uid, id
+        #print original_uid, id
         return self.insertDB(RELATION_TABLE, dic)
     
     def get_last_uids(self, table=FANS_TABLE):
@@ -89,7 +87,6 @@ class CrawlRelation(Base):
     def get_friends(self,f, trim_status=1):
         global Num
         last_crawl = set(self.get_last_uids(FRIENDS_TABLE))
-        #create_follow(self.cursor, self.table_name)
         cursor = 0  # API下标
         existnum = 0  # 数据库中存在数据条数
         while True:
@@ -253,24 +250,65 @@ class CrawlRelation(Base):
             self.cursor.connection.rollback()
             
 
-def seed_uids():
-    f=open('../../data/filter_uniq.txt')
+def seed_uids(datafname):
+    f=open(datafname) #'../../data/filter_uniq.txt')
     for l in f:
         uid = l.strip()
         yield int(uid)
 
 @benchmark()
-def main():
+def main(datafname):
     fw=open('./friends.txt','w')
-    for uid in seed_uids():
+#    process = CrawlRelation(111, table=FRIENDS_TABLE)
+#    process.execute_sql('select count(1) from %s' %RELATION_TABLE)
+#    last = process.cursor.fetchone()[0]
+    for uid in seed_uids(datafname):
         if not uid:
             continue
         process = CrawlRelation(uid, table=FRIENDS_TABLE)
+#        start = time.time()
+#        process.execute_sql('start transaction')
         process.get_friends(fw, trim_status=0)
-        fw.flush()
+#        process.execute_sql('commit')
+#        duration = time.time()-start
+#        print duration
+#        process.execute_sql('select count(1) from %s' %RELATION_TABLE)
+#        newcount = process.cursor.fetchone()[0]
+#        print 'speed: %.2f/sec' %(1.*(newcount-last)/duration), 'duration:%.2f sec' %duration 
+#        last = newcount
+#        fw.flush()
     fw.close()
 
 
 if __name__ == '__main__':
-    main()
+    import sys
+    if len(sys.argv) < 1:
+        sys.exit("""
+Usage:
+    %s datafname
+""" % sys.argv[0])
+    main(sys.argv[1])
     print Num
+
+"""
+localdb: save relationship use transaction
+speed: 935.66 duration: 0.383685112
+speed: 668.00 duration: 0.127246141434
+speed: 846.22 duration: 0.607404947281
+speed: 496.16 duration: 0.415186882019
+speed: 781.75 duration: 0.964499950409
+speed: 875.90 duration: 0.187237024307
+speed: 786.04 duration: 0.152663946152
+
+without transaction:
+speed: 156.71 duration: 2.48869800568
+speed: 156.22 duration: 4.60895895958
+speed: 153.76 duration: 0.6763651371
+speed: 165.41 duration: 0.568287134171
+    
+MyISAM engine:
+speed: 657.18 duration: 0.410849094391
+speed: 658.91 duration: 0.943985939026
+speed: 682.07 duration: 0.56298995018
+speed: 587.77 duration: 1.57713603973
+"""

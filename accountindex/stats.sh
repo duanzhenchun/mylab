@@ -1,0 +1,1 @@
+echo "$(date "+%Y-%m-%d %H:%M:%S")" `mysql -N -e  "select count(1) from Weibo_User_Relationship; select count(1) from Weibo_User_Profile"  -u leo -p -h 118.25.206.182 -P 3307 -pcicdata WeiboPanel` >>/root/src/stats.txt

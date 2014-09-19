@@ -28,7 +28,7 @@ python get-pip.py
 pip install django MySQL-python 
 
 #mysql -u leo -p -h 118.25.206.182 -P 3307 WeiboPanel<access_token.sql
-#cd src/crawl/ && nohup python crawl_relation.py>out.txt&
+#cd src/crawl/ && nohup python crawl_relation.py ../../data/filter_uniq_2.txt > out_2.txt &
 
 crontab -e
-0 */4 * * * echo $(date "+%Y-%m-%d %H:%M:%S") `mysql -N -e  "select count(1) from Weibo_User_Relationship; select count(1) from Weibo_User_Profile"  -u leo -p -h 118.25.206.182 -P 3307 -pcicdata WeiboPanel` >>/root/src/stats.txt
+0 */4 * * * sh /root/src/accountindex/stats.sh
