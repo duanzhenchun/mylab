@@ -5,7 +5,8 @@ from crawl import Base
 from utils import *
 from conf import *
 
-Num=0
+
+TABLE_SUFIX=True
 
 class CrawlRelation(Base):
     def __init__(self, uid, client=None, table=FANS_TABLE):
@@ -30,13 +31,14 @@ class CrawlRelation(Base):
             dic[pre+'rt']= last_tweet.get('reposts_count',0)
             dic[pre+'ct']= last_tweet.get('comments_count',0)
             dic[pre+'attitudes']= last_tweet.get('attitudes_count',0)
-
-        return self.insertDB(tablename, dic)
+        apx = TABLE_SUFIX and '_%c' %(str(dic['id'])[-1]) or ''
+        return self.insertDB(tablename+apx, dic)
         
     def save_relation(self, id, original_uid):
         dic = {'id':int(id), 'original_uid': original_uid}
-        #print original_uid, id
-        return self.insertDB(RELATION_TABLE, dic)
+        print original_uid, id
+        apx = TABLE_SUFIX and '_%c' %(str(id)[-1]) or ''
+        return self.insertDB(RELATION_TABLE+apx, dic)
     
     def get_last_uids(self, table=FANS_TABLE):
         last_table = get_last_table(self.cursor, table)
@@ -84,11 +86,15 @@ class CrawlRelation(Base):
                 return True
 
 
-    def get_friends(self,f, trim_status=1):
-        global Num
+    def get_friends(self,trim_status=1):
         last_crawl = set(self.get_last_uids(FRIENDS_TABLE))
         cursor = 0  # API下标
         existnum = 0  # 数据库中存在数据条数
+        self.client, userinfo = loop_get_data(self.client,
+                                   'users__show', 'id', uid=self.uid)
+        if not userinfo: 
+            return
+        self.save_user(self.table_name, userinfo)
         while True:
             # 对API请求3次 防止API请求成功没结果的,请求有结果就跳出循环
             self.client, weibotext = loop_get_data(self.client,
@@ -100,11 +106,9 @@ class CrawlRelation(Base):
             # 获取下一页游标
             cursor = weibotext.get('next_cursor', 0)
             #print self.uid, cursor, len(weiusers), weibotext.get('total_number', 0)
-            Num+=len(weiusers)
             uids = []
             n = 0
             for weiuser in weiusers:
-                #f.write('%s:' %self.uid + str(weiuser)+'\n')
                 #continue
                 # 获取后面20个需要用到的UID的tag
                 if n % 20 == 0:
@@ -250,25 +254,21 @@ class CrawlRelation(Base):
             self.cursor.connection.rollback()
             
 
-def seed_uids(datafname):
-    f=open(datafname) #'../../data/filter_uniq.txt')
+def seed_uids(fname):
+    f=open(fname) #'../../data/filter_uniq.txt')
     for l in f:
         uid = l.strip()
         yield int(uid)
 
 @benchmark()
-def main(datafname):
-    fw=open('./friends.txt','w')
-#    process = CrawlRelation(111, table=FRIENDS_TABLE)
-#    process.execute_sql('select count(1) from %s' %RELATION_TABLE)
-#    last = process.cursor.fetchone()[0]
-    for uid in seed_uids(datafname):
+def main(seedfname):
+    for uid in seed_uids(seedfname):
         if not uid:
             continue
         process = CrawlRelation(uid, table=FRIENDS_TABLE)
 #        start = time.time()
 #        process.execute_sql('start transaction')
-        process.get_friends(fw, trim_status=0)
+        process.get_friends(trim_status=0)
 #        process.execute_sql('commit')
 #        duration = time.time()-start
 #        print duration
@@ -285,30 +285,6 @@ if __name__ == '__main__':
     if len(sys.argv) < 1:
         sys.exit("""
 Usage:
-    %s datafname
+    %s seedfname
 """ % sys.argv[0])
     main(sys.argv[1])
-    print Num
-
-"""
-localdb: save relationship use transaction
-speed: 935.66 duration: 0.383685112
-speed: 668.00 duration: 0.127246141434
-speed: 846.22 duration: 0.607404947281
-speed: 496.16 duration: 0.415186882019
-speed: 781.75 duration: 0.964499950409
-speed: 875.90 duration: 0.187237024307
-speed: 786.04 duration: 0.152663946152
-
-without transaction:
-speed: 156.71 duration: 2.48869800568
-speed: 156.22 duration: 4.60895895958
-speed: 153.76 duration: 0.6763651371
-speed: 165.41 duration: 0.568287134171
-    
-MyISAM engine:
-speed: 657.18 duration: 0.410849094391
-speed: 658.91 duration: 0.943985939026
-speed: 682.07 duration: 0.56298995018
-speed: 587.77 duration: 1.57713603973
-"""

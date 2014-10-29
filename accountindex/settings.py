@@ -17,7 +17,7 @@ dbuser = 'leo'
 dbpwd = 'cicdata'
 dbhost = '118.25.206.182' #192.168.5.235:3306
 dbport = '3307'
-#dbhost, dbport, dbuser = 'localhost', 3306, 'root'
+dbhost, dbport, dbuser = '182.92.235.144', 3306, 'root'
 
 DATABASES = {
     'default': {
