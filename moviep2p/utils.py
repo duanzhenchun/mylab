@@ -13,4 +13,4 @@ def getpage(urlstr,data=None):
     else:
         data = page.read()
     return data
-   
+
