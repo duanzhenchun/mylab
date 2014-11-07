@@ -277,7 +277,7 @@ def main(seedfname):
 #        print 'speed: %.2f/sec' %(1.*(newcount-last)/duration), 'duration:%.2f sec' %duration 
 #        last = newcount
 #        fw.flush()
-    fw.close()
+#    fw.close()
 
 
 if __name__ == '__main__':

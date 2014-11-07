@@ -1,8 +1,6 @@
 import zlib
 import json
-import re
 import urllib2, urllib
-from BeautifulSoup import BeautifulSoup
 
 def getpage(urlstr,data=None):
     opener = urllib2.build_opener()
