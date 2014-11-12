@@ -1,16 +1,18 @@
 import gearman
+import json
 from crawl_relation import *
 
-Servers=['10.171.96.244:4730',]
-Servers=['localhost:4730',]
+Servers=['10.171.96.244:4730', '10.162.216.1:4730', '10.171.41.109:4730',]
 workfn='crawl_relations'
+Queue_num=50
 
 
 def taskfn(worker, job):
+#    uids = json.loads(job.data)
     uid = job.data
     print worker.worker_client_id, uid
-#    process = CrawlRelation(uid, table=FRIENDS_TABLE)
-#    process.get_friends(trim_status=0)
+    process = CrawlRelation(uid, table=FRIENDS_TABLE)
+    process.get_friends(trim_status=0)
     return 'done'
 
 
@@ -25,8 +27,13 @@ def dowork():
 
 def cli_use(fname):
     cli = gearman.GearmanClient(Servers)
+    lst=[]
     for uid in seed_uids(fname):
-        req = cli.submit_job(workfn, str(uid))
+        lst.append(dict(task=workfn, data=str(uid)))
+        if len(lst)>=Queue_num:
+            reqs= cli.submit_multiple_jobs(lst, wait_until_complete=False)
+            res = cli.wait_until_jobs_completed(reqs)
+            lst=[]
         #print req.state, req.result
 
 
