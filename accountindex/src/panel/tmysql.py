@@ -20,7 +20,7 @@ def get_connect(cursor=None):
 
 def get_follow(cur, Id, date_limit=None):
     lim = date_limit and 'and last_tweet_publish_time>"%s"' %date_limit or ''
-    cmd="select followers_count from Weibo_User_Profile_%d where id=%d %s" %(Id%10, Id, lim)
+    cmd="select followers_count from Weibo_User_Profile_%d where id=%d and (followers_count<200000 or friends_count<2000) %s" %(Id%10, Id, lim)
     cur.execute(cmd)
     nfol=-1
     res = cur.fetchone()
@@ -125,16 +125,18 @@ def copy_dbrow(fname):
     f=open(fname)
     for l in f:
         uid = int(l.strip())
-        cmd = 'insert into Weibo_filter_User_Profile (select * from Weibo_User_Profile_%d where id=%d)' %(uid%10, uid)
+        cmd = 'insert ignore into Weibo_filter_User_Profile (select * from Weibo_User_Profile_%d where id=%d)' %(uid%10, uid)
         cur.execute(cmd)
         cur.connection.commit()
 
 
 if __name__ == '__main__':
-#    candidates()
+    candidates()
+    """
     fname=sys.argv[1]
     print fname
 #    filter_lasttweet(fname)
     copy_dbrow(fname)
+    """
 
 #nohup python tmysql.py > out.txt &
