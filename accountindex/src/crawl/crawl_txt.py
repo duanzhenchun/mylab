@@ -1,7 +1,12 @@
 # coding=utf-8
 
 import crawl
+import json
+from tweet_format import *
 from utils import *
+
+
+
 
 class CrawlTweet(crawl.Base):
     def __init__(self, uid, begin, end, client=None):
@@ -11,46 +16,63 @@ class CrawlTweet(crawl.Base):
         # 爬取截止时间
         self.begin_deadline = begin
         self.end_deadline = end
+
+
+    def save_tweet(self, tweet):
+        dic=get_tweet(tweet)
+        sufix=(fmt_create_at(tweet['created_at']).day-1)/3
+        return self.insertDB('%s_%d' %(Tweet_table, sufix), dic)
+
        
     def process_weibodata(self, weibotext):
         if not isinstance(weibotext, dict):
             return True
-        created_at = fmt_create_at(weibotext.get('created_at', ''))
-        weiboid = weibotext.get('id')
+        tid = weibotext.get('id')
+        text = self.get_normal_text(weibotext.get('text'))
         source = self.get_source(weibotext.get('source', ''))
+
         user = weibotext.get('user', {})
         if not user:
             return True
-        uid = user.get('id', '')
-        screen_name = user.get('name', '')
-        screen_name = screen_name if screen_name else uid
         followers_count = user.get('followers_count', 0)
-        text = self.get_normal_text(weibotext.get('text'))
         hashtag = re.findall(r'#(.*?)#', text)
         hashtag = hashtag[0] if hashtag else ''
         reposts_count = weibotext.get('reposts_count', 0)
         comments_count = weibotext.get('comments_count', 0)
-#        attitudes_count = weibotext.get('attitudes_count', 0)
-        text_data = [uid, screen_name, source, hashtag, reposts_count, comments_count, text, created_at,
+        uid = user.get('id', '')
+#  `RETWEETED_ID` bigint(11) DEFAULT NULL COMMENT '转发帖编号',
+        created_at = fmt_create_at(weibotext.get('created_at', ''))
+        screen_name = user.get('screen_name', '') 
+        screen_name = screen_name and screen_name or uid
+#         `CHANNEL_ID` int(11) DEFAULT NULL COMMENT '频道ID',
+        profile_image_url = user.get('profile_image_url','')
+        domain = user.get('domain','')
+
+        text_data = [uid, screen_name, province, city, location, description, user_url, profile_image_url, domain,
+                source, source_url, truncated, in_reply_to_status_id, in_reply_to_user_id, 
+                hashtag, reposts_count, comments_count, text, created_at,
                               self.nowtime]#, attitudes_count]
-        text_str = ''' uid=%s, screen_name=%s, source=%s, hashtag=%s, reposts_count=%s, 
-                              comments_count=%s, text=%s, created_at=%s, lastupdatetime=%s'''#, attitudes_count=%s '''
+        text_str = ' USER_ID=%s, SCREEN_NAME=%s, PROVINCE=%s, CITY=%s, LOCATION=%s, DESCRIPTION=%s, URL=%s, IMAGE_URL=%s, DOMAIN=%s'+\
+                   ' SOURCE=%s, SOURCE_URL=%s, TRUNCATED=%s,'+\
+                   ' REPLY_STATUS_ID=%s, REPLY_USER_ID=%s, REPLY_SCREEN_NAME=%s, hashtag=%s, reposts_count=%s,'+\
+                   ' comments_count=%s, TEXT=%s, created_at=%s, lastupdatetime=%s'
         
         try:
             # 将微博插入到数据库
             insertsql = 'insert into ' + ACCOUNT_TWEET_TABLE + \
-                        ' set tid=%s, crawl_created_at=%s, followers_count=%s, ' + text_str + \
+                        ' set ID=%s, crawl_created_at=%s, followers_count=%s, ' + text_str + \
                         'on duplicate key update ' + text_str
-            self.execute_sql(insertsql, tuple([weiboid, self.nowtime, followers_count] + text_data + text_data))
+            self.execute_sql(insertsql, tuple([tid, self.nowtime, followers_count] + text_data + text_data))
             self.cursor.connection.commit()
         except Exception, e:
             # traceback.print_exc()
-            errdata = '插入用户微博数据错误！ id: %s, screen_name: %s' % (weiboid, unicode_to_str(screen_name))
+            errdata = '插入用户微博数据错误！ id: %s, screen_name: %s' % (tid, unicode_to_str(screen_name))
             print errdata
             send_err_to_mail(errdata,
                             '''错误信息:%s, 
                             错误SQL:%s''' % (repr(e), unicode_to_str(insertsql)))
             self.cursor.connection.rollback()
+
             
     def save_interact_tweet(self, weitext, weiboid, tasktype, table_name='interact_tweet'):
         if not isinstance(weitext, dict):
@@ -140,6 +162,17 @@ class CrawlTweet(crawl.Base):
         else:
             # 统一使用uid进行处理
             self.screen_name = path[1:]
+            self.client, uiddata = loop_get_data(self.client, 'interest__like_count',
+                                                 '', domain=self.screen_name)
+            self.uid = uiddata.get('id', '')
+        return path
+
+    def get_favorites(self):
+        if path.startswith('/u/'):
+            self.uid = path[3:]
+        else:
+            # 统一使用uid进行处理
+            self.screen_name = path[1:]
             self.client, uiddata = loop_get_data(self.client, 'users__domain_show',
                                                  '', domain=self.screen_name)
             self.uid = uiddata.get('id', '')
@@ -151,23 +184,26 @@ class CrawlTweet(crawl.Base):
         while True:
             self.client, timelines = loop_get_data(self.client, 'statuses__user_timeline',
                                'statuses', uid=self.uid, page=page, count=100)
-            timelines = timelines.get('statuses', '')
+            timelines = timelines.get('statuses', [])
             page += 1
-            print len(timelines)
+            print 'len(timelines):', len(timelines)
+            if not timelines:
+                return
             for timeline in timelines:
                 created_at = fmt_create_at(timeline.get('created_at', ''))
                 if created_at>self.end_deadline:
                     continue
                 if created_at < self.begin_deadline:
                     return 
-                weiboid = timeline.get('id', '')
-                reposts_count = timeline.get('reposts_count', 0)
-                comments_count = timeline.get('comments_count', 0)
-                finishnum = self.finishnum.get(weiboid, [0, 0])
-                # 更新微博数据
-                self.process_weibodata(timeline)
-                # 当有新的评论转发，进行爬取
+
+                self.save_tweet(timeline)
+                #self.process_weibodata(timeline)
+
                 if with_interact:
+                    weiboid = timeline.get('id', '')
+                    reposts_count = timeline.get('reposts_count', 0)
+                    comments_count = timeline.get('comments_count', 0)
+                    finishnum = self.finishnum.get(weiboid, [0, 0])
                     if reposts_count - finishnum[0] > 0:
                         self.crawl_task(weiboid, 'reposts', lastfinishnum=finishnum[0])
                     if comments_count - finishnum[1] > 0:
@@ -363,11 +399,14 @@ def is_question(txt):
         return False
     
 if __name__ == '__main__':
-    begin = datetime.datetime(2014, 1, 1, 0, 0, 0)
-    end  = datetime.datetime(2014, 6, 30, 0, 0, 0)
+    begin = datetime.datetime(2014, 11, 1, 0, 0, 0)
+    end  = datetime.datetime(2014, 11, 30, 23, 59, 59)
     uids=(2898285283,)
     for uid in uids:
         print uid
         crawl_tweet = CrawlTweet(uid,begin,end)
-        crawl_tweet.findall_tweets(with_interact=False)
+#        crawl_tweet.findall_tweets(with_interact=False)
+        crawl_tweet.user_timeline(False)
+
     print 'Done!'
+

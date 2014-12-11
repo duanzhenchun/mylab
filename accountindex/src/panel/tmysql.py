@@ -61,6 +61,7 @@ def candidates_table(tblname):
             wrong = False
             for n,Id in (zip((nfol,org_nfol),(uid,orguid))):
                 if n<0:
+                    #raw_input('%s:%s' %(n,Id))
                     err_uids.add(Id)
                     wrong = True
                 break

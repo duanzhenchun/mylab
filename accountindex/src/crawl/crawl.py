@@ -90,7 +90,7 @@ class Base(object):
             transaction.rollback_unless_managed()
         except Exception, e:
             traceback.print_exc()
-            print 'insert db error. dic:', str(dic)
+            print 'insert db error. dic:', tablename, str(dic), e
             self.cursor.connection.rollback()
             transaction.rollback_unless_managed()
         return dataexist
