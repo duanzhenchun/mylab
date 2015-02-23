@@ -18,15 +18,16 @@ dbpwd = 'cicdata'
 dbhost = '118.25.206.182' #192.168.5.235:3306
 dbport = '3307'
 dbhost, dbport, dbuser = '182.92.235.144', 3306, 'root'
+dbhost, dbport, dbuser, dbpwd, dbname = 'localhost', 3306, 'root', '12345', 'spamv2'
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': dbname,  # Or path to database file if using sqlite3.
-        'USER': dbuser,  # Not used with sqlite3.
-        'PASSWORD': dbpwd,  # Not used with sqlite3.
-        'HOST': dbhost,  # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': dbport,  # Set to empty string for default. Not used with sqlite3.
+        'NAME': dbname,  
+        'USER': dbuser,  
+        'PASSWORD': dbpwd,  
+        'HOST': dbhost,  
+        'PORT': dbport, 
     }
 }
 

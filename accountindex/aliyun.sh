@@ -37,10 +37,11 @@ echo '/dev/xvdb1 /mnt ext3 defaults 0 0' >> /etc/fstab
 mount -a
 df -h
 
+yum install mysql-server
 vim /etc/my.cnf
     [mysqld]
     datadir=/mnt/mysql
-/etc/init.d/mysqld start
+service mysqld start
 mysqladmin -u root password cicdata
 
 mysql -pcicata -e "create database WeiboPanel"

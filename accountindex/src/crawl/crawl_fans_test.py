@@ -9,11 +9,11 @@ import time
 
 class CrawlFans(Base):
     # 爬取用户粉丝、关注信息
-    def __init__(self, uid, client=None):
+    def __init__(self, uid, tablename, client=None):
         Base.__init__(self, client)
         self.uid = uid
         #self.table_name = FANS_TABLE + month_str()
-        self.table_name = 'fans_sex'
+        self.table_name = tablename
     
     def save_user(self, tablename, weibouser, uidtags, timestamp):
         dic = {}
@@ -50,51 +50,7 @@ class CrawlFans(Base):
             uidtags[weitag['id']] = uidtag
         return uidtags
     
-    def get_last_fans(self):
-        #获取数据库中最后爬取的粉丝看是否是新添加粉丝。
-        #last_fans_table = get_last_table(self.cursor)
-        #if not last_fans_table: return []
-        sqlcmd = 'select DISTINCT(uid) from ' + self.table_name + ' where src_uid=%s'
-        self.execute_sql(sqlcmd, (self.uid, ))
-        uids = self.cursor.fetchall()
-        return [i[0] for i in uids]
-    
-    def get_fans(self):
-        last_crawl = set(self.get_last_fans())
-        create_follow(self.cursor, self.table_name)
-        cursor = 0 # API下标
-        existnum = 0  # 数据库中存在数据条数
-        busclient = set_client(self.cursor, True, True, self.uid)
-        #self.client.get.account__rate_limit_status()
-        #exist_set = set()
-        while True:
-            # 对API请求3次 防止API请求成功没结果的,请求有结果就跳出循环
-            busclient, weibotext = loop_get_data(busclient,
-                                   'friendships__followers__all__ids', 'ids',
-                                   count=2000, max_time=cursor)
-            weiusers = weibotext.get('ids', '')
-            if not weiusers:
-                return True
-            
-            print self.uid, cursor, len(weiusers), weibotext.get('total_number', 0)
-            uids = []
-            uidtags = {}
-            n = 0
-            cursor = cursor if cursor else 1395115150000
-            for userid in weiusers:
-                insert_sql = '''update fans_sex  set follows=%s where uid=%s and src_uid=%s'''
-                self.execute_sql(insert_sql, (str(cursor)[:-3], userid, self.uid))
-                self.cursor.connection.commit()
-                # 当数据库中存在的重复的数据超过10条 认为是已经抓过的数据 跳出抓取
-                #if existnum >= 200:
-                #    return True
-            # 获取下一页游标
-            #cursor = weibotext.get('next_cursor', 0)
-            cursor = weibotext.get('next_cursor', 0)
-            # 当获取到的数据中没有下一页了 表示抓取完成
-            if cursor == 0:
-                return True
-            
+           
     def account_daily(self):
         tablename = ACCOUNT_GROWTH_TABLE
         self.client, res = loop_get_data(self.client,
@@ -221,7 +177,9 @@ class CrawlFans(Base):
 if __name__ == '__main__':
     print 'Start!'
     process = CrawlFans('2231590693')
-    process.get_fans()
+    print list(process.gen_friends_ids())
+    print list(process.gen_followers_ids())
+    #print list(process.gen_bilateral())
     #process.follower_trend()
     #process.account_daily()
     #process.fans_info()

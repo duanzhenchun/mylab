@@ -1,12 +1,11 @@
-# coding=utf-8
-# 爬取用户粉丝、关注数据
+#coding=utf-8
 
 from crawl import Base
 from utils import *
 from conf import *
 
 
-TABLE_SUFIX=True
+TABLE_SUFIX=False
 
 class CrawlRelation(Base):
     def __init__(self, uid, client=None, table=FANS_TABLE):
@@ -24,9 +23,9 @@ class CrawlRelation(Base):
         last_tweet = weibouser.get('status')
         if last_tweet:
             pre='last_tweet_'
-            for k in ('id','source'):
-                dic[pre+k] = last_tweet.get(k,'')
+            dic[pre+'id'] = last_tweet.get('id','')
             dic[pre+'text'] = self.get_normal_text(last_tweet['text'])
+            dic[pre+'source'] = self.get_normal_text(last_tweet.get('source',''))
             dic[pre+'publish_time']= fmt_create_at(last_tweet['created_at'])
             dic[pre+'rt']= last_tweet.get('reposts_count',0)
             dic[pre+'ct']= last_tweet.get('comments_count',0)
@@ -37,8 +36,8 @@ class CrawlRelation(Base):
     def save_relation(self, id, original_uid):
         dic = {'id':int(id), 'original_uid': original_uid}
         print original_uid, id
-        apx = TABLE_SUFIX and '_%c' %(str(id)[-1]) or ''
-        return self.insertDB(RELATION_TABLE+apx, dic)
+        #apx = TABLE_SUFIX and '_%c' %(str(id)[-1]) or ''
+        return self.insertDB(RELATION_TABLE, dic)
     
     def get_last_uids(self, table=FANS_TABLE):
         last_table = get_last_table(self.cursor, table)
@@ -86,7 +85,7 @@ class CrawlRelation(Base):
                 return True
 
 
-    def get_friends(self,trim_status=1):
+    def get_friends(self,trim_status=1, save_self=True):
         last_crawl = set(self.get_last_uids(FRIENDS_TABLE))
         cursor = 0  # API下标
         existnum = 0  # 数据库中存在数据条数
@@ -94,7 +93,8 @@ class CrawlRelation(Base):
                                    'users__show', 'id', uid=self.uid)
         if not userinfo: 
             return
-        self.save_user(self.table_name, userinfo)
+        if save_self:
+            self.save_user(self.table_name, userinfo)
         while True:
             # 对API请求3次 防止API请求成功没结果的,请求有结果就跳出循环
             self.client, weibotext = loop_get_data(self.client,
@@ -109,20 +109,54 @@ class CrawlRelation(Base):
             uids = []
             n = 0
             for weiuser in weiusers:
-                #continue
                 # 获取后面20个需要用到的UID的tag
                 if n % 20 == 0:
                     uids = [weitag['id'] for weitag in weiusers[n:n + 20]]
                     uids = list(set(uids) - last_crawl)
                 n += 1
-                if weiuser['id'] in last_crawl:
-                    exist = True
-                else:
+                exist = True
+                if weiuser['id'] not in last_crawl:
+                    exist = self.save_user(self.table_name, weiuser)
+                    self.save_relation(weiuser['id'], self.uid)
+                if exist:
+                    existnum += 1
+
+
+    def get_bilateral_ids(self,trim_status=1, save_self=True):
+        last_crawl = set(self.get_last_uids(FRIENDS_TABLE))
+        cursor = 0  # API下标
+        existnum = 0  # 数据库中存在数据条数
+        while True:
+            # 对API请求3次 防止API请求成功没结果的,请求有结果就跳出循环
+            self.client, weibotext = loop_get_data(self.client,
+                                   'friendships__friends__bilateral_ids', 'users',
+                                   uid=self.uid, count=1999, cursor=cursor)
+            weiusers = weibotext.get('users', '')
+            if not weiusers:
+                return True
+            # 获取下一页游标
+            cursor = weibotext.get('next_cursor', 0)
+            #print self.uid, cursor, len(weiusers), weibotext.get('total_number', 0)
+            uids = []
+            n = 0
+            for weiuser in weiusers:
+                # 获取后面20个需要用到的UID的tag
+                if n % 20 == 0:
+                    uids = [weitag['id'] for weitag in weiusers[n:n + 20]]
+                    uids = list(set(uids) - last_crawl)
+                n += 1
+                exist = True
+                if weiuser['id'] not in last_crawl:
                     exist = self.save_user(self.table_name, weiuser)
                     self.save_relation(weiuser['id'], self.uid)
                 if exist:
                     existnum += 1
                 # 当数据库中存在的重复的数据超过10条 认为是已经抓过的数据 跳出抓取
+                #if existnum >= 30:
+                   # return True
+            # 当获取到的数据中没有下一页了 表示抓取完成
+            if cursor == 0:
+                return True               # 当数据库中存在的重复的数据超过10条 认为是已经抓过的数据 跳出抓取
                 #if existnum >= 30:
                    # return True
             # 当获取到的数据中没有下一页了 表示抓取完成
@@ -261,14 +295,14 @@ def seed_uids(fname):
         yield int(uid)
 
 @benchmark()
-def main(seedfname):
+def main(seedfname, tbl_sfx=''):
     for uid in seed_uids(seedfname):
         if not uid:
             continue
-        process = CrawlRelation(uid, table=FRIENDS_TABLE)
+        process = CrawlRelation(uid, table=FRIENDS_TABLE+tbl_sfx)
 #        start = time.time()
 #        process.execute_sql('start transaction')
-        process.get_friends(trim_status=0)
+        process.get_friends(trim_status=0, save_self=False)
 #        process.execute_sql('commit')
 #        duration = time.time()-start
 #        print duration
@@ -287,4 +321,4 @@ if __name__ == '__main__':
 Usage:
     %s seedfname
 """ % sys.argv[0])
-    main(sys.argv[1])
+    main(sys.argv[1], sys.argv[2])

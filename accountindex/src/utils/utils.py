@@ -251,13 +251,14 @@ def set_client(cursor, isbuss=False, needAuth=False, uid=''):
                        redirect_uri=CO_CALLBACK_URL, domain=domain)
     client.isbuss = False
     if needAuth:
-        acc_token = get_buss_token(cursor, uid)
-        #acc_token = BUSINESS_TOKEN
+        #acc_token = get_buss_token(cursor, uid)
+        acc_token = BUSINESS_TOKEN
         client.isbuss = True
     else:
         # 从数据库获取最新的token
-        acc_token = get_token(cursor, 'access')
-        #acc_token = ACCESS_TOKEN
+        #acc_token = get_token(cursor, 'access')
+        acc_token = ACCESS_TOKEN
+#    print acc_token
     client.set_access_token(*acc_token)
     # client.get.account__rate_limit_status()
     return client

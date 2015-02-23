@@ -6,8 +6,6 @@ from tweet_format import *
 from utils import *
 
 
-
-
 class CrawlTweet(crawl.Base):
     def __init__(self, uid, begin, end, client=None):
         crawl.Base.__init__(self, client)
@@ -186,15 +184,20 @@ class CrawlTweet(crawl.Base):
                                'statuses', uid=self.uid, page=page, count=100)
             timelines = timelines.get('statuses', [])
             page += 1
-            print 'len(timelines):', len(timelines)
+#            print 'len(timelines):', len(timelines)
             if not timelines:
                 return
+            old=True
             for timeline in timelines:
                 created_at = fmt_create_at(timeline.get('created_at', ''))
                 if created_at>self.end_deadline:
                     continue
-                if created_at < self.begin_deadline:
-                    return 
+                if created_at < self.begin_deadline:    #ontop tweet may not be sorted to timeline
+                    continue
+                old=False
+                #add-hoc task: txt, created_at, repost_num, comment_num 
+                print u'\t'.join([unicode(i) for i in (self.uid, created_at, timeline.get('reposts_count', 0), timeline.get('comments_count', 0), self.get_normal_text(timeline.get('text')))])
+                continue
 
                 self.save_tweet(timeline)
                 #self.process_weibodata(timeline)
@@ -208,6 +211,8 @@ class CrawlTweet(crawl.Base):
                         self.crawl_task(weiboid, 'reposts', lastfinishnum=finishnum[0])
                     if comments_count - finishnum[1] > 0:
                         self.crawl_task(weiboid, 'comments', lastfinishnum=finishnum[1])
+            if old:
+                return
                 
     def tweet_user_timeline(self, uid, maxcount=200):
         page = 1
@@ -399,14 +404,20 @@ def is_question(txt):
         return False
     
 if __name__ == '__main__':
-    begin = datetime.datetime(2014, 11, 1, 0, 0, 0)
-    end  = datetime.datetime(2014, 11, 30, 23, 59, 59)
-    uids=(2898285283,)
+    import sys
+    import codecs
+    sys.stdout = codecs.lookup('utf-8')[-1](sys.stdout) 
+
+    begin = datetime.datetime(2014, 7, 1, 0, 0, 0)
+    end  = datetime.datetime(2014, 12, 31, 23, 59, 59)
+    if len(sys.argv)>1:
+        uids=[int(uid.strip()) for uid in open(sys.argv[1]).readlines()]
+    else:
+        uids=(5235744545,)
     for uid in uids:
-        print uid
+#        print uid
         crawl_tweet = CrawlTweet(uid,begin,end)
 #        crawl_tweet.findall_tweets(with_interact=False)
         crawl_tweet.user_timeline(False)
 
     print 'Done!'
-

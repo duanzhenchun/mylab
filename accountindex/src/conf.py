@@ -4,16 +4,16 @@ APP_KEY = '3055924094'
 APP_SECRET = 'b6b6d43c54e5a69f1b1db53510d64c10'
 CALLBACK_URL = 'http://local.host/callback'
 
-ACCESS_TOKEN = (u'2.00le6_hCS92o1D9caa4fe8c08j334C', 1393756518)
-
 BUSINESS_TOKEN = (u'2.00VOpbvCyNKigBaa66e6d97b0Ndtsr', 1390113079)
 
 HTTP_HOST = '127.0.0.1:80'
 
-# cooperator的APP_KEY
+#cooperator sina weibo"
 CO_APP_KEY = '1547264682'
 CO_APP_SECRET = 'bad08151c2e95a73ac217c02cd1a646d'
 CO_CALLBACK_URL = 'http://cooperator.iwommaster.com/callbackV3.do?forcelogin=true'
+SERVER_ADDR = 'http://cooperator.iwommaster.com'
+ACCESS_TOKEN = [u'2.00le6_hCyNKigBb1546d7fddCemfQE', 1890497200]
 
 REPOST_TASK = 'reposts'
 COMMENT_TASK = 'comments'
@@ -54,3 +54,5 @@ USER_FIELDS = ('id', 'screen_name', 'name', 'province', 'city', 'location', 'des
                 'geo_enabled', 'verified', 'verified_type', 'remark', 'allow_all_comment', \
                 'avatar_large', 'avatar_hd', 'verified_reason', 'follow_me', 'online_status', 'bi_followers_count', 'lang',
                 )
+
+PROB=0.85

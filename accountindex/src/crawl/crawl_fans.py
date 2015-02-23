@@ -5,15 +5,12 @@ from utils import *
 from conf import *
 import time
 
-#获取全量粉丝
 
 class CrawlFans(Base):
-    # 爬取用户粉丝、关注信息
-    def __init__(self, uid, tablename, client=None):
+    def __init__(self, uid, tablename=FANS_TABLE, client=None):
         Base.__init__(self, client)
         self.uid = uid
-        #self.table_name = FANS_TABLE + month_str()
-        self.table_name = tablename
+        self.table_name = tablename + month_str()
     
     def save_user(self, tablename, weibouser, uidtags, timestamp):
         dic = {}
@@ -36,7 +33,7 @@ class CrawlFans(Base):
         dic['description'] = self.get_normal_text(dic['description'])
         dic['src_uid'] = self.uid
         dic['follows'] = str(timestamp)[:-3] if timestamp else time.time()
-        [dic.pop(i) for i in dic.copy() if dic[i]=='']
+        #[dic.pop(i) for i in dic.copy() if not dic[i]]
         return self.insertDB(tablename, dic)
         
     def get_tags(self, uids):
@@ -269,10 +266,61 @@ class CrawlFans(Base):
                     return True
  
 
+    def gen_friends_ids(self):
+        cursor = 0 
+        while True:
+            self.client, weibotext = loop_get_data(self.client,
+                       'friendships__friends__ids', 'ids',
+                       uid=self.uid,
+                       count=5000-1, cursor=cursor)
+            ids = weibotext.get('ids', [])
+            if not ids:
+                return 
+            for id in ids:
+                yield id
+            cursor = weibotext.get('next_cursor', 0)
+            if cursor == 0:
+                return 
+   
+    def gen_followers_ids(self):
+        cursor = 0 
+        while True:
+            self.client, weibotext = loop_get_data(self.client,
+                       'friendships__followers__ids', 'ids',
+                       uid=self.uid,
+                       count=5000-1, cursor=cursor)
+            ids = weibotext.get('ids', [])
+            if not ids:
+                return 
+            for id in ids:
+                yield id
+            cursor = weibotext.get('next_cursor', 0)
+            if cursor == 0:
+                return 
+             
+    def gen_bilateral(self):
+        cursor = 0 
+        while True:
+            self.client, weibotext = loop_get_data(self.client,
+                       'friendships__friends__bilateral', #'ids',
+                       uid=self.uid, count=200-1, page=cursor)
+            raw_input(weibotext)
+            ids = weibotext.get('ids', [])
+            if not ids:
+                return 
+            for id in ids:
+                yield id
+            cursor = weibotext.get('next_cursor', 0)
+            if cursor == 0:
+                return
+
 if __name__ == '__main__':
-    process = CrawlFans('876543210', 'fans_sex')
-    process.crawl_users('coppertone.txt')
-    #process.get_fans()
+    print 'Start!'
+    process = CrawlFans('2231590693')
+    print list(process.gen_friends_ids())
+    print list(process.gen_followers_ids())
+    #print list(process.gen_bilateral())
     #process.follower_trend()
     #process.account_daily()
     #process.fans_info()
+    print 'Done!'
