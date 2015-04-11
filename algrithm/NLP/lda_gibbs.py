@@ -10,11 +10,13 @@ import numpy as np
 import scipy.misc
 from scipy.special import gammaln
 
+
 def sample_index(p):
     """
     Sample from the Multinomial distribution and return the sample index.
     """
-    return np.random.multinomial(1, p).argmax()
+    return np.random.multinomial(1, p).argmax() #sample once, return index
+
 
 def word_indices(doc):
     for w, n in enumerate(doc):
@@ -32,6 +34,7 @@ def log_multi_beta(alpha, K=None):
         # alpha is assumed to be a scalar
         return K * gammaln(alpha) - gammaln(K * alpha)
 
+
 class LDA(object):
     def __init__(self, docs, topics_guess):
         self.docs = docs
@@ -39,8 +42,8 @@ class LDA(object):
         self.K = topics_guess
         self.alpha = 1.0 / self.K
         self.beta = 1.0 / self.V
-        self.nmz = np.zeros((self.M, self.K))  # n( document m and topic z)
-        self.nzw = np.zeros((self.K, self.V))  # n(topic z and word w)
+        self.nmz = np.zeros((self.M, self.K))  # num(document m and topic z)
+        self.nzw = np.zeros((self.K, self.V))  # num(topic z and word w)
         self.topics = {}
         for m in xrange(self.M):
             for i, w in enumerate(word_indices(self.docs[m, :])):
@@ -141,24 +144,25 @@ def ini_phi(K, doc_len):
 
 def gen_doc(Phi, K, V, doc_len):
     """
-    Generate a document:
+    Generate a document, statistic related with topic dstributio:
         1) Sample topic proportions from the Dirichlet distribution.
         2) Sample a topic index from the Multinomial with the topic
            proportions from 1).
         3) Sample a word from the Multinomial corresponding to the topic
            index from 2).
         4) Go to 2) if need another word.
-    return :
-        vector of lengh V, recording each v's count, sequence of words in doc is neglected 
+    return v:
+        vector of lengh V, recording each word's count, sequence of words in doc is neglected 
     """
     alpha = 1.0 / K
-    theta = np.random.mtrand.dirichlet([alpha] * K)
+    theta = np.random.mtrand.dirichlet([alpha] * K) #topic distribution of doc_m
     v = np.zeros(V)
     for _ in xrange(doc_len):
         z = sample_index(theta)
         w = sample_index(Phi[z, :])
         v[w] += 1
     return v
+
 
 def gen_docs(K, V, n):
     """
@@ -171,6 +175,7 @@ def gen_docs(K, V, n):
         docs[i, :] = gen_doc(Phi, K, V, doclens[i])
     return docs
     
+
 def test_gensim(docs):
     import gensim
     from gensim import corpora, models, similarities
@@ -201,11 +206,12 @@ def test_gensim(docs):
     for doc in corpus_mod: 
         print doc     
     
+
 if __name__ == "__main__":
     import os
     import shutil
 
-    N_TOPICS = 10
+    N_TOPICS = 10   #assumed
     AVE_DOC_LEN = 100
     DOC_NUM = 200
     FOLDER = "topicimg"
@@ -213,7 +219,7 @@ if __name__ == "__main__":
         shutil.rmtree(FOLDER)
     os.mkdir(FOLDER)
 
-    topic_guess = 20
+    topic_guess = 10
     width = N_TOPICS / 2
     V = width ** 2
     docs = gen_docs(N_TOPICS, V, DOC_NUM)
@@ -222,10 +228,9 @@ if __name__ == "__main__":
 #     test_gensim(docs)
     
     for it, phi in enumerate(lda.train_gibbs(50)):
-        print lda.loglikelihood()
-        print lda.predict()
+        print 'loglikelihood:', lda.loglikelihood()
+        print 'predict P(z|w):', lda.predict()
         if it % 5 == 0:
             for z in range(topic_guess):
-                pass
                 save_document_image("%s/topic%d-%d.png" % (FOLDER, it, z),
                                     phi[z, :].reshape(width, -1))
