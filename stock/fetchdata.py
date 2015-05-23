@@ -42,12 +42,14 @@ def get_quotes():
     for mar, idx in Markets.iteritems():
         for k, v in gen_symbols(lines, mar,idx):
             symbol_dict[k] = v
-
     quotes=[]
     symbols = []
+    #symbol e.g.: u'603099.ss',u'002281.sz'
+    
     for symbol in symbol_dict.keys():
         try:
             q = finance.quotes_historical_yahoo(symbol, d1, d2, asobject=True)
+            #q.readlines(), return format: Date,Open,High,Low,Close,Volume,Adj Close
         except Exception, e:
             print symbol, e
             symbol_dict.pop(symbol)
