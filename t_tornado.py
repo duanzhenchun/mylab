@@ -8,6 +8,7 @@ class MainHandler(web.RequestHandler):
 #        import pdb; pdb.set_trace()
         assert "GET" == self.request.method
         print 'request.args:', self.request.arguments
+        print self.reverse_url('asy')
 
         op = self.get_argument('op', 'empty_op')    #?op=xxx
         self.write("op is: %s\n" %op)
@@ -20,16 +21,16 @@ class GenAsyncHandler(web.RequestHandler):
         url = self.get_argument('url')
         #curl http://localhost:8888/async/?url=http://www.bai.com
         #if not yield this, fetch_something() should not write() anything
-        response = yield AsyncHTTPClient().fetch(url)    
+        response = yield AsyncHTTPClient().fetch(url)
         assert 200 == response.code
-        self.write(response.body)
-#        raise gen.Return(response.body)
-#        self.render("template.html")
+        raise gen.Return(response.body)
+        # self.write(response.body)
+        # self.render("template.html")
 
 applicaiton = web.Application([
-    (r"/", MainHandler),
-    (r"/async/", GenAsyncHandler),
-    ], 
+    web.url(r"/", MainHandler, name='main_hand'),
+    web.url(r"/async/", GenAsyncHandler, name='asy'),
+    ],
     debug=True  #dynamic reload server after codes changed
 )
 
