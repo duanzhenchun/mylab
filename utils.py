@@ -7,7 +7,7 @@ import sys
 def input_pass(user):
     import getpass
     return getpass.unix_getpass("password of %s:" %user)
-    
+
 def signal_handler(signal, frame):
     print 'You pressed Ctrl+C!'
     sys.exit(0)
@@ -25,7 +25,7 @@ def benchmark(f):
         print '%s %f %s' % (f.__name__, time.time() - t, 'sec')
         return res
     return wrapper
-    
+
 def singleton(cls):
     instances = {}
     def getinstance():
@@ -105,7 +105,7 @@ def get_encoding(txt):
 
 def tounicode(s):
     encoding = get_encoding(s)
-    return isinstance(s, unicode) and s or s.decode(encoding, 'ignore') 
+    return isinstance(s, unicode) and s or s.decode(encoding, 'ignore')
 
 def toutf8(s):
     return isinstance(s, unicode) and s.encode('utf8') or s
