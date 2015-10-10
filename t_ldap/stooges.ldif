@@ -1,0 +1,35 @@
+dn: ou=MemberGroupA,dc=myksc,dc=com
+ou: MemberGroupA
+objectClass: top
+objectClass: organizationalUnit
+description: Members of MemberGroupA
+
+dn: ou=MemberGroupB,dc=myksc,dc=com
+ou: MemberGroupB
+objectClass: top
+objectClass: organizationalUnit
+description: Members of MemberGroupB
+
+dn: cn=Larry Fine,ou=MemberGroupA,dc=myksc,dc=com
+ou: MemberGroupA
+o: stooges
+cn: Larry Fine
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+mail: LFine@myksc.com
+givenname: Larry
+sn: Fine
+uid: larry
+homePostalAddress: 15 Cherry Ln. Plano TX 78888
+postalAddress: 215 Fitzhugh Ave.
+l: Dallas
+st: TX
+postalcode: 75226
+telephoneNumber: (800)555-1212
+homePhone: 800-555-1313
+facsimileTelephoneNumber: 800-555-1414
+userPassword: larrysecret
+title: Account Executive
+destinationindicator: /bios/images/lfine.jpg
