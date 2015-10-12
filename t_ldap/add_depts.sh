@@ -1,12 +1,12 @@
 #!/bin/bash
 
-LDAP_ARG="-x -D cn=kingsoft,dc=myksc,dc=com -h 192.168.138.131 -w Ksc123456"
-#LDAP_ARG="-x -D cn=kingsoft,cn=Users,dc=myksc,dc=com -h 123.59.14.251 -w Ksc123456"
+DEPT_NUM=$1
 
 set -e
+#echo DEPT_NUM $LDAP_ARG
 
 #add more
-for d1 in $(seq 5);do
+for d1 in $(seq 1 $DEPT_NUM);do
     cat ou.ldif|sed "s#ou_all_#ou=dept${d1}#"|sed "s#ou_#dept${d1}#" > tmp.ldif && ldapadd ${LDAP_ARG} -f tmp.ldif && rm tmp.ldif
     for d2 in $(seq 5);do
         ou_2="dept${d1}${d2}"

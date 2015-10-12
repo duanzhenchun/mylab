@@ -28,16 +28,29 @@ chkconfig slapd on
 #test
 slaptest  -f /etc/openldap/slapd.conf -F /etc/openldap/slapd.d
 
-LDAP_ARG="-x -Dcn=kingsoft,dc=myksc,dc=com -h192.168.138.131 -wKsc123456"
+DC="dc=myksc,dc=com"
+HOST="192.168.138.131"
+ADM_DN="cn=kingsoft,${DC}"
 
-#使用 ldapadd 和 LDIF 文件在 LDAP 数据库中添加更多条目
+HOST="123.59.14.251"
+ADM_DN="cn=kingsoft,cn=Users,${DC}"
+export LDAP_ARG="-x -w Ksc123456 -D ${ADM_DN} -H ldap://${HOST}/389"
+
+#add domain
 ldapadd ${LDAP_ARG} -f myksc.ldif
-ldapadd ${LDAP_ARG} -f stooges.ldif
+
+#add depts and person
+DEPT_NUM=5
+sh ./add_depts.sh $DEPT_NUM
+
+#delete recursively
+for d1 in $(seq $DEPT_NUM);do
+    ldapdelete ${LDAP_ARG} "ou=dept${d1},dc=myksc,dc=com" -r
+done
+
+#search examples
 ldapsearch -x -b 'dc=myksc,dc=com' '(o=stooges)'
 ldapsearch ${LDAP_ARG} -b ou=ceshi,dc=myksc,dc=com -s one dn
 ldapsearch ${LDAP_ARG} -b ou=ceshi,dc=myksc,dc=com -s sub dn
 ldapsearch ${LDAP_ARG} -b ou=ceshi,dc=myksc,dc=com -s sub '(objectClass=organizationalUnit)' dn
 ldapsearch ${LDAP_ARG} -b ou=ceshi2,ou=ceshi,dc=myksc,dc=com -s one '(&(objectClass=person)(cn=person111))' dn
-
-#delete
-ldapdelete ${LDAP_ARG} "ou=dept1,dc=myksc,dc=com" -r
