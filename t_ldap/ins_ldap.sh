@@ -34,7 +34,7 @@ ADM_DN="cn=kingsoft,${DC}"
 
 HOST="123.59.14.251"
 ADM_DN="cn=kingsoft,cn=Users,${DC}"
-export LDAP_ARG="-x -w Ksc123456 -D ${ADM_DN} -H ldap://${HOST}/389"
+export LDAP_ARG="-x -w $ADM_PWD -D ${ADM_DN} -H ldap://${HOST}/389"
 
 #add domain
 ldapadd ${LDAP_ARG} -f myksc.ldif
