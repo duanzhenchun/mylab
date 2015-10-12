@@ -1,0 +1,22 @@
+dn: cn=name_,ou_all_,dc=myksc,dc=com
+ou: ou_
+cn: name_
+mail: name_@myksc.com
+objectClass: top
+#objectClass: user
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+sn: Fine
+uid: name_
+# homePostalAddress: 15 Cherry Ln. Plano TX 78888
+# postalAddress: 215 Fitzhugh Ave.
+# l: Dallas
+# st: TX
+# postalcode: 75226
+# telephoneNumber: (800)555-1212
+# homePhone: 800-555-1313
+# facsimileTelephoneNumber: 800-555-1414
+# userPassword: larrysecret
+# title: Account Executive
+# destinationindicator: /bios/images/lfine.jpg

@@ -27,17 +27,17 @@ chkconfig slapd on
 
 #test
 slaptest  -f /etc/openldap/slapd.conf -F /etc/openldap/slapd.d
-ldapsearch -x -b '' -s base '(objectclass=*)' namingContexts
+
+LDAP_ARG="-x -Dcn=kingsoft,dc=myksc,dc=com -h192.168.138.131 -wKsc123456"
 
 #使用 ldapadd 和 LDIF 文件在 LDAP 数据库中添加更多条目
-ldapadd -x -D "cn=kingsoft,dc=myksc,dc=com" -W -f myksc.ldif
-ldapadd -x -D "cn=kingsoft,dc=myksc,dc=com" -W -f stooges.ldif
+ldapadd ${LDAP_ARG} -f myksc.ldif
+ldapadd ${LDAP_ARG} -f stooges.ldif
 ldapsearch -x -b 'dc=myksc,dc=com' '(o=stooges)'
+ldapsearch ${LDAP_ARG} -b ou=ceshi,dc=myksc,dc=com -s one dn
+ldapsearch ${LDAP_ARG} -b ou=ceshi,dc=myksc,dc=com -s sub dn
+ldapsearch ${LDAP_ARG} -b ou=ceshi,dc=myksc,dc=com -s sub '(objectClass=organizationalUnit)' dn
+ldapsearch ${LDAP_ARG} -b ou=ceshi2,ou=ceshi,dc=myksc,dc=com -s one '(&(objectClass=person)(cn=person111))' dn
 
-
-#remote win
-CMD_PRE="ldapsearch -x -LLL -D cn=kingsoft,cn=Users,dc=myksc,dc=com -h 123.59.14.251 -w Ksc123456"
-#${CMD_PRE} -b ou=ceshi,dc=myksc,dc=com -s one dn
-#${CMD_PRE} -b ou=ceshi,dc=myksc,dc=com -s sub dn
-#${CMD_PRE} -b ou=ceshi,dc=myksc,dc=com -s sub '(objectClass=organizationalUnit)' dn
-${CMD_PRE} -b ou=ceshi2,ou=ceshi,dc=myksc,dc=com -s one'(objectClass=person)' dn
+#delete
+ldapdelete ${LDAP_ARG} "ou=dept1,dc=myksc,dc=com" -r

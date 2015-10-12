@@ -1,7 +1,7 @@
 dn: dc=myksc,dc=com
 objectclass: dcObject
 objectclass: organization
-o: Example Company
+o: Kingsoft
 dc: myksc
 
 dn: cn=kingsoft,dc=myksc,dc=com

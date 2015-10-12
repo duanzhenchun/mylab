@@ -1,16 +1,16 @@
-dn: ou=MemberGroupA,dc=myksc,dc=com
+dn: ou=MemberGroupA,dc=unisonis,dc=com
 ou: MemberGroupA
 objectClass: top
 objectClass: organizationalUnit
 description: Members of MemberGroupA
 
-dn: ou=MemberGroupB,dc=myksc,dc=com
+dn: ou=MemberGroupB,dc=unisonis,dc=com
 ou: MemberGroupB
 objectClass: top
 objectClass: organizationalUnit
 description: Members of MemberGroupB
 
-dn: cn=Larry Fine,ou=MemberGroupA,dc=myksc,dc=com
+dn: cn=Larry Fine,ou=MemberGroupA,dc=unisonis,dc=com
 ou: MemberGroupA
 o: stooges
 cn: Larry Fine
@@ -18,7 +18,7 @@ objectClass: top
 objectClass: person
 objectClass: organizationalPerson
 objectClass: inetOrgPerson
-mail: LFine@myksc.com
+mail: LFine@unisonis.com
 givenname: Larry
 sn: Fine
 uid: larry

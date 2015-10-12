@@ -1,0 +1,4 @@
+dn: ou_all_,dc=myksc,dc=com
+ou: ou_
+objectClass: top
+objectClass: organizationalUnit
