@@ -17,6 +17,6 @@ uid: name_
 # telephoneNumber: (800)555-1212
 # homePhone: 800-555-1313
 # facsimileTelephoneNumber: 800-555-1414
-# userPassword: larrysecret
+userPassword: name_
 # title: Account Executive
 # destinationindicator: /bios/images/lfine.jpg

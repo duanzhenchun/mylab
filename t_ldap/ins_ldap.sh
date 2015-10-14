@@ -28,25 +28,31 @@ chkconfig slapd on
 #test
 slaptest  -f /etc/openldap/slapd.conf -F /etc/openldap/slapd.d
 
-DC="dc=myksc,dc=com"
-HOST="192.168.138.131"
 ADM_DN="cn=kingsoft,${DC}"
+# set passwd here
+ADM_PWD=
 
-HOST="123.59.14.251"
-ADM_DN="cn=kingsoft,cn=Users,${DC}"
+DC="dc=myksc,dc=com"
+#linux
+HOST="192.168.138.131"
+#windows
+# HOST="123.59.14.251"
+# ADM_DN="cn=kingsoft,cn=Users,${DC}"
+
 export LDAP_ARG="-x -w $ADM_PWD -D ${ADM_DN} -H ldap://${HOST}/389"
 
 #add domain
-ldapadd ${LDAP_ARG} -f myksc.ldif
+#ldapadd ${LDAP_ARG} -f myksc.ldif
 
-#add depts and person
 DEPT_NUM=5
-sh ./add_depts.sh $DEPT_NUM
 
 #delete recursively
 for d1 in $(seq $DEPT_NUM);do
     ldapdelete ${LDAP_ARG} "ou=dept${d1},dc=myksc,dc=com" -r
 done
+
+#add depts and person
+sh ./add_depts.sh $DEPT_NUM
 
 #search examples
 ldapsearch -x -b 'dc=myksc,dc=com' '(o=stooges)'
