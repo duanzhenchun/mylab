@@ -24,17 +24,18 @@ chown -R ldap:ldap /etc/openldap/slapd.d
 
 service slapd restart
 chkconfig slapd on
+#done
 
 #test
 slaptest  -f /etc/openldap/slapd.conf -F /etc/openldap/slapd.d
 
+DC="dc=myksc,dc=com"
 ADM_DN="cn=kingsoft,${DC}"
 # set passwd here
-ADM_PWD=
-
-DC="dc=myksc,dc=com"
+ADM_PWD=Ksc123456
 #linux
 HOST="192.168.138.131"
+HOST="123.59.14.9"
 #windows
 # HOST="123.59.14.251"
 # ADM_DN="cn=kingsoft,cn=Users,${DC}"
@@ -42,7 +43,7 @@ HOST="192.168.138.131"
 export LDAP_ARG="-x -w $ADM_PWD -D ${ADM_DN} -H ldap://${HOST}/389"
 
 #add domain
-#ldapadd ${LDAP_ARG} -f myksc.ldif
+ldapadd ${LDAP_ARG} -f myksc.ldif
 
 DEPT_NUM=5
 

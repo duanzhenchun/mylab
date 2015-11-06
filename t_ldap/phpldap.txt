@@ -1,0 +1,7 @@
+yum install phpldapadmin
+
+#php-fpm configure:  --with-gettext
+
+#whereis phpldapadmin
+chmod -R 777  /usr/share/phpldapadmin
+chmod -R 777  /etc/phpldapadmin

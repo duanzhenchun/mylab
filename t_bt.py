@@ -48,7 +48,7 @@ def get_interface_ip(ifname):
 def ip2long(ip):
     return reduce(lambda a,b:(a<<8)+b,[int(i) for i in ip.split('.')])
 
- 
+
 def get_wan_ip_address():
     interfaces = set(['eth0', 'eth1', 'eth2', 'eth3', 'em1', 'em2', 'em3', 'em4'])
     ip = ''
@@ -88,7 +88,7 @@ def make_torrent(path, save):
     f.close()
     print "the bt torrent file is store at %s" % save
 
- 
+
 def dl_status(handle):
     while not (handle.is_seed()):
         s = handle.status()
