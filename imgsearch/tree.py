@@ -4,7 +4,7 @@ import Image
 
 def r_pos(n):
     return tuple(map(lambda x:randint(0,x), (x,x)))
-        
+
 def r_size(size):
     return tuple(map(lambda x:randint(x/4,x), size))
 
@@ -15,7 +15,7 @@ def r_anglemaker(init):
         return angle[0]*angle[1] + randint(0,angle[0]/2)-angle[0]/4
     return clo
 r_angle=r_anglemaker(45)
-            
+
 import ImageEnhance
 def r_color(img):
     enhancer = ImageEnhance.Brightness(img)
@@ -43,5 +43,5 @@ def display(rows,cols,bgsize,img):
             new_pos=tuple(map(lambda (x,y):x-y/2, zip((row,col),im.size)))
             bgimg.paste(im, new_pos, mask=bands[3])
     bgimg.show()
-        
+
 maketree()

@@ -45,7 +45,7 @@ export LDAP_ARG="-x -w $ADM_PWD -D ${ADM_DN} -H ldap://${HOST}/389"
 #add domain
 ldapadd ${LDAP_ARG} -f myksc.ldif
 
-DEPT_NUM=5
+DEPT_NUM=2
 
 #delete recursively
 for d1 in $(seq $DEPT_NUM);do

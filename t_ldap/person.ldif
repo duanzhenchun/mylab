@@ -5,6 +5,7 @@ mail: name_@myksc.com
 objectClass: top
 #objectClass: user
 objectClass: person
+#objectClass: user
 objectClass: organizationalPerson
 objectClass: inetOrgPerson
 sn: Fine
