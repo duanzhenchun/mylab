@@ -60,4 +60,4 @@ ldapsearch -x -b 'dc=myksc,dc=com' '(o=stooges)'
 ldapsearch ${LDAP_ARG} -b ou=ceshi,dc=myksc,dc=com -s one dn
 ldapsearch ${LDAP_ARG} -b ou=ceshi,dc=myksc,dc=com -s sub dn
 ldapsearch ${LDAP_ARG} -b ou=ceshi,dc=myksc,dc=com -s sub '(objectClass=organizationalUnit)' dn
-ldapsearch ${LDAP_ARG} -b ou=ceshi2,ou=ceshi,dc=myksc,dc=com -s one '(&(objectClass=person)(cn=person111))' dn
+ldapsearch ${LDAP_ARG} -b ou=ceshi3,ou=ceshi,dc=myksc,dc=com -s one '(&(objectClass=person)(cn=person111))' dn
