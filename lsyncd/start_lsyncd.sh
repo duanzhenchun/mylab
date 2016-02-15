@@ -9,13 +9,14 @@ source ./env_lsync.sh
 if [ ! -d ${DIR}/ssh ]; then
     mkdir -p $DIR/ssh
     cp ${DIR}/ssh_config $DIR/ssh/config
+    sed -i "s/HostName.*/HostName ${PEER_IP}/" $DIR/ssh/config
     cp $LsyncdIdentityFile $DIR/ssh
     ssh-keyscan ${PEER_IP} >> $DIR/ssh/known_hosts
 fi
 
 chown -R root:root ${DIR}/ssh
 
-docker run -ti -p 22 --name kfile_lsyncd \
+docker run -d -p 22 --name kfile_lsyncd \
     --net host \
     -v $DIR/ssh:/root/.ssh:rw \
     -v $SRC_DIR:/mnt/data \
