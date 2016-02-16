@@ -4,6 +4,9 @@
 
 DIR=`(cd \`dirname $0\`; pwd -P)`
 
+CONTAINER_PREFIX="kfile_"
+CONTAINER_DATA_NAME=${CONTAINER_PREFIX}"data"
+
 source ./env_lsync.sh
 
 if [ ! -d ${DIR}/ssh ]; then
@@ -18,7 +21,8 @@ chown -R root:root ${DIR}/ssh
 
 docker run -d -p 22 --name kfile_lsyncd \
     --net host \
+    --volumes-from ${CONTAINER_DATA_NAME} \
     -v $DIR/ssh:/root/.ssh:rw \
-    -v $SRC_DIR:/mnt/data \
-    -e TARGET_DIR=${TARGET_DIR} \
+    -v SYNC_DIR:/sync_dir \
+    -e SYNC_DIR=${SYNC_DIR} \
     123.59.14.139:5000/kingfile/lsyncd

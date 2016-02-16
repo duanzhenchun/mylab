@@ -12,9 +12,10 @@ RUN apt-get install -y lsyncd
 # Add user
 RUN useradd $USER && adduser $USER sudo && echo "${USER}:${PASSWORD}" |chpasswd && mkdir /home/$USER && chown -R $USER /home/$USER && chsh -s /bin/bash $USER
 
-# mkdir for mouting data directory
-RUN mkdir -p /mnt/data
-
 EXPOSE 22
 
-CMD lsyncd -nodaemon -delay 5 -logfile /var/log/lsyncd.log -rsyncssh /mnt/data lsyncd_target ${TARGET_DIR}
+# multiple -rsyncssh is available
+CMD ln -s /caches   /sync_dir/ && \
+    ln -s /www/logo /sync_dir/ && \
+    lsyncd -nodaemon -delay 5 -logfile /var/log/lsyncd.log \
+        -rsyncssh /sync_dir lsyncd_target ${SYNC_DIR}
