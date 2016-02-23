@@ -4,7 +4,7 @@ import networkx as nx
 from collections import defaultdict
 import sys
 import codecs
-sys.stdout = codecs.lookup('utf-8')[-1](sys.stdout) 
+sys.stdout = codecs.lookup('utf-8')[-1](sys.stdout)
 
 start_rowx=1
 N=50
@@ -54,7 +54,7 @@ def process(fname, shtname, targets, engages=[]):
         show_topn(topn, udic)
     edges=defaultdict(int)
     for uid, puid, eng in zip(uids, puids, eng_counts):
-        if not puid:    #original 
+        if not puid:    #original
             continue
         if uid == puid: #self loop
             continue
@@ -80,7 +80,7 @@ def kol(edges, udic, weight=False):
 def show_topn(topn, udic):
     print "#format: uid rank uname nfan"
     for (uid, rank) in topn:
-        print uid, rank, 
+        print uid, rank,
         tmp = udic.get(uid)
         if tmp:
             print tmp[0], tmp[1]

@@ -10,8 +10,8 @@ def main():
     data = getpage(saleurl)
     soup = BeautifulSoup(data)
     res = soup.findAll('h2', {"class" : "wdk_shopproduct-title"})
-    
-    
+
+
     lst=[]
     for i in res:
         for aim in AIM_SIZE:
@@ -19,7 +19,7 @@ def main():
                 lst.append("<li>%s</li>" %i.string)
     infos = htmlinfo(lst)
     if infos:
-        mailer.send(SALE_FMT+infos, tolist, sub='skate sale')  
-    
-if __name__ == '__main__':  
+        mailer.send(SALE_FMT+infos, tolist, sub='skate sale')
+
+if __name__ == '__main__':
      main()
