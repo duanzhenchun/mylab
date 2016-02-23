@@ -34,7 +34,7 @@ def check_new(user, password):
             From = message.get('from', '')
             if subj.find(SUBSCRIBE_MOVIE) == 0:
                 yield From
-            elif subj.find(HOTWORD) == 0: 
+            elif subj.find(HOTWORD) == 0:
                 attachment = message.get_payload()[1]
 #                 attachment.get_content_type()
                 open('text.txt', 'wb').write(attachment.get_payload(decode=True))
@@ -44,7 +44,7 @@ def check_new(user, password):
         except:
             pass
     pop_conn.quit()
-    
+
 def main():
     Tos = []
     for To in check_new(ME, PASSWORD):
@@ -54,7 +54,7 @@ def main():
         with open(CUR_MOVIES) as f:
             infos = f.read().decode('utf8')
             mailer.send(infos, Tos)
-        
-if __name__ == '__main__':  
+
+if __name__ == '__main__':
     main()
 

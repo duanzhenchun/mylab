@@ -3,10 +3,10 @@
 SUBSCRIBE_MOVIE = '订阅电影'
 CUR_MOVIES = 'current_movies.html'
 
-Movie_type = 6 #mkv, 7:720p
+Movie_type = 6  # mkv, 7:720p
 Movie_thold = 7
 
-Tos=['whille@163.com','meng3r@qq.com']
+Tos=['whille@163.com', 'meng3r@qq.com']
 
 ME = 'english.onion.op'
 PASSWORD = 'OP_english'
@@ -18,8 +18,8 @@ API_SECRET = '42764a7149130882'
 redirect_uri = 'http://54.250.166.126/spam/auth'
 SCOPE = 'douban_basic_common,movie_basic_r'
 
- 
-Movie_head = """
+
+HTML_HEAD = """
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
@@ -31,7 +31,7 @@ Movie_head = """
 </head>
 <body>
 """
-  
+
 MOVIE_FMT = """
 <div class="item">
 <div class="pic">

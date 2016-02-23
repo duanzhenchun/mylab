@@ -1,4 +1,5 @@
 import zlib
+from conf import HTML_HEAD
 import urllib2
 
 
@@ -12,3 +13,9 @@ def getpage(urlstr, data=None):
     else:
         data = page.read()
     return data
+
+
+def htmlinfo(lst):
+    if not lst:
+        return None
+    return HTML_HEAD + ''.join(lst) + '</body>'

@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # coding=utf-8
+
+
 import os
 import filecmp
 from conf import *
 from utils import *
+
 
 def douban_cli():
     from douban_client import DoubanClient
@@ -35,7 +38,7 @@ def getinfo(tr, doubancli):
     a = dow.find('a', attrs={'class' : re.compile("ed2k.*")})
     if not a:
         return
-    ed2k = a.get('ed2k') 
+    ed2k = a.get('ed2k')
     #print title, ed2k
     dic = {}
     best = bestmovie(title, doubancli)
@@ -49,14 +52,10 @@ def getinfo(tr, doubancli):
     dic['ed2k'] = ed2k
     return dic
 
-def htmlinfo(lst):
-    if not lst:
-        return None
-    return Movie_head + ''.join(lst) + '</body>'
 
 def movieinfo(dic):
-    return MOVIE_FMT % (dic['alt'], dic['img'], dic['score'], dic['title'], dic['original_title'], dic['year'], dic['ed2k'], dic['text'])
-    
+    return HTML_HEAD % (dic['alt'], dic['img'], dic['score'], dic['title'], dic['original_title'], dic['year'], dic['ed2k'], dic['text'])
+
 
 def insanity():
     soup=BeautifulSoup(data)
@@ -71,17 +70,17 @@ def insanity():
 
 
 def send_mail():
-    import mailer 
+    import mailer
     newfname = CUR_MOVIES+'.new'
     if filecmp.cmp(CUR_MOVIES, newfname):
         os.remove(newfname)
         return
-    os.rename(newfname, CUR_MOVIES)    
+    os.rename(newfname, CUR_MOVIES)
     with open(CUR_MOVIES) as f:
         infos = f.read().decode('utf8')
         if len(infos)>10:
             mailer.send(infos, Tos)
- 
+
 def main():
     doubancli = douban_cli()
     urlstr = src_url %Movie_type
@@ -105,5 +104,5 @@ def main():
         f.close()
     send_mail()
 
-if __name__ == '__main__':  
+if __name__ == '__main__':
      main()
