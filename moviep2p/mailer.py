@@ -19,6 +19,9 @@ Subject = "高分电影P2P"
 From = ME + "@gmail.com"
 Server = 'smtp.gmail.com:587'
 password = PASSWORD
+From = 'whille@163.com'
+Server = 'smtp.163.com'
+password = 'XXXX'
 
 def send(infos, tolist, sub=Subject):
     msg = MIMEMultipart('alternative')

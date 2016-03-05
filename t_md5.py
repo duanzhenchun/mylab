@@ -15,6 +15,9 @@ d8823e3156348f5bae6dacd436c919c6 dd53e23487da03fd02396306d248cda0
 e99f33420f577ee8ce54b67080280d1e c69821bcb6a8839396f965ab6ff72a70
 """
 
+def to_hexstr(s):
+    return ":".join("{:02x}".format(ord(c)) for c in s)
+
 for s in (s1,s2):
         s_ = s.translate(None, '\n ').decode('hex')
         m=hashlib.md5()
