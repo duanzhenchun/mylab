@@ -22,7 +22,7 @@ def get_price(fname):
         with open(fname) as fold:
             price = fold.read()    
             price = price and float(price) or 0.0
-    return price
+    return round(price, 2)
 
 def replace_file(filename, content):
     import tempfile
@@ -47,14 +47,11 @@ def main():
     ret = re.search('&pound;(.*) extra saving', cu.text)
     realprice = price * .85 - float(ret.group(1))
 
-#    print old_price, realprice
     if old_price != realprice:
         replace_file(fullname, str(realprice))
 
-#    print old_price, realprice
     if old_price == 0 or (realprice < THRESHOLD and realprice < old_price):
-#        print 'send_mail'
-        mailer.send(URL_ADDR + 'realprice: %s' %realprice, tolist, sub=SUBJECT)
+        mailer.send(URL_ADDR + 'realprice: %s\n old_price: %s' %(realprice, old_price), tolist, sub=SUBJECT)
 
 
 if __name__ == '__main__':
