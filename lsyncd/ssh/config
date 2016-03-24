@@ -1,4 +1,0 @@
-Host lsyncd_target
-    HostName 192.168.138.231
-    User root
-    Port 2202

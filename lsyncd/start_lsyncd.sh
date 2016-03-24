@@ -1,24 +1,28 @@
 #!/bin/bash
 
-if [ $# -ne 1 ]; then
-  echo "usage: start_lsyncd.sh MOUNT_POINT"
-  exit 1
-fi
-
+# ssh-keygen -t rsa -C 'root@231' -N "" -f ~/.ssh/id_rsa
 
 DIR=`(cd \`dirname $0\`; pwd -P)`
 
+CONTAINER_PREFIX="kfile_"
+CONTAINER_DATA_NAME=${CONTAINER_PREFIX}"data"
+
 source ./env_lsync.sh
 
-mkdir -p $DIR/ssh
-cp ${DIR}/ssh_config $DIR/ssh/config
+if [ ! -d ${DIR}/ssh ]; then
+    mkdir -p $DIR/ssh
+    cp ${DIR}/ssh_config $DIR/ssh/config
+    sed -i "s/HostName.*/HostName ${PEER_IP}/" $DIR/ssh/config
+    cp $LsyncdIdentityFile $DIR/ssh
+    ssh-keyscan ${PEER_IP} >> $DIR/ssh/known_hosts
+fi
 
-cp $LsyncdIdentityFile $DIR/ssh
-chown root:root ${DIR}/ssh/id_rsa
+chown -R root:root ${DIR}/ssh
 
-docker run -d -p 2202 --name kfile_lsyncd \
+docker run -d -p 22 --name kfile_lsyncd \
     --net host \
+    --volumes-from ${CONTAINER_DATA_NAME} \
     -v $DIR/ssh:/root/.ssh:rw \
-    -v $1:/mnt/data \
-    -e TARGET_DIR=${TARGET_DIR} \
+    -v SYNC_DIR:/sync_dir \
+    -e SYNC_DIR=${SYNC_DIR} \
     123.59.14.139:5000/kingfile/lsyncd

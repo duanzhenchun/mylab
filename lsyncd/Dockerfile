@@ -7,16 +7,15 @@ ENV PASSWORD lsyncd
 RUN apt-get install -y lsyncd
 
 # already Install ssh
-#RUN apt-get install -y openssh-server sudo && mkdir /var/run/sshd
+#RUN apt-get install -y openssh-server sudo && mkdir -p /var/run/sshd
 
 # Add user
 RUN useradd $USER && adduser $USER sudo && echo "${USER}:${PASSWORD}" |chpasswd && mkdir /home/$USER && chown -R $USER /home/$USER && chsh -s /bin/bash $USER
 
-# mkdir for mouting data directory
-RUN mkdir -p /mnt/data
+EXPOSE 22
 
-EXPOSE 2202
-
-CMD sed -i 's/#   Port 22/Port 2202/' /etc/ssh/ssh_config && \
-     /usr/sbin/sshd -p 2202 -D
-# lsyncd -nodaemon -rsyncssh /mnt/data lsyncd_target ${TARGET_DIR}
+# multiple -rsyncssh is available
+CMD ln -s /caches   /sync_dir/ && \
+    ln -s /www/logo /sync_dir/ && \
+    lsyncd -nodaemon -delay 5 -logfile /var/log/lsyncd.log \
+        -rsyncssh /sync_dir lsyncd_target ${SYNC_DIR}
