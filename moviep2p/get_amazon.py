@@ -71,7 +71,7 @@ def main():
 
         if old_price == 0 or (realprice < threshold and realprice < old_price):
             url_addr = '<a href="%s" >%s</a></br>' % ((url, ) * 2)
-            subject = 'clear blue < %s' % threshold
+            subject = '%s < %s' % (product_name, threshold)
             mailer.send(url_addr + 'realprice: %s\n old_price: %s' %
                         (realprice, old_price),
                         tolist,
