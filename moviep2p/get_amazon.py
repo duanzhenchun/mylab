@@ -7,7 +7,7 @@ import BeautifulSoup
 import mailer
 from utils import getpage
 
-# url, THRESHOLD, prodcut_name
+# url, THRESHOLD, product_name
 Targets = (
     ("http://www.amazon.co.uk/gp/product/B00BSNL77I", 22.0, 'clearblue'),
     ("http://www.amazon.co.uk/gp/product/B004GHALRK", 10.2,
