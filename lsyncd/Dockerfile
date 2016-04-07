@@ -1,4 +1,4 @@
-FROM 123.59.14.139:5000/kingfile/board
+FROM kfile.registry.com:5001/kingfile/board
 
 ENV USER lsyncd
 ENV PASSWORD lsyncd

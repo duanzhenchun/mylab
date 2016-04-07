@@ -25,4 +25,4 @@ docker run -d -p 22 --name kfile_lsyncd \
     -v $DIR/ssh:/root/.ssh:rw \
     -v SYNC_DIR:/sync_dir \
     -e SYNC_DIR=${SYNC_DIR} \
-    123.59.14.139:5000/kingfile/lsyncd
+    kfile.registry.com:5001/kingfile/lsyncd
