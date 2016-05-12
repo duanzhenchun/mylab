@@ -17,5 +17,5 @@ EXPOSE 22
 # multiple -rsyncssh is available
 CMD ln -s /caches   /sync_dir/ && \
     ln -s /www/logo /sync_dir/ && \
-    lsyncd -nodaemon -delay 5 -logfile /var/log/lsyncd.log \
+    lsyncd -nodaemon -delay 5 \
         -rsyncssh /sync_dir lsyncd_target ${SYNC_DIR}

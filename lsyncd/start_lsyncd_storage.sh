@@ -23,5 +23,5 @@ docker run -d -p 22 --name kfile_lsyncd_storage \
     -v ${SYNC_DIR}:/sync_dir \
     -e SYNC_DIR=${SYNC_DIR} \
     kfile.registry.com:5001/kingfile/lsyncd \
-    lsyncd -nodaemon -delay 5 -logfile /var/log/lsyncd.log \
+    lsyncd -nodaemon -delay 5 \
         -rsyncssh /sync_dir lsyncd_target ${SYNC_DIR}
