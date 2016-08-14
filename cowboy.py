@@ -1,6 +1,7 @@
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import logging
+import numpy as np
 
 req_threhold = 100
 BO_threhold = 10**6
@@ -23,7 +24,7 @@ iBO, inode, idomain, iregion, iregion, iDim, iReq, iRt = 0, 0, 0, 0, 0, 0, 0, 0
 
 def rd_aggregation(timestamp_start, filter_r=None, filter_d=None):
     rd_dic = defaultdict(lambda: []) # {(r,d): [vs]}
-    for index in range(5):
+    for index in range(120):
         for vs in gen_file_vs(timestamp_start, index):
             ndr = vs[iDim]
             if filter_r and ndr.split('/')[2] != filter_r:
@@ -38,7 +39,7 @@ def rd_aggregation(timestamp_start, filter_r=None, filter_d=None):
 
     print "len(rd_dic):", len(rd_dic)
     for (r, d), vs in rd_dic.iteritems():
-        lst = filter_node(vs )
+        lst = filter_lst(vs)
         for i in range(len(s_lst)):
             s_lst[i] += lst[i]
 
@@ -46,15 +47,18 @@ def rd_aggregation(timestamp_start, filter_r=None, filter_d=None):
     return thresholds
 
 
-def filter_node(lst):
+def filter_lst(lst):
     lst1 = sorted(lst, reverse=True)
     lst = zip(*lst1)
     lst = trim_by_bw(lst)
-    thresholds = show_targets(lst, "filter_node", False)
-    lst = lst[1:]
-    for i in range(len(thresholds)):
-        lst[i] = filter(lambda x: x <= thresholds[i], lst[i])
-    return lst
+
+    for i in range(len(lst)):
+        res = np.histogram(lst[i])
+        j = hist_threshold_index(res[0])
+        l, r = res[1][0], res[1][j + 1]
+        #  print legends[i], ": Hist range:", l, r
+        lst[i] = filter(lambda x: l < x <= r, lst[i])
+    return lst[1:]
 
 
 class CDNData(object):
@@ -266,13 +270,17 @@ def show_targets_without_bw(lst, xlabel, show=True):
     return thresholds
 
 
-def show_targets(lst, xlabel, show=True):
-    # calc weighted average aims
-    ave_w = []
+def calc_bw_weight(lst):
+    weights = []
     norm_bw = normorlize(lst[0])
     for lstk in lst[1:]:
         s = sum([norm_bw[i] * v for i, v in enumerate(lstk)])
-        ave_w.append(s)
+        weights.append(s)
+    return weights
+
+def show_targets(lst, xlabel, show=True):
+    weights = calc_bw_weight(lst)
+
     plt.clf()
     thresholds = []
     for i in range(len(lst)):
@@ -294,7 +302,7 @@ def show_targets(lst, xlabel, show=True):
             plt.plot(lst[i])
             plt.legend([legends[i]], loc='upper right')
             if i > 0:
-                for v in (ave_w[i - 1], l, r):
+                for v in (weights[i - 1], l, r):
                     plt.plot([v] * len(lst[0]))
     if show:
         plt.show()
@@ -334,7 +342,7 @@ def accum_threshold(lst, thld=Bw_threshold):
     for v in am[::-1]:
         i -= 1
         if v < thld:
-            print "len: %d, accum threshold: %s, v: %s" % (len(am), i, am[i])
+            #  print "len: %d, accum threshold: %s, v: %s" % (len(am), i, am[i])
             break
     return min(i + 1, len(am))
 
@@ -410,7 +418,7 @@ if __name__ == "__main__":
     rd_aggregation(
         timestamp_start,
         #  filter_r='ShanDong_CNC',
-        filter_d="js.a.yximgs.com",
+        #  filter_d="js.a.yximgs.com",
     )
     #  test_ndrs(timestamp_start)
     #cdndata = CDNData(timestamp_start)
