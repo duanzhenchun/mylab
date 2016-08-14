@@ -21,42 +21,36 @@ iBO, inode, idomain, iregion, iregion, iDim, iReq, iRt = 0, 0, 0, 0, 0, 0, 0, 0
 # nohup getDay.sh 1470488400
 
 
-def node_aggregation(timestamp_start, r=None, d=None):
-    n_dic = defaultdict(lambda: defaultdict(lambda: []))  # {n: {ndr: [vs]}}
+def rd_aggregation(timestamp_start, filter_r=None, filter_d=None):
+    rd_dic = defaultdict(lambda: []) # {(r,d): [vs]}
     for index in range(5):
         for vs in gen_file_vs(timestamp_start, index):
-            ndr, n = vs[iDim], vs[inode]
-            if r and ndr.split('/')[2] != r:
+            ndr = vs[iDim]
+            if filter_r and ndr.split('/')[2] != filter_r:
                 continue
-            if d and ndr.split('/')[1] != d:
+            if filter_d and ndr.split('/')[1] != filter_d:
                 continue
             _, vs = target_vs(ndr, vs)
             if vs:
-                n_dic[n][ndr].append(vs)
-    print n_dic.keys()
+                d, r = ndr.split('/')[1:]
+                rd_dic[(r, d)].append(vs)
     s_lst = [[] for i in range(len(legends) - 1)]
-    for n in n_dic.keys():
-        lst = filter_node(n_dic[n], n)
+
+    print "len(rd_dic):", len(rd_dic)
+    for (r, d), vs in rd_dic.iteritems():
+        lst = filter_node(vs )
         for i in range(len(s_lst)):
             s_lst[i] += lst[i]
-    for i in range(len(s_lst)):
-        s_lst[i] = sorted(s_lst[i])[:100]
-    return s_lst
+
     thresholds = show_targets_without_bw(s_lst, "s_lst", show=True)
-    print "len(s_lst): %s,  thresholds: %s" % (len(s_lst), thresholds)
-    return s_lst
+    return thresholds
 
 
-def filter_node(dic, node):
-    lst = []
-    for v in dic.values():
-        lst += v
+def filter_node(lst):
     lst1 = sorted(lst, reverse=True)
     lst = zip(*lst1)
     lst = trim_by_bw(lst)
-    thresholds = show_targets(lst, node, False)
-
-    print "node: %s,  thresholds: %s" % (node, thresholds)
+    thresholds = show_targets(lst, "filter_node", False)
     lst = lst[1:]
     for i in range(len(thresholds)):
         lst[i] = filter(lambda x: x <= thresholds[i], lst[i])
@@ -249,7 +243,7 @@ def trim_by_bw(vslst):
 def show_targets_without_bw(lst, xlabel, show=True):
     plt.clf()
     thresholds = []
-    legends1= legends[1:]
+    legends1 = legends[1:]
     for i in range(len(lst)):
         plt.subplot(len(lst), 2, 2 * i + 1)
         plt.xlabel(legends1[i])
@@ -342,7 +336,7 @@ def accum_threshold(lst, thld=Bw_threshold):
         if v < thld:
             print "len: %d, accum threshold: %s, v: %s" % (len(am), i, am[i])
             break
-    return min(i+1, len(am))
+    return min(i + 1, len(am))
 
 
 def get_target_timeseries(timestamp_start, ndrs_set):
@@ -411,20 +405,13 @@ def test_ndrs(timestamp_start):
             i, len(dims), len(dims_all))
 
 
-"""
-Slow/Req : Hist range: 5.41228046437e-05 0.00237109230496
-Rt/BO*1M : Hist range: 0.482418720592 0.641751809299
-S4XX/Req : Hist range: 0.000321626759346 0.00255363749145
-
-Rt/BO*1M : Hist range: 0.646335946039 0.890604242308
-Slow/Req : Hist range: 4.85370135176e-05 0.000513665253501
-Rt/Req : Hist range: 0.0946111706562 0.122624404001
-S4XX/Req : Hist range: 0.000417786743078 0.00176296974222
-"""
-
 if __name__ == "__main__":
     timestamp_start = 1470488400
-    s_lst = node_aggregation(timestamp_start, r='ShanDong_CNC', d="js.a.yximgs.com")
+    rd_aggregation(
+        timestamp_start,
+        #  filter_r='ShanDong_CNC',
+        filter_d="js.a.yximgs.com",
+    )
     #  test_ndrs(timestamp_start)
     #cdndata = CDNData(timestamp_start)
     # test_major(cdndata, get_region=True)
