@@ -1,4 +1,5 @@
-#coding=utf-8
+#!/usr/bin/env python
+# encoding: utf-8
 
 from crawl import Base
 from utils import *
@@ -12,7 +13,7 @@ class CrawlRelation(Base):
         Base.__init__(self, client)
         self.uid = uid
         self.table_name = table #+ month_str()
-    
+
     def save_user(self, tablename, weibouser):
         dic = {}
         for k in USER_FIELDS:
@@ -32,13 +33,13 @@ class CrawlRelation(Base):
             dic[pre+'attitudes']= last_tweet.get('attitudes_count',0)
         apx = TABLE_SUFIX and '_%c' %(str(dic['id'])[-1]) or ''
         return self.insertDB(tablename+apx, dic)
-        
+
     def save_relation(self, id, original_uid):
         dic = {'id':int(id), 'original_uid': original_uid}
         print original_uid, id
         #apx = TABLE_SUFIX and '_%c' %(str(id)[-1]) or ''
         return self.insertDB(RELATION_TABLE, dic)
-    
+
     def get_last_uids(self, table=FANS_TABLE):
         last_table = get_last_table(self.cursor, table)
         if not last_table: return []
@@ -91,7 +92,7 @@ class CrawlRelation(Base):
         existnum = 0  # 数据库中存在数据条数
         self.client, userinfo = loop_get_data(self.client,
                                    'users__show', 'id', uid=self.uid)
-        if not userinfo: 
+        if not userinfo:
             return
         if save_self:
             self.save_user(self.table_name, userinfo)
@@ -162,7 +163,7 @@ class CrawlRelation(Base):
             # 当获取到的数据中没有下一页了 表示抓取完成
             if cursor == 0:
                 return True
-    
+
     def account_daily(self):
         tablename = ACCOUNT_GROWTH_TABLE
         self.client, res = loop_get_data(self.client,
@@ -171,9 +172,9 @@ class CrawlRelation(Base):
         for dic in res:
             dic.pop('private_friends_count')
             dic['uid'] = dic.pop('id')
-            dic['day'] = datetime.datetime.now().date().strftime('%Y%m%d') 
+            dic['day'] = datetime.datetime.now().date().strftime('%Y%m%d')
             return self.insertDB(tablename, dic)
-            
+
     def follower_trend(self):
         """
         http://open.weibo.com/wiki/C/2/friendships/followers/trend_count
@@ -185,9 +186,9 @@ class CrawlRelation(Base):
             {
                 follower_count: "312027",
                 active_follower: "63513",    //活跃粉丝数
-                days: "2013-04-02",        
-                loyal_follower: "15121",    //互动粉丝数    
-                follower_count_online: "314038" //粉丝数 
+                days: "2013-04-02",
+                loyal_follower: "15121",    //互动粉丝数
+                follower_count_online: "314038" //粉丝数
             },
             ...
         """
@@ -219,7 +220,7 @@ class CrawlRelation(Base):
             else:
                 for result in results:
                     self.insert_trend(uid, result)
-        
+
     def insert_trend(self, uid, result):
         field_dic = {}
         day = result.get('days', '')
@@ -240,7 +241,7 @@ class CrawlRelation(Base):
         except Exception, e:
             print e
             self.cursor.connection.rollback()
-            
+
     def fans_info(self):
         """
         http://open.weibo.com/wiki/C/2/users/behavior_trend
@@ -251,7 +252,7 @@ class CrawlRelation(Base):
         省份
         """
         api_cmd = {'users__behavior_trend': ['v_followers_count', 'daren_followers_count'],
-                   'friendships__followers__gender_count': ['male', 'female'], 
+                   'friendships__followers__gender_count': ['male', 'female'],
                    'friendships__followers__location_count': ['locations']}
         client = set_client(self.cursor, True, True, self.uid)
         if client.is_expires(): return
@@ -266,7 +267,7 @@ class CrawlRelation(Base):
             else:
                 for result in results:
                     self.insert_fans_trend(uid, result, api_cmd[cmd])
-                    
+
     def insert_fans_trend(self, uid, result, fields):
         field_dic = {}
         day = daysago(self.nowtime, 1).date()
@@ -286,7 +287,7 @@ class CrawlRelation(Base):
         except Exception, e:
             print e
             self.cursor.connection.rollback()
-            
+
 
 def seed_uids(fname):
     f=open(fname) #'../../data/filter_uniq.txt')
@@ -308,7 +309,7 @@ def main(seedfname, tbl_sfx=''):
 #        print duration
 #        process.execute_sql('select count(1) from %s' %RELATION_TABLE)
 #        newcount = process.cursor.fetchone()[0]
-#        print 'speed: %.2f/sec' %(1.*(newcount-last)/duration), 'duration:%.2f sec' %duration 
+#        print 'speed: %.2f/sec' %(1.*(newcount-last)/duration), 'duration:%.2f sec' %duration
 #        last = newcount
 #        fw.flush()
 #    fw.close()
