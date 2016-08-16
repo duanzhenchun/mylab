@@ -176,8 +176,9 @@ def target_vs(ndr, vs):
 class Leaders(object):
     def __init__(self, rdn_dic, data_dic):
         self.rd_vs = {}  #{(r,d):(ndr, vs)}, bw leader by (r,d)
-        self.r_vs = {}  #{r):(ndr,vs)}
-        self.n_vs = {}  #{n):(ndr,vs)}
+        self.r_vs = {}  #{r:(ndr,vs)}
+        self.dr_vs = defaultdict( lambda: defaultdict(lambda: set()))  #{d:r:max(ndr,vs)}
+        self.n_vs = {}  #{n:(ndr,vs)}
         for r, v in rdn_dic.iteritems():
             for d, v2 in v.iteritems():
                 n = max(v2)[1]
@@ -185,6 +186,8 @@ class Leaders(object):
                 _, vs = target_vs(ndr, data_dic[ndr])
                 if vs:
                     self.rd_vs[(r, d)] = (ndr, vs)
+                    if not self.dr_vs[d][r] or self.dr_vs[d][r][1][0] < vs[0]:
+                        self.dr_vs[d][r] = (ndr, vs)
         for (r, d), (ndr, vs) in self.rd_vs.iteritems():
             if r not in self.r_vs or self.r_vs[r][1][0] < vs[0]:
                 self.r_vs[r] = (ndr, vs)
@@ -195,10 +198,11 @@ class Leaders(object):
                 self.n_vs[n] = vs
 
     def get_bydomain(self, domain):
+        print len(self.dr_vs), len(self.dr_vs[domain])
+        print self.dr_vs[domain]
         dic = {}
-        for (ndr, vs) in self.rd_vs.values():
-            if ndr.split('/')[1] == domain:
-                dic[ndr] = vs
+        for r, (ndr, vs) in self.dr_vs[domain].iteritems():
+            dic[ndr] = vs
         return dic
 
     def get_region(self):
@@ -392,16 +396,22 @@ def leader_timeseries(timestamp_start, cdndata):
 def count_ndr(timestamp_start, index):
     global headers, iDim
     dims = set()
-    less_60=0
+    sum_less60BO, sumBO, = 0,0
+    s60=set()
     with open("./data/%s/%d.csv" % (timestamp_start, index)) as f:
         for l in f:
             vs = process_line(l)
             if not vs:
                 continue
-            dims.add(vs[iDim])
             if int(vs[iReq]) < 60:
-                less_60 += 1
-    print 'less_60:', less_60, 'all:', len(dims)
+                newDim='//%s' %vs[iDim].split('/')[-1]
+                s60.add(newDim)
+                sum_less60BO += vs[iBO]
+            else:
+                dims.add(vs[iDim])
+            sumBO += vs[iBO]
+    dims.update(s60)
+    print 'len(s60):', len(s60), 'all:', len(dims), 'sum_less60BO:', sum_less60BO, 'sumBO:', sumBO, 'BO%:', float(sum_less60BO)/sumBO
     return dims
 
 
@@ -453,10 +463,10 @@ if __name__ == "__main__":
         #  filter_r='ShanDong_CNC',
         #  filter_d="js.a.yximgs.com",
             #  )
-    test_ndrs(timestamp_start)
-    #cdndata = CDNData(timestamp_start)
+    #  test_ndrs(timestamp_start)
+    cdndata = CDNData(timestamp_start)
     # test_major(cdndata, get_region=True)
-    #  test_major(cdndata, domain="js.a.yximgs.com", show=True)
+    test_major(cdndata, domain="js.a.yximgs.com", show=True)
     #  target_node = 'cdntjun01'
     #  get_target_timeseries(timestamp_start, 'cdnlinyun01/js.a.yximgs.com/ShanDong_CNC')
     #leader_timeseries(timestamp_start, cdndata)
