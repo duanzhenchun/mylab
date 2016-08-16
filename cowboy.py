@@ -22,9 +22,9 @@ iBO, inode, idomain, iregion, iregion, iDim, iReq, iRt = 0, 0, 0, 0, 0, 0, 0, 0
 # nohup getDay.sh 1470488400
 
 
-def rd_aggregation(timestamp_start, filter_r=None, filter_d=None):
+def rd_aggregation(timestamp_start, fnum=1440, filter_r=None, filter_d=None):
     rd_dic = defaultdict(lambda: []) # {(r,d): [vs]}
-    for index in range(120):
+    for index in range(fnum):
         for vs in gen_file_vs(timestamp_start, index):
             ndr = vs[iDim]
             if filter_r and ndr.split('/')[2] != filter_r:
@@ -390,17 +390,18 @@ def leader_timeseries(timestamp_start, cdndata):
 
 
 def count_ndr(timestamp_start, index):
-    global headers
+    global headers, iDim
     dims = set()
+    less_60=0
     with open("./data/%s/%d.csv" % (timestamp_start, index)) as f:
         for l in f:
-            vs = l.strip().split(',')[2:]
-            if vs[0] == "Dim":
-                if len(headers) < 1:
-                    headers = vs
-                    iDim = headers.index('Dim')
+            vs = process_line(l)
+            if not vs:
                 continue
             dims.add(vs[iDim])
+            if int(vs[iReq]) < 60:
+                less_60 += 1
+    print 'less_60:', less_60, 'all:', len(dims)
     return dims
 
 
@@ -412,15 +413,47 @@ def test_ndrs(timestamp_start):
         print 'file index: %d, len(dims): %d, len(dims_all): %d' % (
             i, len(dims), len(dims_all))
 
+"""
+len(rd_dic): 5693
+Rt/BO*1M : Hist range: 0.0 656.927836493
+Slow/Req : Hist range: 0.0 0.127
+Rt/Req : Hist range: 0.0 108.309574468
+S4XX/Req : Hist range: 0.0 0.1
+S499/Req : Hist range: 0.0 0.0991869918699
+S5XX/Req : Hist range: 0.0 0.0147058823529
+SOther/Req : Hist range: 0.0 0.0993464052288
+"""
+
+def show_abnormal(timestamp_start, fnum=10, filter_r=None, filter_d=None):
+    thresholds = [657, 0.127, 108, 0.1, 0.1]
+    for index in range(fnum):
+        for vs in gen_file_vs(timestamp_start, index):
+            ndr = vs[iDim]
+            if filter_r and ndr.split('/')[2] != filter_r:
+                continue
+            if filter_d and ndr.split('/')[1] != filter_d:
+                continue
+            ndr, targets = target_vs(ndr, vs)
+            if targets[2] > thresholds[1] * 2: # Slow rate
+                    print ndr, targets
+            #  for i in range(len(thresholds)):
+                #  if targets[i+1] > thresholds[i]:
+                    #  print ndr, targets
+                    #  break
+
 
 if __name__ == "__main__":
     timestamp_start = 1470488400
-    rd_aggregation(
-        timestamp_start,
+    #  rd_aggregation(
+        #  timestamp_start,10,
         #  filter_r='ShanDong_CNC',
         #  filter_d="js.a.yximgs.com",
-    )
-    #  test_ndrs(timestamp_start)
+    #  )
+    #  show_abnormal(timestamp_start, 10,
+        #  filter_r='ShanDong_CNC',
+        #  filter_d="js.a.yximgs.com",
+            #  )
+    test_ndrs(timestamp_start)
     #cdndata = CDNData(timestamp_start)
     # test_major(cdndata, get_region=True)
     #  test_major(cdndata, domain="js.a.yximgs.com", show=True)
