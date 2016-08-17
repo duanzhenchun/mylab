@@ -1,14 +1,19 @@
+import os
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import logging
 import numpy as np
 
 req_threhold = 100
-BO_threhold = 10**6
+BO_threhold = 10**9
 Per_Reqs = "Slow Rt S4XX S499 S5XX SOther"
 Hist_threshold = 0.9
 Bw_threshold = 0.95
 Abnormal_ratio = 2.0
+
+Curpath = os.path.dirname(os.path.abspath(__file__))
+LOG_FILENAME = '%s/shepherd.log' % Curpath
+logging.basicConfig(filename=LOG_FILENAME, level=logging.WARN)
 
 Region_filters = ("Other_", "US_", "Asia", "Africa", "Vietnam", "Macao",
                   "Malaysia", "CA_", "Spain", "Australia")
@@ -22,10 +27,10 @@ iBO, inode, idomain, iregion, iregion, iDim, iReq, iRt = 0, 0, 0, 0, 0, 0, 0, 0
 # nohup getDay.sh 1470488400
 
 
-def rd_aggregation(timestamp_start, fnum=1440, filter_r=None, filter_d=None):
-    rd_dic = defaultdict(lambda: []) # {(r,d): [vs]}
+def rd_aggregation(start, fnum=1440, filter_r=None, filter_d=None):
+    rd_dic = defaultdict(lambda: [])  # {(r,d): [vs]}
     for index in range(fnum):
-        for vs in gen_file_vs(timestamp_start, index):
+        for vs in gen_file_vs(start, index):
             ndr = vs[iDim]
             if filter_r and ndr.split('/')[2] != filter_r:
                 continue
@@ -56,24 +61,23 @@ def filter_lst(lst):
         res = np.histogram(lst[i])
         j = hist_threshold_index(res[0])
         l, r = res[1][0], res[1][j + 1]
-        #  print legends[i], ": Hist range:", l, r
         lst[i] = filter(lambda x: l < x <= r, lst[i])
     return lst[1:]
 
 
 class CDNData(object):
-    def __init__(self, timestamp_start):
+    def __init__(self, start, index=0):
         self.data_dic = {}  #Dim(n/d/r): vs
         self.rdn_dic = defaultdict(
             lambda: defaultdict(lambda: list()))  # {r: {d: (bytesOut, node)}}
-        for vs in gen_file_vs(timestamp_start):
+        for vs in gen_file_vs(start, index):
             # bytesOut, node
             self.rdn_dic[vs[iregion]][vs[idomain]].append((vs[iBO], vs[inode]))
             self.data_dic[vs[iDim]] = vs[:-3]
 
 
-def gen_file_vs(timestamp_start, index=0):
-    with open("./data/%s/%d.csv" % (timestamp_start, index)) as f:
+def gen_file_vs(start, index=0):
+    with open("./data/%s/%d.csv" % (start, index)) as f:
         for l in f:
             vs = process_line(l)
             if not vs:
@@ -116,15 +120,15 @@ def process_line(l):
     for i in range(1, len(vs) - 3):
         vs[i] = int(vs[i])
         if vs[i] < 0:
-            logging.warn("wrong data: %s", l)
+            logging.warn("negtive data: %s", l)
             return
     return vs
 
 
 # return {index:vs}
-def target_data(timestamp_start, ndr_set, index):
+def target_data(start, ndr_set, index):
     dic = {}
-    with open("./data/%s/%d.csv" % (timestamp_start, index)) as f:
+    with open("./data/%s/%d.csv" % (start, index)) as f:
         for l in f:
             vs = process_line(l)
             if not vs:
@@ -177,7 +181,8 @@ class Leaders(object):
     def __init__(self, rdn_dic, data_dic):
         self.rd_vs = {}  #{(r,d):(ndr, vs)}, bw leader by (r,d)
         self.r_vs = {}  #{r:(ndr,vs)}
-        self.dr_vs = defaultdict( lambda: defaultdict(lambda: set()))  #{d:r:max(ndr,vs)}
+        self.dr_vs = defaultdict(
+            lambda: defaultdict(lambda: set()))  #{d:r:max(ndr,vs)}
         self.n_vs = {}  #{n:(ndr,vs)}
         for r, v in rdn_dic.iteritems():
             for d, v2 in v.iteritems():
@@ -198,12 +203,16 @@ class Leaders(object):
                 self.n_vs[n] = vs
 
     def get_bydomain(self, domain):
-        print len(self.dr_vs), len(self.dr_vs[domain])
-        print self.dr_vs[domain]
+        logging.debug("domain: %s, len: %d" %
+                      (domain, len(self.dr_vs[domain])))
         dic = {}
         for r, (ndr, vs) in self.dr_vs[domain].iteritems():
             dic[ndr] = vs
         return dic
+
+    def gen_domains(self):
+        for domain in self.dr_vs:
+            yield domain, self.get_bydomain(domain)
 
     def get_region(self):
         dic = {}
@@ -259,7 +268,7 @@ def show_targets_without_bw(lst, xlabel, show=True):
         res = plt.hist(lst[i])
         j = hist_threshold_index(res[0])
         l, r = res[1][0], res[1][j + 1]
-        print legends1[i], ": Hist range:", l, r
+        logging.debug("%s: Hist range: %s %s" % (legends1[i], l, r))
         thresholds.append(r)
         if show:
             plt.subplot(len(lst), 2, 2 * i + 2)
@@ -282,6 +291,7 @@ def calc_bw_weight(lst):
         weights.append(s)
     return weights
 
+
 def show_targets(lst, xlabel, show=True):
     weights = calc_bw_weight(lst)
 
@@ -297,7 +307,7 @@ def show_targets(lst, xlabel, show=True):
         if i > 0:
             j = hist_threshold_index(res[0])
             l, r = res[1][0], res[1][j + 1]
-            print legends[i], ": Hist range:", l, r
+            logging.debug("%s: Hist range: %s %s" % (legends[i], l, r))
             thresholds.append(r)
         if show:
             plt.subplot(len(lst), 2, 2 * i + 2)
@@ -346,15 +356,16 @@ def accum_threshold(lst, thld=Bw_threshold):
     for v in am[::-1]:
         i -= 1
         if v < thld:
-            #  print "len: %d, accum threshold: %s, v: %s" % (len(am), i, am[i])
+            logging.debug("len: %d, accum threshold: %s, v: %s" %
+                          (len(am), i, am[i]))
             break
     return min(i + 1, len(am))
 
 
-def get_target_timeseries(timestamp_start, ndrs_set):
+def get_target_timeseries(start, ndrs_set):
     dic = {}
     for i in range(1400):
-        dic.update(target_data(timestamp_start, ndrs_set, i))
+        dic.update(target_data(start, ndrs_set, i))
     lst = get_targets(dic)
     show_targets(lst, "leaders with index")
 
@@ -363,65 +374,77 @@ def test_major(cdndata,
                domain=None,
                get_region=False,
                get_node=False,
+               all_domain=False,
                show=True):
     leaders = Leaders(cdndata.rdn_dic, cdndata.data_dic)
+    dic = None
     if domain:
         dic = leaders.get_bydomain(domain)
+        show_major(cdndata, dic, show, domain)
+    elif all_domain:
+        for domain, dic in leaders.gen_domains():
+            if len(dic) < 5:
+                continue
+            show_major(cdndata, dic, show, domain)
     elif get_node:
         dic = leaders.get_node()
+        show_major(cdndata, dic, show)
     elif get_region:
         dic = leaders.get_region()
+        show_major(cdndata, dic, show)
     else:
         return
 
+
+def show_major(cdndata, dic, show, title=None):
     lst = get_targets(dic)
-    thresholds = show_targets(lst, 'order by bw', show=show)
+    thresholds = show_targets(lst, title and title or 'order by bw', show=show)
     print "thresholds:", thresholds
     print "abnormal record below:"
     for ndr in dic:
         _, vs = target_vs(ndr, cdndata.data_dic[ndr])
         if not vs:
             continue
-        for i in range(len(thresholds)):
-            if vs[i + 1] / thresholds[i] > Abnormal_ratio:
-                print("ndr, vs: %s, %s" % (ndr, vs))
 
 
-def leader_timeseries(timestamp_start, cdndata):
+def leader_timeseries(start, cdndata):
     leaders = Leaders(cdndata.rdn_dic, cdndata.data_dic)
     ndrs_set = set([v[0] for v in leaders.r_vs.values()])
-    get_target_timeseries(timestamp_start, ndrs_set)
+    get_target_timeseries(start, ndrs_set)
 
 
-def count_ndr(timestamp_start, index):
+def count_ndr(start, index):
     global headers, iDim
     dims = set()
-    sum_less60BO, sumBO, = 0,0
-    s60=set()
-    with open("./data/%s/%d.csv" % (timestamp_start, index)) as f:
+    sum_less60BO, sumBO, = 0, 0
+    s60 = set()
+    with open("./data/%s/%d.csv" % (start, index)) as f:
         for l in f:
             vs = process_line(l)
             if not vs:
                 continue
             if int(vs[iReq]) < 60:
-                newDim='//%s' %vs[iDim].split('/')[-1]
+                newDim = '//%s' % vs[iDim].split('/')[-1]
                 s60.add(newDim)
                 sum_less60BO += vs[iBO]
             else:
                 dims.add(vs[iDim])
             sumBO += vs[iBO]
     dims.update(s60)
-    print 'len(s60):', len(s60), 'all:', len(dims), 'sum_less60BO:', sum_less60BO, 'sumBO:', sumBO, 'BO%:', float(sum_less60BO)/sumBO
+    print 'len(s60):', len(s60), 'all:', len(
+        dims), 'sum_less60BO:', sum_less60BO, 'sumBO:', sumBO, 'BO%:', float(
+            sum_less60BO) / sumBO
     return dims
 
 
-def test_ndrs(timestamp_start):
+def test_ndrs(start):
     dims_all = set()
     for i in range(1440):
-        dims = count_ndr(timestamp_start, i)
+        dims = count_ndr(start, i)
         dims_all = dims_all.union(dims)
         print 'file index: %d, len(dims): %d, len(dims_all): %d' % (
             i, len(dims), len(dims_all))
+
 
 """
 len(rd_dic): 5693
@@ -434,40 +457,122 @@ S5XX/Req : Hist range: 0.0 0.0147058823529
 SOther/Req : Hist range: 0.0 0.0993464052288
 """
 
-def show_abnormal(timestamp_start, fnum=10, filter_r=None, filter_d=None):
+
+def show_abnormal(start, fnum=10, filter_r=None, filter_d=None):
     thresholds = [657, 0.127, 108, 0.1, 0.1]
     for index in range(fnum):
-        for vs in gen_file_vs(timestamp_start, index):
+        for vs in gen_file_vs(start, index):
             ndr = vs[iDim]
             if filter_r and ndr.split('/')[2] != filter_r:
                 continue
             if filter_d and ndr.split('/')[1] != filter_d:
                 continue
             ndr, targets = target_vs(ndr, vs)
-            if targets[2] > thresholds[1] * 2: # Slow rate
-                    print ndr, targets
+            if targets[2] > thresholds[1] * 2:  # Slow rate
+                print ndr, targets
             #  for i in range(len(thresholds)):
-                #  if targets[i+1] > thresholds[i]:
-                    #  print ndr, targets
-                    #  break
+            #  if targets[i+1] > thresholds[i]:
+            #  print ndr, targets
+            #  break
+
+
+            #
+            #  alert aims: to ignore const abnormal, single peak
+            #  III        I         II
+            #  III        I         II
+            #  III        I         II
+            #  III       III       IIII
+            #  III       III       IIII
+            #  once     ignore    once & recover
+            #
+class Guard(object):
+    Empty = -1
+
+    def __init__(self):
+        self.dic = {}  # {ndr: (v,alerted)}
+        self.d_thld = {}  #{d: thhold}
+
+    def is_abnormal(self, domain, v, threshold):
+        self.d_thld[domain] = max(threshold, self.d_thld.get(domain, 0))
+        return v / max(1e-6, self.d_thld.get(domain)) > Abnormal_ratio
+
+    def take(self, ndr, v, threshold):
+        v_old, alerted_old = self.dic.get(ndr, (self.Empty, False))
+        d = ndr.split('/')[1]
+        if v_old == self.Empty:
+            alerted = self.is_abnormal(d, v, threshold)
+            if alerted:
+                self.alert(ndr, v, d, initial=True)
+        else:
+            v = min(v, v_old)
+            alerted = self.is_abnormal(d, v, threshold)
+            if not alerted:
+                if alerted_old == True:
+                    self.recover(ndr, v, d)
+            else:
+                if alerted_old == False:
+                    self.alert(ndr, v, d)
+        self.dic[ndr] = (v, alerted)
+
+    def alert(self, ndr, v, domain, initial=False):
+        print("Abnormal, ndr: %s, v: %s, threshold: %s, %s" %
+              (ndr, v, self.d_thld.get(domain, 0), initial and '*' * 10 or ''))
+
+    def recover(self, ndr, v, domain):
+        print("Recover, ndr: %s, v: %s threshold: %s" %
+              (ndr, v, self.d_thld.get(domain, 0)))
+
+
+g_guard = Guard()
+
+
+def play_back(start, fnum=1440):
+    for index in range(fnum):
+        print 'timestamp:', start + 60 * index
+        cdndata = CDNData(start, index)
+        leaders = Leaders(cdndata.rdn_dic, cdndata.data_dic)
+        for domain, dic in leaders.gen_domains():
+            process_major(dic, cdndata)
+
+
+def process_major(dic, cdndata):
+    lst = get_targets(dic)
+    thresholds = []
+    for i in range(len(lst)):
+        res = np.histogram(lst[i])
+        j = hist_threshold_index(res[0])
+        r = res[1][j + 1]
+        logging.debug('j: %s, r: %s' % (j, r))
+        thresholds.append(r)
+
+    for ndr in dic:
+        _, vs = target_vs(ndr, cdndata.data_dic[ndr])
+        if not vs:
+            continue
+        slow_index = 2
+        g_guard.take(
+            ndr, vs[slow_index],
+            thresholds[slow_index])  # begin with Slow/Req, then S4XX,...
 
 
 if __name__ == "__main__":
-    timestamp_start = 1470488400
+    start = 1470488400
+    play_back(start)
     #  rd_aggregation(
-        #  timestamp_start,10,
-        #  filter_r='ShanDong_CNC',
-        #  filter_d="js.a.yximgs.com",
+    #  start,10,
+    #  filter_r='ShanDong_CNC',
+    #  filter_d="js.a.yximgs.com",
     #  )
-    #  show_abnormal(timestamp_start, 10,
-        #  filter_r='ShanDong_CNC',
-        #  filter_d="js.a.yximgs.com",
-            #  )
-    #  test_ndrs(timestamp_start)
-    cdndata = CDNData(timestamp_start)
+    #  show_abnormal(start, 10,
+    #  filter_r='ShanDong_CNC',
+    #  filter_d="js.a.yximgs.com",
+    #  )
+    #  test_ndrs(start)
+    #  cdndata = CDNData(start)
     # test_major(cdndata, get_region=True)
-    test_major(cdndata, domain="js.a.yximgs.com", show=True)
+    #  test_major(cdndata, domain="js.a.yximgs.com", show=True)
+    #  test_major(cdndata, all_domain=True, show=False)
     #  target_node = 'cdntjun01'
-    #  get_target_timeseries(timestamp_start, 'cdnlinyun01/js.a.yximgs.com/ShanDong_CNC')
-    #leader_timeseries(timestamp_start, cdndata)
+    #  get_target_timeseries(start, 'cdnlinyun01/js.a.yximgs.com/ShanDong_CNC')
+    #leader_timeseries(start, cdndata)
     #  get_CMCC_region_node()
