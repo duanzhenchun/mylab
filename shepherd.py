@@ -475,11 +475,11 @@ def show_abnormal(start, fnum=10, filter_r=None, filter_d=None):
                     break
 
 #  alert aims: to ignore const abnormal, single peak
-#  III        I         II
-#  III        I         II
-#  III        I         II
-#  III       III       IIII
-#  III       III       IIII
+#  |||        |         ||
+#  |||        |         ||
+#  |||        |         ||
+#  |||       |||       ||||
+#  |||       |||       ||||
 #  once     ignore    once & recover
 class Guard(object):
     Empty = -1
@@ -529,7 +529,7 @@ class Guard(object):
 
     def alert(self, ndr, v, domain, threshold, initial=False):
         print("Abnormal, ndr: %s, v: %s, threshold: %s%s" %
-              (ndr, v, threshold, initial and ', __INITIAL_ALERT__' or ''))
+              (ndr, v, threshold, initial and ', ____1st____' or ''))
 
     def recover(self, ndr, v, domain, threshold):
         print("Recover, ndr: %s, v: %s threshold: %s" %
@@ -552,6 +552,8 @@ def play_back(start, fnum=1440):
             thresholds = []
             for i in range(len(cache_lst)):
                 res = np.histogram(cache_lst[i])
+                if i == 2:
+                    print domain, res
                 j = hist_threshold_index(res[0])
                 r = res[1][j + 1]
                 logging.debug('domain: %s,  j: %s, r: %s' % (domain, j, r))
@@ -570,7 +572,7 @@ def play_back(start, fnum=1440):
 
 if __name__ == "__main__":
     start = 1470488400
-    play_back(start, )
+    play_back(start, 100)
     #  rd_aggregation(
     #  start,10,
     #  filter_r='ShanDong_CNC',
