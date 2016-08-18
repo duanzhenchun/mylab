@@ -42,7 +42,6 @@ def rd_aggregation(start, fnum=1440, filter_r=None, filter_d=None):
                 rd_dic[(r, d)].append(vs)
     s_lst = [[] for i in range(len(legends) - 1)]
 
-    print "len(rd_dic):", len(rd_dic)
     for (r, d), vs in rd_dic.iteritems():
         lst = filter_lst(vs)
         for i in range(len(s_lst)):
@@ -470,31 +469,42 @@ def show_abnormal(start, fnum=10, filter_r=None, filter_d=None):
             ndr, targets = target_vs(ndr, vs)
             if targets[2] > thresholds[1] * 2:  # Slow rate
                 print ndr, targets
-            #  for i in range(len(thresholds)):
-            #  if targets[i+1] > thresholds[i]:
-            #  print ndr, targets
-            #  break
+            for i in range(len(thresholds)):
+                if targets[i+1] > thresholds[i]:
+                    print ndr, targets
+                    break
 
-
-            #
-            #  alert aims: to ignore const abnormal, single peak
-            #  III        I         II
-            #  III        I         II
-            #  III        I         II
-            #  III       III       IIII
-            #  III       III       IIII
-            #  once     ignore    once & recover
-            #
+#  alert aims: to ignore const abnormal, single peak
+#  III        I         II
+#  III        I         II
+#  III        I         II
+#  III       III       IIII
+#  III       III       IIII
+#  once     ignore    once & recover
 class Guard(object):
     Empty = -1
+    period_num = 60
 
     def __init__(self):
         self.dic = {}  # {ndr: (v,alerted)}
-        self.d_thld = {}  #{d: thhold}
+        self.cache = defaultdict(lambda: []) #{d: []}
+
+    def get_cache(self, domain):
+        if domain not in self.cache:
+            return None
+        res = [[] for i in range(len(self.cache[domain][0]))]
+        for lst in self.cache[domain]:
+            for i in range(len(lst)):
+                res[i] += lst[i]
+        return res
+
+    def caching(self, domain, lst):
+        if len(self.cache[domain]) >= self.period_num:
+            self.cache[domain].pop(0)
+        self.cache[domain].append(lst)
 
     def is_abnormal(self, domain, v, threshold):
-        self.d_thld[domain] = max(threshold, self.d_thld.get(domain, 0))
-        return v / max(1e-6, self.d_thld.get(domain)) > Abnormal_ratio
+        return v / max(1e-6, threshold) > Abnormal_ratio
 
     def take(self, ndr, v, threshold):
         v_old, alerted_old = self.dic.get(ndr, (self.Empty, False))
@@ -502,62 +512,65 @@ class Guard(object):
         if v_old == self.Empty:
             alerted = self.is_abnormal(d, v, threshold)
             if alerted:
-                self.alert(ndr, v, d, initial=True)
+                self.alert(ndr, v, d, threshold, initial=True)
+                self.dic[ndr] = (v, True)
         else:
             v = min(v, v_old)
             alerted = self.is_abnormal(d, v, threshold)
             if not alerted:
                 if alerted_old == True:
-                    self.recover(ndr, v, d)
+                    self.recover(ndr, v, d, threshold)
             else:
                 if alerted_old == False:
-                    self.alert(ndr, v, d)
-        self.dic[ndr] = (v, alerted)
+                    self.alert(ndr, v, d, threshold)
+            self.dic[ndr] = (v, alerted)
+        if alerted:
+            return ndr
 
-    def alert(self, ndr, v, domain, initial=False):
-        print("Abnormal, ndr: %s, v: %s, threshold: %s, %s" %
-              (ndr, v, self.d_thld.get(domain, 0), initial and '*' * 10 or ''))
+    def alert(self, ndr, v, domain, threshold, initial=False):
+        print("Abnormal, ndr: %s, v: %s, threshold: %s%s" %
+              (ndr, v, threshold, initial and ', __INITIAL_ALERT__' or ''))
 
-    def recover(self, ndr, v, domain):
+    def recover(self, ndr, v, domain, threshold):
         print("Recover, ndr: %s, v: %s threshold: %s" %
-              (ndr, v, self.d_thld.get(domain, 0)))
+              (ndr, v, threshold))
 
 
 g_guard = Guard()
 
 
 def play_back(start, fnum=1440):
+    slow_index = 2
     for index in range(fnum):
-        print 'timestamp:', start + 60 * index
+        print 'timestamp:', start + 60 * index, 'index:', index
         cdndata = CDNData(start, index)
         leaders = Leaders(cdndata.rdn_dic, cdndata.data_dic)
         for domain, dic in leaders.gen_domains():
-            process_major(dic, cdndata)
-
-
-def process_major(dic, cdndata):
-    lst = get_targets(dic)
-    thresholds = []
-    for i in range(len(lst)):
-        res = np.histogram(lst[i])
-        j = hist_threshold_index(res[0])
-        r = res[1][j + 1]
-        logging.debug('j: %s, r: %s' % (j, r))
-        thresholds.append(r)
-
-    for ndr in dic:
-        _, vs = target_vs(ndr, cdndata.data_dic[ndr])
-        if not vs:
-            continue
-        slow_index = 2
-        g_guard.take(
-            ndr, vs[slow_index],
-            thresholds[slow_index])  # begin with Slow/Req, then S4XX,...
+            cache_lst = g_guard.get_cache(domain)
+            if not cache_lst:
+                cache_lst = get_targets(dic)
+            thresholds = []
+            for i in range(len(cache_lst)):
+                res = np.histogram(cache_lst[i])
+                j = hist_threshold_index(res[0])
+                r = res[1][j + 1]
+                logging.debug('domain: %s,  j: %s, r: %s' % (domain, j, r))
+                thresholds.append(r)
+            for ndr in dic.keys():
+                _, vs = target_vs(ndr, cdndata.data_dic[ndr])
+                if not vs:
+                    continue
+                alert_ndr = g_guard.take(ndr, vs[slow_index], thresholds[slow_index]
+                             )  # begin with Slow/Req, then S4XX,...
+                if alert_ndr in dic:
+                    del dic[alert_ndr]
+            if dic: # not del to empty
+                g_guard.caching(domain, get_targets(dic))
 
 
 if __name__ == "__main__":
     start = 1470488400
-    play_back(start)
+    play_back(start, )
     #  rd_aggregation(
     #  start,10,
     #  filter_r='ShanDong_CNC',
