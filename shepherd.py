@@ -7,6 +7,7 @@ req_threhold = 100
 BO_threhold = 10**9
 Per_Reqs = "Slow Rt S4XX S499 S5XX SOther"
 iSlow = 2
+i4XX = 4
 Hist_threshold = 0.9
 Bw_threshold = 0.95
 Abnormal_ratio = 2.0
@@ -478,8 +479,6 @@ def show_abnormal(start, fnum=10, filter_r=None, filter_d=None):
             if filter_d and ndr.split('/')[1] != filter_d:
                 continue
             ndr, targets = target_vs(ndr, vs)
-            if targets[iSlow] > thresholds[iSlow - 1] * 2:
-                logger_root.debug("ndr: %s, targets: %s" % (ndr, targets))
             for i in range(len(thresholds)):
                 if targets[i + 1] > thresholds[i]:
                     logger_root.debug("ndr: %s, targets: %s" % (ndr, targets))
@@ -496,6 +495,7 @@ def show_abnormal(start, fnum=10, filter_r=None, filter_d=None):
 class Guard(object):
     Empty = -1
     period_num = 60
+    weights = {iSlow: 0.9, i4XX: 0.1}   # arbitary
 
     def __init__(self):
         self.dic = {}  # {ndr: (v,alerted)}
@@ -518,7 +518,16 @@ class Guard(object):
     def is_abnormal(self, domain, v, threshold):
         return v / max(1e-6, threshold) > Abnormal_ratio
 
-    def check(self, ndr, v, threshold):
+    def evaluate(self, vs, level_edges):
+        s = 0.0
+        for aim, w in self.weights.iteritems():
+            s += float(vs[aim] * 10 )/ level_edges[aim] * w
+        return s
+
+    def check(self, ndr, vs, thresholds):
+        # begin with Slow/Req, then S4XX,...
+        v, threshold = vs[iSlow], thresholds[iSlow]
+
         v_old, alerted_old = self.dic.get(ndr, (self.Empty, False))
         d = ndr.split('/')[1]
         if v_old == self.Empty:
@@ -570,23 +579,18 @@ def play_back(start, fnum=1440):
                 j = hist_threshold_index(res[0])
                 r = res[1][j + 1]
                 logger_root.debug('domain: %s,  j: %s, r: %s' % (domain, j, r))
-                if i == iSlow:
-                    logger_root.debug('iSlow histogram domain:%s, res: %s' %(domain, res[1][-1]))
                 thresholds.append(r)
                 level_edges.append(res[1][-1])
             for ndr in dic.keys():
                 _, vs = target_vs(ndr, cdndata.data_dic[ndr])
                 if not vs:
                     continue
-                alert_ndr = g_guard.check(
-                    ndr, vs[iSlow],
-                    thresholds[iSlow])  # begin with Slow/Req, then S4XX,...
+                alert_ndr = g_guard.check(ndr, vs, thresholds)
                 if alert_ndr in dic:
                     del dic[alert_ndr]
                 else:
                     n, d, r = ndr.split('/')
-                    qualities[r][d][n] = int(vs[iSlow] * 10 /
-                                             level_edges[iSlow])
+                    qualities[r][d][n] = g_guard.evaluate(vs, level_edges)
             if dic:  # not del to empty
                 g_guard.caching(domain, get_targets(dic))
         r = "GuangDong_CT"
