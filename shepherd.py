@@ -6,19 +6,21 @@ import numpy as np
 req_threhold = 100
 BO_threhold = 10**9
 Per_Reqs = "Slow Rt S4XX S499 S5XX SOther"
+iSlow = 2
 Hist_threshold = 0.9
 Bw_threshold = 0.95
 Abnormal_ratio = 2.0
 
 Curpath = os.path.dirname(os.path.abspath(__file__))
+
 import logging
 import logging.config
-logging.config.fileConfig("%s/shepherd.conf" %Curpath)
+logging.config.fileConfig("%s/shepherd.conf" % Curpath)
 # create logger
-logger_root = logging.getLogger('root')
-logger_nega = logging.getLogger('negativeData')
-logger_guard= logging.getLogger('guard')
-logger_quality= logging.getLogger('quality')
+logger_root = logging.getLogger('root') #qualname
+logger_neg = logging.getLogger('negativeData')
+logger_guard = logging.getLogger('guard')
+logger_quality = logging.getLogger('quality')
 
 Region_filters = ("Other_", "US_", "Asia", "Africa", "Vietnam", "Macao",
                   "Malaysia", "CA_", "Spain", "Australia")
@@ -36,6 +38,7 @@ TODO:
     dynamic load conf buy kill -HUP
     serielized data for restart
 """
+
 
 def rd_aggregation(start, fnum=1440, filter_r=None, filter_d=None):
     rd_dic = defaultdict(lambda: [])  # {(r,d): [vs]}
@@ -117,7 +120,7 @@ def process_line(l):
     if vs[0] == "Dim":
         if len(headers) < 1:  # headers not initialed
             headers = vs
-            logger_root.info('headers: %s' %headers)
+            logger_root.info('headers: %s' % headers)
             iBO = headers.index('bytesOut')
             inode = headers.index('node')
             idomain = headers.index('domain')
@@ -129,7 +132,7 @@ def process_line(l):
     for i in range(1, len(vs) - 3):
         vs[i] = int(vs[i])
         if vs[i] < 0:
-            logger_nega.warn(l)
+            logger_neg.info(l)
             return
     return vs
 
@@ -169,10 +172,19 @@ def get_CMCC_region_node():
     dic_r = g_leaders()
     for r, v in dic_r.iteritems():
         if r.endswith('_CMCC'):
-            # region, node
-            print v[-1], v[-2]
+            logger_root.debug("region: %s, node: %s" % (v[-1], v[-2]))
 
 
+"""
+len(rd_dic): 5693
+Rt/BO*1M : Hist range: 0.0 656.927836493
+Slow/Req : Hist range: 0.0 0.127
+Rt/Req : Hist range: 0.0 108.309574468
+S4XX/Req : Hist range: 0.0 0.1
+S499/Req : Hist range: 0.0 0.0991869918699
+S5XX/Req : Hist range: 0.0 0.0147058823529
+SOther/Req : Hist range: 0.0 0.0993464052288
+"""
 def target_vs(ndr, vs):
     req = vs[iReq]
     bo = float(vs[iBO])
@@ -180,9 +192,9 @@ def target_vs(ndr, vs):
     rt = float(vs[iRt])
     try:
         return ndr, (bw, rt / bo * 10**6) + tuple([float(vs[headers.index(
-            s)]) / req for s in (Per_Reqs.split())])
+            s)]) * 100 / req for s in (Per_Reqs.split())])
     except Exception, e:
-        logging.warn('ndr: %s, vs: %s, e:%s' % (ndr, vs, e))
+        logger_root.warn('ndr: %s, vs: %s, e:%s' % (ndr, vs, e))
         return None, None
 
 
@@ -212,7 +224,8 @@ class Leaders(object):
                 self.n_vs[n] = vs
 
     def get_bydomain(self, domain):
-        logger_root.debug("domain: %s, len: %d" % (domain, len(self.dr_vs[domain])))
+        logger_root.debug("domain: %s, len: %d" %
+                          (domain, len(self.dr_vs[domain])))
         dic = {}
         for r, (ndr, vs) in self.dr_vs[domain].iteritems():
             dic[ndr] = vs
@@ -248,7 +261,7 @@ class Leaders(object):
     def trial(self, r0="TianJin_CNC"):
         for (r, d), (ndr, vs) in self.rd_vs.iteritems():
             if r == r0 and vs[0] > 200:
-                print ndr, vs
+                logger_root.debug("ndr: %s, vs: %s" % (ndr, vs))
 
 
 def get_targets(dic):
@@ -365,7 +378,7 @@ def accum_threshold(lst, thld=Bw_threshold):
         i -= 1
         if v < thld:
             logger_root.debug("len: %d, accum threshold: %s, v: %s" %
-                          (len(am), i, am[i]))
+                              (len(am), i, am[i]))
             break
     return min(i + 1, len(am))
 
@@ -407,7 +420,7 @@ def test_major(cdndata,
 def show_major(cdndata, dic, show, title=None):
     lst = get_targets(dic)
     thresholds = show_targets(lst, title and title or 'order by bw', show=show)
-    logger_root.debug("thresholds: %s" %thresholds)
+    logger_root.debug("thresholds: %s" % thresholds)
     for ndr in dic:
         _, vs = target_vs(ndr, cdndata.data_dic[ndr])
         if not vs:
@@ -438,8 +451,10 @@ def count_ndr(start, index):
                 dims.add(vs[iDim])
             sumBO += vs[iBO]
     dims.update(s60)
-    logger_root.info('len(s60): %d, all: %d, sum_less60BO: %s, sumBO: %s, BO%: %f' %(len(s60), len(
-        dims), sum_less60BO, sumBO, float( sum_less60BO) / sumBO))
+    logger_root.info(
+        'len(s60): %d, all: %d, sum_less60BO: %s, sumBO: %s, BO%: %f' %
+        (len(s60), len(dims), sum_less60BO, sumBO,
+         float(sum_less60BO) / sumBO))
     return dims
 
 
@@ -448,20 +463,9 @@ def test_ndrs(start):
     for i in range(1440):
         dims = count_ndr(start, i)
         dims_all = dims_all.union(dims)
-        logger_root.info('file index: %d, len(dims): %d, len(dims_all): %d' % (
-            i, len(dims), len(dims_all)))
+        logger_root.info('file index: %d, len(dims): %d, len(dims_all): %d' %
+                         (i, len(dims), len(dims_all)))
 
-
-"""
-len(rd_dic): 5693
-Rt/BO*1M : Hist range: 0.0 656.927836493
-Slow/Req : Hist range: 0.0 0.127
-Rt/Req : Hist range: 0.0 108.309574468
-S4XX/Req : Hist range: 0.0 0.1
-S499/Req : Hist range: 0.0 0.0991869918699
-S5XX/Req : Hist range: 0.0 0.0147058823529
-SOther/Req : Hist range: 0.0 0.0993464052288
-"""
 
 
 def show_abnormal(start, fnum=10, filter_r=None, filter_d=None):
@@ -474,11 +478,11 @@ def show_abnormal(start, fnum=10, filter_r=None, filter_d=None):
             if filter_d and ndr.split('/')[1] != filter_d:
                 continue
             ndr, targets = target_vs(ndr, vs)
-            if targets[2] > thresholds[1] * 2:  # Slow rate
-                print ndr, targets
+            if targets[iSlow] > thresholds[iSlow - 1] * 2:
+                logger_root.debug("ndr: %s, targets: %s" % (ndr, targets))
             for i in range(len(thresholds)):
                 if targets[i + 1] > thresholds[i]:
-                    print ndr, targets
+                    logger_root.debug("ndr: %s, targets: %s" % (ndr, targets))
                     break
 
 
@@ -536,20 +540,22 @@ class Guard(object):
             return ndr
 
     def alert(self, ndr, v, domain, threshold, initial=False):
-        logger_guard.warn("Abnormal, ndr: %s, v: %s, threshold: %s%s" %
-              (ndr, v, threshold, initial and ', ____1st____' or ''))
+        logger_guard.info(
+            "Abnormal, ndr: %s, v: %s, threshold: %s%s" %
+            (ndr, v, threshold, initial and ', ____1st____' or ''))
 
     def recover(self, ndr, v, domain, threshold):
-        logger_guard.warn("Recover, ndr: %s, v: %s threshold: %s" % (ndr, v, threshold))
+        logger_guard.info("Recover, ndr: %s, v: %s threshold: %s" %
+                          (ndr, v, threshold))
 
 
 g_guard = Guard()
 
 
 def play_back(start, fnum=1440):
-    iSlow = 2
     for index in range(fnum):
-        logger_root.info('timestamp: %s, index: %s' %(start + 60 * index, index))
+        logger_root.info('timestamp: %s, index: %s' %
+                         (start + 60 * index, index))
         cdndata = CDNData(start, index)
         leaders = Leaders(cdndata.rdn_dic, cdndata.data_dic)
         qualities = defaultdict(lambda: defaultdict(lambda: defaultdict(int))
@@ -558,13 +564,16 @@ def play_back(start, fnum=1440):
             cache_lst = g_guard.get_cache(domain)
             if not cache_lst:
                 cache_lst = get_targets(dic)
-            thresholds = []
+            thresholds, level_edges = [], []
             for i in range(len(cache_lst)):
                 res = np.histogram(cache_lst[i])
                 j = hist_threshold_index(res[0])
                 r = res[1][j + 1]
                 logger_root.debug('domain: %s,  j: %s, r: %s' % (domain, j, r))
+                if i == iSlow:
+                    logger_root.debug('iSlow histogram domain:%s, res: %s' %(domain, res[1][-1]))
                 thresholds.append(r)
+                level_edges.append(res[1][-1])
             for ndr in dic.keys():
                 _, vs = target_vs(ndr, cdndata.data_dic[ndr])
                 if not vs:
@@ -577,13 +586,14 @@ def play_back(start, fnum=1440):
                 else:
                     n, d, r = ndr.split('/')
                     qualities[r][d][n] = int(vs[iSlow] * 10 /
-                                             thresholds[iSlow])
+                                             level_edges[iSlow])
             if dic:  # not del to empty
                 g_guard.caching(domain, get_targets(dic))
-        r = "BeiJing_CNC"
+        r = "GuangDong_CT"
         for d, v in qualities[r].iteritems():
             for n, level in v.iteritems():
-                logger_quality.info("rdn: %s/%s/%s, level: %d" %(r, d, n, level))
+                logger_quality.info("rdn: %s/%s/%s, level: %d" %
+                                    (r, d, n, level))
 
 
 if __name__ == "__main__":
