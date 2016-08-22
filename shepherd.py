@@ -18,7 +18,7 @@ import logging
 import logging.config
 logging.config.fileConfig("%s/shepherd.conf" % Curpath)
 # create logger
-logger_root = logging.getLogger('root') #qualname
+logger_root = logging.getLogger('root')  #qualname
 logger_neg = logging.getLogger('negativeData')
 logger_guard = logging.getLogger('guard')
 logger_quality = logging.getLogger('quality')
@@ -33,7 +33,6 @@ headers = []
 iBO, inode, idomain, iregion, iregion, iDim, iReq, iRt = 0, 0, 0, 0, 0, 0, 0, 0
 
 # nohup getDay.sh 1470488400
-
 """
 TODO:
     dynamic load conf buy kill -HUP
@@ -186,6 +185,8 @@ S499/Req : Hist range: 0.0 0.0991869918699
 S5XX/Req : Hist range: 0.0 0.0147058823529
 SOther/Req : Hist range: 0.0 0.0993464052288
 """
+
+
 def target_vs(ndr, vs):
     req = vs[iReq]
     bo = float(vs[iBO])
@@ -468,7 +469,6 @@ def test_ndrs(start):
                          (i, len(dims), len(dims_all)))
 
 
-
 def show_abnormal(start, fnum=10, filter_r=None, filter_d=None):
     thresholds = [657, 0.127, 108, 0.1, 0.1]
     for index in range(fnum):
@@ -495,7 +495,7 @@ def show_abnormal(start, fnum=10, filter_r=None, filter_d=None):
 class Guard(object):
     Empty = -1
     period_num = 60
-    weights = {iSlow: 0.9, i4XX: 0.1}   # arbitary
+    weights = {iSlow: 0.9, i4XX: 0.1}  # arbitary
 
     def __init__(self):
         self.dic = {}  # {ndr: (v,alerted)}
@@ -521,10 +521,10 @@ class Guard(object):
     def evaluate(self, vs, level_edges):
         s = 0.0
         for aim, w in self.weights.iteritems():
-            s += float(vs[aim] * 10 )/ level_edges[aim] * w
+            s += float(vs[aim] * 10) / level_edges[aim] * w
         return s
 
-    def check(self, ndr, vs, thresholds):
+    def check(self, ndr, vs, thresholds, ts):
         # begin with Slow/Req, then S4XX,...
         v, threshold = vs[iSlow], thresholds[iSlow]
 
@@ -533,29 +533,29 @@ class Guard(object):
         if v_old == self.Empty:
             alerted = self.is_abnormal(d, v, threshold)
             if alerted:
-                self.alert(ndr, v, d, threshold, initial=True)
+                self.alert(ts, ndr, v, d, threshold, initial=True)
                 self.dic[ndr] = (v, True)
         else:
             v = min(v, v_old)
             alerted = self.is_abnormal(d, v, threshold)
             if not alerted:
                 if alerted_old == True:
-                    self.recover(ndr, v, d, threshold)
+                    self.recover(ts, ndr, v, d, threshold)
             else:
                 if alerted_old == False:
-                    self.alert(ndr, v, d, threshold)
+                    self.alert(ts, ndr, v, d, threshold)
             self.dic[ndr] = (v, alerted)
         if alerted:
             return ndr
 
-    def alert(self, ndr, v, domain, threshold, initial=False):
+    def alert(self, ts, ndr, v, domain, threshold, initial=False):
         logger_guard.info(
-            "Abnormal, ndr: %s, v: %s, threshold: %s%s" %
-            (ndr, v, threshold, initial and ', ____1st____' or ''))
+            "Abnormal, ts: %s, ndr: %s, v: %s, threshold: %s%s" %
+            (ts, ndr, v, threshold, initial and ', ____1st____' or ''))
 
-    def recover(self, ndr, v, domain, threshold):
-        logger_guard.info("Recover, ndr: %s, v: %s threshold: %s" %
-                          (ndr, v, threshold))
+    def recover(self, ts, ndr, v, domain, threshold):
+        logger_guard.info("Recover, ts: %s, ndr: %s, v: %s threshold: %s" %
+                          (ts, ndr, v, threshold))
 
 
 g_guard = Guard()
@@ -563,8 +563,8 @@ g_guard = Guard()
 
 def play_back(start, fnum=1440):
     for index in range(fnum):
-        logger_root.info('timestamp: %s, index: %s' %
-                         (start + 60 * index, index))
+        ts = start + 60 * index
+        logger_root.info('timestamp: %s, index: %s' % (ts, index))
         cdndata = CDNData(start, index)
         leaders = Leaders(cdndata.rdn_dic, cdndata.data_dic)
         qualities = defaultdict(lambda: defaultdict(lambda: defaultdict(int))
@@ -585,7 +585,7 @@ def play_back(start, fnum=1440):
                 _, vs = target_vs(ndr, cdndata.data_dic[ndr])
                 if not vs:
                     continue
-                alert_ndr = g_guard.check(ndr, vs, thresholds)
+                alert_ndr = g_guard.check(ndr, vs, thresholds, ts)
                 if alert_ndr in dic:
                     del dic[alert_ndr]
                 else:
@@ -601,8 +601,8 @@ def play_back(start, fnum=1440):
 
 
 if __name__ == "__main__":
-    start = 1470488400
-    play_back(start, 10)
+    start = 1471438800
+    play_back(start, 4319)
     #  rd_aggregation(
     #  start,10,
     #  filter_r='ShanDong_CNC',
