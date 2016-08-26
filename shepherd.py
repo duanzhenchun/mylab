@@ -446,17 +446,16 @@ def count_ndr(start, index):
             if not vs:
                 continue
             if int(vs[iReq]) < 60:
-                newDim = '//%s' % vs[iDim].split('/')[-1]
+                newDim = vs[iDim].rsplit('/',1)[0]+'/-' # replace r with -
                 s60.add(newDim)
                 sum_less60BO += vs[iBO]
             else:
                 dims.add(vs[iDim])
             sumBO += vs[iBO]
     dims.update(s60)
-    logger_root.info(
-        'len(s60): %d, all: %d, sum_less60BO: %s, sumBO: %s, BO%: %f' %
-        (len(s60), len(dims), sum_less60BO, sumBO,
-         float(sum_less60BO) / sumBO))
+    logger_root.warn(
+        'len(s60): %d, all: %d, sum_less60BO: %s, sumBO: %s, BO(%%): %.1f%%' %
+        (len(s60), len(dims), sum_less60BO, sumBO, 100 * float(sum_less60BO) / sumBO))
     return dims
 
 
@@ -601,8 +600,9 @@ def play_back(start, fnum=1440):
 
 
 if __name__ == "__main__":
-    start = 1471438800
-    play_back(start, 4319)
+    start = 1470488400
+    test_ndrs(start)
+    #  play_back(start, 4319)
     #  rd_aggregation(
     #  start,10,
     #  filter_r='ShanDong_CNC',
@@ -612,7 +612,6 @@ if __name__ == "__main__":
     #  filter_r='ShanDong_CNC',
     #  filter_d="js.a.yximgs.com",
     #  )
-    #  test_ndrs(start)
     #  cdndata = CDNData(start)
     # test_major(cdndata, get_region=True)
     #  test_major(cdndata, domain="js.a.yximgs.com", show=True)
