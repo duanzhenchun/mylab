@@ -599,6 +599,19 @@ def play_back(start, fnum=1440):
                                     (r, d, n, level))
 
 
+"""
+# new data, use slow_hit
+select node_name, region, qps_all, qps_miss, qps_big_slow_hit, qps_small_slow_hit, rtt from "sla/js.a.yximgs.com" where time > now() - 4m and time < now() - 3m
+select qps_all, qps_big_slow_hit, qps_small_slow_hit from "sla/js.a.yximgs.com" where time > now() - 4m and time < now() - 3m and region = 'BeiJing_CNC' and node = 'cdntjun01' and cache_layer = 'E'
+
+# compare nodes by slow-bw curves
+#e.g.:
+        "js.a.yximgs.com"   "cdntjun01" "BeiJing_CNC"
+CMD="influx -host 10.96.2.204 -port 8086 -database CDN -username reader -password readpeak -format csv -execute "
+$CMD "select sum(qps_all), sum(qps_big_slow_hit), sum(qps_small_slow_hit), sum(\"499_all\") from \"sla/js.a.yximgs.com\" where node_name = 'cdntjun01' and cache_layer = 'E' and region = 'BeiJing_CNC' and time >= 1472227200s and time < 1472313600s group by node_name, region, domain, time(1m)" > ndr_sla.csv
+$CMD "select byte_all from ndr_bw where region = 'BeiJing_CNC' and node_name = 'cdntjun01' and domain = 'js.a.yximgs.com' and cache_layer = 'E' and time >= 1472227200s and time < 1472313600s" > ndr_bw.csv
+"""
+
 if __name__ == "__main__":
     start = 1470488400
     test_ndrs(start)

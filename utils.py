@@ -2,15 +2,19 @@
 import time
 import chardet
 import datetime
+import math
 import sys
+
 
 def input_pass(user):
     import getpass
-    return getpass.unix_getpass("password of %s:" %user)
+    return getpass.unix_getpass("password of %s:" % user)
+
 
 def signal_handler(signal, frame):
     print 'You pressed Ctrl+C!'
     sys.exit(0)
+
 
 def test_signal():
     import signal
@@ -18,41 +22,34 @@ def test_signal():
     print 'Press Ctrl+C'
     signal.pause()
 
+
 def benchmark(f):
     def wrapper(*args, **kwargs):
         t = time.time()
         res = f(*args, **kwargs)
         print '%s %f %s' % (f.__name__, time.time() - t, 'sec')
         return res
+
     return wrapper
+
 
 def singleton(cls):
     instances = {}
+
     def getinstance():
         if cls not in instances:
             instances[cls] = cls()
         return instances[cls]
+
     return getinstance
+
 
 def genpasswd(name, salt='whille', limit=12):
     import hashlib
-    name=name.lower()
-    salt=salt[::-1]
-    res=hashlib.sha512(name + salt).hexdigest()
+    name = name.lower()
+    salt = salt[::-1]
+    res = hashlib.sha512(name + salt).hexdigest()
     return name + '_' + res[-5:], res[:limit]
-
-
-def time2now(created_at):
-    return time.time() - time.mktime(get_create_at(created_at).timetuple())
-
-
-def benchmark(f):
-    def wrapper(*args, **kwargs):
-        t = time.time()
-        res = f(*args, **kwargs)
-        print '%s %f %s' % (f.__name__, time.time() - t, 'sec')
-        return res
-    return wrapper
 
 
 def normalize(lst):
@@ -79,17 +76,20 @@ def sample_rotation(N, ratio=.25):
             yield i
         for i in xrange(loc[1], N):
             yield i
+
     for loc in split_sample():
         yield multirange(), xrange(*loc)
 
 
 def lstclosure():
     lst = []
+
     def _(x=None):
         if x:
             lst.append(x)
         else:
             return lst
+
     return _
 
 
@@ -103,9 +103,11 @@ def chunks(l, n):
 def get_encoding(txt):
     return chardet.detect(txt[:100])['encoding']
 
+
 def tounicode(s):
     encoding = get_encoding(s)
     return isinstance(s, unicode) and s or s.decode(encoding, 'ignore')
+
 
 def toutf8(s):
     return isinstance(s, unicode) and s.encode('utf8') or s
@@ -114,5 +116,3 @@ def toutf8(s):
 def fmt_timestamp(t):
     dt = datetime.datetime.fromtimestamp(t)
     return dt.strftime('%Y-%m-%d %H:%M:%S')
-
-

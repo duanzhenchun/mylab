@@ -4,7 +4,7 @@ import math
 import numpy as np
 from sklearn import tree
 from sklearn.ensemble import ExtraTreesRegressor
-    
+
 
 def dtree(X, Y):
     maxY = max(Y)
@@ -14,7 +14,7 @@ def dtree(X, Y):
     for sample, guess in sample_rotation(len(X)):
         lst = list(sample)
         clf = tree.DecisionTreeClassifier(compute_importances=True)
-        clf = clf.fit([X[i] for i in lst], [Y[j] for j in lst]) 
+        clf = clf.fit([X[i] for i in lst], [Y[j] for j in lst])
         feature_w.append(clf.feature_importances_)
         lst2 = list(guess)
         res = clf.predict([X[i] for i in lst2])
@@ -45,33 +45,33 @@ def random_forest(X, Y):
     from milk.supervised import randomforest
     from milk.supervised.multi import one_against_one
     import milk.nfoldcrossvalidation
-    
-    features = np.array(X)   
-    labels = np.array(Y) 
+
+    features = np.array(X)
+    labels = np.array(Y)
     rf_learner = randomforest.rf_learner()
     # rf is a binary learner, so we transform it into a multi-class classifier
     learner = one_against_one(rf_learner)
     #     learner = rf_learner
-    
+
     # result
     # cross validate with this learner and return predictions on left-out elements
     cmat, names, preds = milk.nfoldcrossvalidation(features, labels, nfolds=4, classifier=learner, return_predictions=1)
     print 'cross-validation accuracy:', cmat.trace() / float(cmat.sum())
-    return 
-    
+    return
+
 def sample_rotation(N, ratio=.25):
     def split_sample():
         for i in range(int(1 / ratio)):
-            loc = map(lambda x:int(x * N * ratio), (i, i + 1))  
+            loc = map(lambda x:int(x * N * ratio), (i, i + 1))
             yield loc
     def multirange():
         for i in xrange(0, loc[0]):
-            yield i 
-        for i in xrange(loc[1], N):  
-            yield i  
+            yield i
+        for i in xrange(loc[1], N):
+            yield i
     for loc in split_sample():
         yield multirange(), xrange(*loc)
-        
+
 def load_cocadata():
     import xlrd
     fname = '../doc/for spss 2.xlsx'
@@ -119,14 +119,14 @@ def load_spam_trainingdata():
     ['0.04', '0.04', '0.02', '0.54', '0.14', '0.00', '0.00', '0.00', '0.07', '0.01', '0.02', '0.09', '0.04']
     sorted by order:
         days2now, followers_count, deslen, average puretxt len, ...
-    
+
     random forest:
     very slow
     cmat:
         array([[1234,   92],
                [  65,  933]])
     accuracy: 0.93
-    
+
     svm.SVC: fast
     accuracy: 89%
     """
@@ -134,7 +134,7 @@ def load_spam_trainingdata():
     Ylabels = ['is_spam',]
     X,Y = [],[]
     with open(fname) as f:
-        for _ in xrange(1): # feature format 
+        for _ in xrange(1): # feature format
             print f.next()
         for line in f:
             row = line.strip().split()
@@ -144,15 +144,15 @@ def load_spam_trainingdata():
             x.append(float(row[-1]))
             X.append(x)
             Y.append([int(row[1]),])
-    return X, Y, Ylabels    
- 
+    return X, Y, Ylabels
+
 def t_svm(X,y, ratio=.25):
     """
     C, gamma of rbf, refer:
     http://scikit-learn.org/stable/modules/svm.html#parameters-of-the-rbf-kernel
     """
     from sklearn import svm
-    X = np.array(X)   
+    X = np.array(X)
     y = np.array(y)
 #     l = int(len(X)*(1.0 - ratio))
 #     X_trains,y_trains, Xtest, ytest = X[:l],y[:l], X[l:],y[l:]
@@ -172,7 +172,7 @@ def t_svm(X,y, ratio=.25):
 #     y_= clf.predict(Xtest)
 #     res = np.nonzero(ytest-y_)[0]
 #     print len(res)*1.0/len(ytest)
-    
+
 
 def info(score, C, gamma):
     return 'score=%s C=%s gamma=%s' %(score, C, gamma)
@@ -194,7 +194,7 @@ def svm_best(X,y,Xtest,ytest, params=None, **kw):
             results.append(res)
     return max(results)
 
-    
+
 def multi_Y(X, Y, Ylabels):
     from sklearn import preprocessing
     scaler = preprocessing.StandardScaler().fit(X)
@@ -205,7 +205,7 @@ def multi_Y(X, Y, Ylabels):
         dtree(X, Y[i])
 #         random_forest(X,Y[i])
 #        t_svm(X,Y[i])
-        
+
 if __name__ == '__main__':
 #     X, Y, Ylabels = load_cocadata()
     X,Y,Ylabels = load_spam_trainingdata()

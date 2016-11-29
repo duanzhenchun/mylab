@@ -1,8 +1,7 @@
 #coding=utf-8
 
-from pyExcelerator import *
-from pyExcelerator import Style
-import datetime, ast
+from pyExcelerator import Style, Workbook, Font
+import ast
 
 #中国省份信息
 provincesdict = {'11': '北京',
@@ -46,38 +45,38 @@ provincesdict = {'11': '北京',
              }
 
 def write_excel(results):
-    title = ['DATE', 'User ID', 'SCREEN NAME', 'Fans', 'Fan Growth', 'Fan Growth %', 'Tweets', 'Retweets', 'Comments', 'direct @', 
+    title = ['DATE', 'User ID', 'SCREEN NAME', 'Fans', 'Fan Growth', 'Fan Growth %', 'Tweets', 'Retweets', 'Comments', 'direct @',
                       'Likes', 'Impression', 'ER 30 days', 'ER 7 days', '#1 Post URL', '#1 Post ER', '#1 Post RT', '#1 Post CT', '#2 Post URL',
-                      '#2 Post ER', '#2 Post RT', '#2 Post CT', '#3 Post URL', '#3 Post ER', '#3 Post RT', '#3 Post CT', '#4 Post URL', 
-                      '#4 Post ER', '#4 Post RT', '#4 Post CT', '#5 Post URL', '#5 Post ER', '#5 Post RT', '#5 Post CT', '#1 Influencer URL', 
+                      '#2 Post ER', '#2 Post RT', '#2 Post CT', '#3 Post URL', '#3 Post ER', '#3 Post RT', '#3 Post CT', '#4 Post URL',
+                      '#4 Post ER', '#4 Post RT', '#4 Post CT', '#5 Post URL', '#5 Post ER', '#5 Post RT', '#5 Post CT', '#1 Influencer URL',
                       '#1 Influencer Tweets Count', '#1 Influencer Comments Count', '#1 Influencer Direct @ Count', '#2 Influencer URL',
-                      '#2 Influencer Tweets Count', '#2 Influencer Comments', '#2 Influencer Direct @ Count', '#3 Influencer URL', 
+                      '#2 Influencer Tweets Count', '#2 Influencer Comments', '#2 Influencer Direct @ Count', '#3 Influencer URL',
                       '#3 Influencer Tweets Count', '#3 Influencer Comments', '#3 Influencer Direct @ Count', '#4 Influencer URL',
                       '#4 Influencer Tweets Count', '#4 Influencer Comments', '#4 Influencer Direct @ Count', '#5 Influencer URL',
-                      '#5 Influencer Tweets Count', '#5 Influencer Comments', '#5 Influencer Direct @ Count', '#1 Hashtag', 
+                      '#5 Influencer Tweets Count', '#5 Influencer Comments', '#5 Influencer Direct @ Count', '#1 Hashtag',
                       "#1 Hashtag's engagement rate", '#2 Hashtag', "#2 Hashtag's engagement rate", '#3 Hashtag',
                       "#3 Hashtag's engagement rate", 'Question Posted', 'Question Responded', 'Question Response Time', 'Response Share']
     w = Workbook()
     ws = w.add_sheet('Weekly Raw Data')
     wt = w.add_sheet('Fans Info')
-    
+
     font = Font()
     font.height = 12 * 0x14
     font.name = str_to_unicode('微软雅黑')
     title_style =  Style.XFStyle()
     title_style.font = font
-    
+
     fontbold = Font()
     fontbold.height = 12 * 0x14
     fontbold.bold = True
     fontbold.name = str_to_unicode('微软雅黑')
     boldstyle =  Style.XFStyle()
     boldstyle.font = fontbold
-    
+
     percent = Style.XFStyle()
     percent.font = font
     percent.num_format_str = '0.00%'
-    
+
     for i in range(len(title)):
         ws.col(i).width = 3600
     ws.write_cols(0, 0, title, title_style)
@@ -98,31 +97,31 @@ def write_excel(results):
         for post in top_posts:
             t_posts.extend([post[1]['url'], post[0], post[1]['nret'], post[1]['ncmt']])
         t_posts.extend(['N/A'] * (20 - len(t_posts)))
-        
+
         t_influencer = []
         top_influencer = sorted(top_influencer, key=lambda x:x[0], reverse=True)
         for influ in top_influencer:
             weibourl = 'http://weibo.com/u/%s'%influ[1]['uid']
             t_influencer.extend([weibourl, influ[1].get('reposts', 0), influ[1].get('comments', 0), influ[1].get('direct_at', 0)])
         t_influencer.extend(['N/A'] * (20 - len(t_influencer)))
-        
+
         t_hashtag = []
         if top_hashtag:
             top_hashtag = sorted(top_hashtag, key=lambda x:x[0], reverse=True)
             [t_hashtag.extend([hash[1], hash[0]]) for hash in top_hashtag]
         t_hashtag.extend(['N/A'] * (6 - len(t_hashtag)))
-        
+
         account_index = [day.strftime('%Y-%m-%d'), uid, screen_name, fans, fan_growth, fan_percent, tweets, retweets, \
                          comments, direct_at, likes if likes else 0, \
-                         impressions, er_30, er_7] + t_posts + t_influencer + t_hashtag + [questions, responds, mean_res, 
+                         impressions, er_30, er_7] + t_posts + t_influencer + t_hashtag + [questions, responds, mean_res,
                                                                                            response_share if response_share else 'N/A']
         #将第一页数据写入execl
         ws.write_cols(res+1, 0, account_index, title_style)
-        
+
         tag.extend([('N/A', 0) for i in range(10 - len(tag))])
         province.extend([('N/A', 0) for i in range(10 - len(province))])
         subfans.extend([0 for i in range(12 - len(subfans))])
-        
+
         vertical_title = [screen_name, 'Active', 'Active Fans', 'Other Fans', '', 'Interaction', 'Interactive Fans', 'Other Fans', '', 'Verified Type', \
          'Verified', 'Daren', 'Un-verified', '', 'Fan Number', '0~9', '10~49', '50~99', '100~199', '200~299', '300~399', '400~499',\
          '500~999', '1000~1999', '2000~4999', '5000~9999', '>=10000', '', 'Gender', 'Male', 'Female', '', 'Age', '<18', '18~24', \
@@ -138,17 +137,17 @@ def write_excel(results):
             else:
                 wt.write(ordinate, abscissa, vertical_title[ver], title_style)
             ordinate += 1
-        if verified:    
+        if verified:
             verified_count = float(sum(verified))
             verified_type = [verified[1]/verified_count, verified[2]/verified_count, verified[0]/verified_count] if verified_count > 0 else [0, 0, 0]
         else:
             verified_type = [0] * 3
-        
+
         if len(gender)!=2: gender = [0, 0]
         else:
             gender.sort()
             gender = [gender[1][1], gender[0][1]]
-            
+
         tagdata = [i[1] for i in tag]
         provincedata = [i[1] for i in province]
         if age:
@@ -156,17 +155,17 @@ def write_excel(results):
             age_type = [i/float(sum(age)) for i in age]
         else:
             age_type = [0] * 8
-        
+
         if not brand_hour : brand_hour = [0] * 24
         if not brand_week : brand_week = [0] * 7
         subfans_type, gender_type, tag_type, province_type, fanshour_type, fansweek_type, brandhour_type, brandweek_type = \
                [div_data(j) for j in [subfans, gender, tagdata, provincedata, fans_hour, fans_week, brand_hour, brand_week]]
-        
+
         gaps = ['', 'Percentage']
         vertical_data = ['', 'Percentage', active, 1-active if active else 0, '', 'Percentage', interactive, 1-interactive if interactive else 0, \
                          '', 'Percentage'] + verified_type + gaps + subfans_type + gaps + gender_type + gaps + age_type + gaps + \
                       tag_type + gaps + province_type + ['', 'Fans Activity'] + fanshour_type + ['', 'Fans Activity'] + fansweek_type
-        
+
         wt.col(res*3+1).width = 4000
         ordinate = 0
         abscissa += 1
@@ -176,7 +175,7 @@ def write_excel(results):
             else:
                 wt.write(ordinate, abscissa, vertical_data[ver], percent)
             ordinate += 1
-            
+
         wt.col(res*3+2).width = 4000
         ordinate = 0
         rest_data = [''] * 66 + ['Brand Activity'] + brandhour_type + ['', 'Brand Activity'] + brandweek_type
@@ -187,7 +186,7 @@ def write_excel(results):
             else:
                 wt.write(ordinate, abscissa, rest_data[ver], percent)
             ordinate += 1
-        abscissa += 2 
+        abscissa += 2
     return w
     #try:
         #w.save('abc.xls')
@@ -206,7 +205,7 @@ def format_data(strs):
         return ast.literal_eval(strs)
     except:
         return ''
-    
+
 def str_to_unicode(string):
     if isinstance(string, str):
         return string.decode('utf-8')
