@@ -3,14 +3,14 @@ ref:
     http://en.wikipedia.org/wiki/Cron
 
 crontab -e
-# Minute   Hour   Day of Month       Month          Day of Week        Command  
+# Minute   Hour   Day of Month       Month          Day of Week        Command
 
 @hourly  cd /home/admin/accountindex/src && python scheduler.py hourly
 @daily   cd /home/admin/accountindex/src && python scheduler.py daily
 @weekly  cd /home/admin/accountindex/src && python scheduler.py weekly
 @monthly cd /home/admin/accountindex/src && python scheduler.py monthly
 
-"""    
+"""
 
 from multiprocessing import Pool
 from dateutil.relativedelta import relativedelta
@@ -94,7 +94,7 @@ def taskfn(ttype):
     return eval(ttype)
 
 def schedule(tasktype):
-    pool = Pool(processes=NUMBER_OF_PROCESSES)   
+    pool = Pool(processes=NUMBER_OF_PROCESSES)
     uids = mysql_tool.taskuids()
     res = []
     r = pool.map_async(taskfn(tasktype), uids, callback=res.extend)
@@ -108,10 +108,10 @@ def rand_account(i):
     crawler.random_account()
 
 def getresult(x):
-    print 'getresult', x 
+    print 'getresult', x
 
 def random_schedule():
-    pool = Pool(processes=3)   
+    pool = Pool(processes=3)
     for i in range(100):
         pool.apply_async(rand_account, args=(i,), callback=getresult)
     pool.close()

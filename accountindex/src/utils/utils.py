@@ -6,17 +6,13 @@ try:
     from weibo import APIClient
 except:
     pass
-try:
-    from crawl.weibo import APIClient
-except:
-    pass
 
 from mysql_tool import get_connect
 from conf import *
 
 def tweet_url(uid, tid):
     return 'http://api.t.sina.com.cn/%s/statuses/%s' % (uid, tid)
-    
+
 def url_query_parameter(url, parameter, default=None, keep_blank_values=0):
     """Return the value of a url parameter, given the url and parameter name"""
     queryparams = cgi.parse_qs(urlparse.urlsplit(str(url))[3], \
@@ -60,7 +56,7 @@ def continuation_time(db_data):
         datedict[(j[0], j[1])] = j[2]
     date_tuple[1] -= 1
     return date_tuple, datedict
-    
+
 def get_pagenum(request):
     # 获取页码数
     try:
@@ -84,9 +80,9 @@ def fmt_create_at(create_at):
     try:
         return datetime.datetime.strptime(create_at, '%a %b %d %H:%M:%S +0800 %Y')
     except:
-        #traceback.print_exc()
+        traceback.print_exc()
         return ''
-        
+
 def get_datetime(strdate, datetype='date', datediff=0):
     # 将时间 日期格式化。
     try:
@@ -99,7 +95,7 @@ def get_datetime(strdate, datetype='date', datediff=0):
                 stfdate = strdate
             else:
                 stfdate = datetime.datetime.strptime(strdate, '%Y-%m-%d').date()
-            if datediff: 
+            if datediff:
                 return stfdate + datetime.timedelta(days=datediff)
             else: return stfdate
         if datetype == 'datetime':
@@ -107,7 +103,7 @@ def get_datetime(strdate, datetype='date', datediff=0):
                 stfdate = strdate
             else:
                 stfdate = datetime.datetime.strptime(strdate, '%Y-%m-%d %H:%M:%S')
-            if datediff: 
+            if datediff:
                 return stfdate + datetime.timedelta(days=datediff)
             else: return stfdate
     except:
@@ -123,7 +119,7 @@ def right_data(maxnum, *args):
         [dict1.update({i[0]: [int(j) for j in i[1:]]})  for i in first]
         if not dict1:
             continue
-            # lenght = 1 
+            # lenght = 1
         else:
             lenght = len(dict1.values()[0])
         for j in valid.keys():
@@ -197,7 +193,7 @@ def loop_get_data(client, attr, attrname=None, **kargs):
         if weitexts:
             return client, weibotext
     return client, weibotext
-    
+
 def get_querymid(url):
     return url.split('/')[-1].split('#')[0]
 
@@ -215,17 +211,17 @@ def send_err_to_mail(subject='', body='', to=OP_MAIL_Tos, **kwargs):
     import smtplib
     from email.mime.multipart import MIMEMultipart
     from email.mime.text import MIMEText
-    msg = MIMEMultipart() 
-    msg['From'] = OP_MAIL_From 
+    msg = MIMEMultipart()
+    msg['From'] = OP_MAIL_From
     msg['Subject'] = OP_MAIL_SBUJECT + subject
     msg['To'] = ','.join(to)
-    msg.attach(MIMEText(body)) 
+    msg.attach(MIMEText(body))
     try:
         import base64
         smtppwd = 'kn\xbd\xdbm\xb8'
         smtp = smtplib.SMTP('smtp.cicdata.com')
         smtp.login(OP_MAIL_From, base64.encodestring(smtppwd).strip())
-        smtp.sendmail(OP_MAIL_From, to, msg.as_string()) 
+        smtp.sendmail(OP_MAIL_From, to, msg.as_string())
     except Exception, e:
         print 'send_err_to_mail error: %s' % e
 
@@ -285,7 +281,7 @@ def get_token(cursor, token_type='refresh'):
             return ACCESS_TOKEN
         access = sorted(access, key=lambda x: x[-1])
         return access[-1][1:]
-    
+
 def get_buss_token(cursor, uid=''):
     uidstr = ''
     if uid: uidstr = 'and uid=%s'%uid
@@ -295,19 +291,19 @@ def get_buss_token(cursor, uid=''):
     expires_in =  time.time() + 3600*24
     if access: return (access[0].strip(), expires_in)
     return ('', expires_in)
-    
+
 def topn_index(topn):
     dic = {}
     for i in xrange(len(topn)):
         dic[topn[i][1]] = i
     return dic
-                   
+
 def get_source(source):
         source = re.findall('<\S*a.*?>(.*?)<', source)
         if source:
             return source[0]
         return ''
-    
+
 def querymid(client, queryid, wtype=1):
         client, weiboid = loop_get_data(client, 'statuses__querymid', 'mid', id=queryid, type=wtype)
         try:
@@ -323,7 +319,7 @@ def get_create_at(s):
     except:
         #traceback.print_exc()
         return ''
-    
+
 def todaytimestamp():
     td = datetime.date.today()
     return int(time.mktime(td.timetuple()))
@@ -333,12 +329,12 @@ def currenthour():
 
 def hours_ago(n):
     return (int(time.time()) / 3600 - n) * 3600
-    
-    
+
+
 def lastweek(before=False):
     now = time.time()
     nowdate = datetime.datetime.now()
-    res = datetime.datetime.fromtimestamp(int(now) / 3600 * 3600 - 
+    res = datetime.datetime.fromtimestamp(int(now) / 3600 * 3600 -
           ((7 * before + nowdate.weekday()) * 24 + nowdate.hour) * 3600)
     return res
 
@@ -352,11 +348,11 @@ def month_str(day=None):
 
 def month_tables(start, end):
     return set([month_str(i) for i in (start, end)])
-    
+
 def sortv_iter(dic):
     for key, value in sorted(dic.iteritems(), reverse=True, key=lambda (k, v): (v, k)):
         yield key, value
-        
+
 def chunks(lst, n):
     """ Yield successive n-sized chunks from l.
     """
@@ -367,7 +363,7 @@ def benchmark(getcost=False):  # decrator arg
     def deco(f):  # func
         def _(*a, **kw):  # func args
             t = time.time()
-            res = f(*a, **kw) 
+            res = f(*a, **kw)
             cost = time.time() - t
             print '%s %f %s' % (f.__name__, cost, 'sec')
             if getcost:
@@ -383,14 +379,14 @@ def gen_nounword(txt):
     for w in words:
         if w.flag.startswith('n'):
             yield w.word
-            
+
 def tounicode(s):
-    return isinstance(s, unicode) and s or s.decode('utf-8') 
+    return isinstance(s, unicode) and s or s.decode('utf-8')
 
 def toutf8(s):
-    return isinstance(s, unicode) and s.encode('utf-8') or s 
-            
+    return isinstance(s, unicode) and s.encode('utf-8') or s
+
 if __name__ == '__main__':
     print right_data(7, [[1, 2], [2, 3], [4, 5]], [[5, 8]])
     send_err_to_mail('abc', 'bcd')
-    
+

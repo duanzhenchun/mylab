@@ -2,38 +2,35 @@ Design:
 
 server: cache01/cache02:
     mode: singleton daemon start.sh
-    two independent modules:
-        probe:
-            initial:
-                parse domain.conf
-            wait(sec) before start: hash to smooth upward bandwidth
+    init:
+        wait(sec) before start: hash to smooth upward bandwidth
+    start two independent work:
+        loop:
             try:
-                async thread queue:
-                    measure return time http GET 2M
-                    drop return data, donnot use MEM
+                parse domain.conf
+                probe:
+                    try:
+                        async http request with timeout:
+                        measure return time http GET 2M
+                        drop return data, donnot use MEM
+                    except:
+                        set timeout result
                 get return results from all ips
-                write to tmp file # avoid timely disk error
-                if old != new file:
-                    mv tmp file to anyhost
-                    reload named
-                else if:
-                    old file unchanged for 1 day:
-                        alert: too old, somthing wrong?
+                sort ips by timeout
+                write to local path of anyhost file
             except:
                 /bin/mail alert to XX@kingsoft.com
+            sleep 60s
         http server:
             run forever
 
-clients: other caches:
+clients: each caches:
     for ip in servers:
-        fetch result to tmp file
-        if result is valid:
-            if old != new file:
-                mv tmp file to anyhost
-                reload named
+        fetch anyhost to tmp file
+        if old != new file && new is valid:
+            mv tmp file to anyhost
+            reload named
             return
-    else:
-        do nothing: use old
 
     protocol:
         http server
