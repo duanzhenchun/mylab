@@ -23,22 +23,24 @@ FILE_2M = "2M.dat"
 UP_PORT = 8081
 SERVE_PORT = 8089
 DOMAIN_CONF = './domain.conf'
-ORIGIN_IP_CONF = './origin_domain_ip'
+AUTH_CONF = './auth_domain.conf'
 ANYHOST = "./anyhost"
 
 SERVER_NAME = "fake.com"
 FAKE_IPS = ['103.192.253.225', '222.222.207.9', '123.123.123.123']
 
-domain_conf_title = "#Host Info Detect Times WarnTime(S) good_time(s) Len(Byte) Good_Ip Modify Backup Method Code Ip"[1:].split()
-COL_GOOD_IP = domain_conf_title.index('Good_Ip')
+domain_conf_title = "#Host Info Detect Times WarnTime(S) good_time(s) Len(Byte) Good_Ip Modify Backup Method Code Ip" [
+    1:].split()
 COL_IP = domain_conf_title.index('Ip')
 COL_BACKUP = domain_conf_title.index('Backup')
+COL_GOOD_IP = domain_conf_title.index('Good_Ip')
 
 if ONLINE:
+    UP_PORT = 80
     SERVER_NAME = "kcache.hc.org"
     squid_path = "/usr/local/squid/etc/"
     DOMAIN_CONF = squid_path + DOMAIN_CONF
-    ORIGIN_IP_CONF = squid_path + ORIGIN_IP_CONF
+    AUTH_CONF = squid_path + AUTH_CONF
 
 WILD = 'wild.'
 NEGLECT = ('#', '*')
@@ -69,41 +71,32 @@ ns1 86400       IN A    127.0.0.1
 *.gov.cn.                IN      CNAME   wild
 *.edu.                   IN      CNAME   wild
 *.edu.cn.                IN      CNAME   wild
-wild.                    IN      A       218.61.35.185 ; inf ip ip_down 000 Y
 """
 
 
-def get_origin_ips(domain):
-    _dic = {}
-
-    def _get(domain):
-        if _dic:
-            return _dic.get(domain, [])
-        else:
-            with open(ORIGIN_IP_CONF) as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    d, ips = line[0], line[1].split(':')
-                    _dic[d] = ips
-            _dic["done"] = True
-
-    return _get(domain)
+def parse_auth_conf():
+    dic = {}
+    with open(AUTH_CONF) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            domain, url, ips = line.split()
+            sorted_ips = probe(ips, url)
+            dic[domain] = (url, sorted_ips)
+    return dic
 
 
 def parse_conf():
     all_ip = set()
-    domain_needs={}
-    domain_origin={}
+    domain_needs = {}
+    domain_auth = {}
+    auth_dic = parse_auth_conf()
+    print "auth_dic:", auth_dic
 
     for line in open(DOMAIN_CONF):
         line = line.strip()
         if not line:
-            continue
-        if line.startswith(WILD):
-            col = line.split()
-            wild_ips = col[COL_IP][:COL_GOOD_IP] # do not need to probe
             continue
         for neg in NEGLECT:
             if line.startswith(neg):
@@ -112,11 +105,21 @@ def parse_conf():
             # valid line
             col = line.split()
             domain = col[0]
-            if len(col) > EXTRA_COL:
-                domain_origin[domain] = get_origin_ips(domain)
+            num_need = int(col[COL_GOOD_IP])
+            ips = col[COL_IP].split('|')
+            if WILD == domain:
+                wild_ips = ips[:num_need]  # do not need to probe
+            elif domain in auth_dic:
+                domain_auth[domain] = auth_dic[domain][1][:num_need]
             else:
-                ips = set(col[COL_IP].split('|'))
-                domain_needs[domain] = (col[COL_GOOD_IP], col[COL_BACKUP], ips)
+                ips = set(ips)
+                backups = col[COL_BACKUP]
+                if "no" != backups:
+                    backups = backups.split('|')
+                    all_ip.update(set(backups))
+                else:
+                    backups = None
+                domain_needs[domain] = (num_need, backups, ips)
                 all_ip.update(ips)
 
     up_ips = []
@@ -124,8 +127,10 @@ def parse_conf():
         if valid_ip4(ip):
             up_ips.append(ip)
     assert valid_ips_num[0] < len(up_ips) < valid_ips_num[1]
-    print "up_ips:", up_ips, "wild_ips:", wild_ips, "len(domain_needs):", len(domain_needs), 'len(domain_origin):', len(domain_origin)
-    return up_ips, wild_ips, domain_needs, domain_origin
+    print "wild_ips:", wild_ips
+    print "up_ips:", up_ips
+    print "len(domain_needs):", len(domain_needs)
+    return up_ips, wild_ips, domain_needs, domain_auth
 
 
 def valid_ip4(addr):
@@ -151,71 +156,84 @@ def hash_wait():
         time.sleep(sec)
 
 
-def output_anyhost(sorted_ips, wild_ips, domain_needs, domain_origin):
+def filter_needs(sorted_ips, ips, num_need):
+    res = []
+    for ip in sorted_ips:
+        if ip in ips:
+            res.append(ip)
+            if len(res) > num_need:
+                break
+    return res
+
+
+def write_anyhost(sorted_ips, wild_ips, domain_needs, domain_auth):
     with open(ANYHOST, 'w') as fo:
         fo.write(ANYHOST_HEADER)
         for ip in wild_ips:
             write_host_format(fo, WILD, ip)
-        for domain, ips in domain_origin.iteritems():
+        for domain, ips in domain_auth.iteritems():
             for ip in ips:
                 write_host_format(fo, domain, ip)
-        for domain, (num, backup, ips) in domain_needs.iteritems():
-            filtered = []
-            for ip in sorted_ips:
-                if ip in ips:
-                    filtered.append(ip)
-                    if len(filtered) > num:
-                        break
+        for domain, (num_need, backups, ips) in domain_needs.iteritems():
+            filtered = filter_needs(sorted_ips, ips, num_need)
             if filtered:
                 for ip in filtered:
                     write_host_format(fo, domain, ip)
-            elif 'no' != backup:
-                write_host_format(fo, domain, backup)
-
-
-def valid_domain():
-    pass
+            elif backups:
+                filtered = filter_needs(sorted_ips, backups, num_need)
+                for ip in backups:
+                    write_host_format(fo, domain, ip)
 
 
 def write_host_format(fo, domain, ip):
     #  bigota.d.miui.com.       IN      A       183.131.29.65 ; 0.092871 ip ip_work 404 Y
-    fo.write("%s\tIN\tA\T%s;\n" % (domain, ip))
+    fo.write("%s\tIN\tA\t%s\n" % (domain, ip))
 
 
 def alert(trace):
     print trace
     #mail.send(trace)
 
+
 def loop_probe():
     while True:
+        start = time.time()
         try:
             res = parse_conf()
             sorted_ips = probe(res[0])
-            output_anyhost(sorted_ips, *res[1:])
+            write_anyhost(sorted_ips, *res[1:])
         except:
             alert(traceback.print_exc())
-        gevent.sleep(PERIOD)
+        to_rest = PERIOD - int(time.time() - start)
+        if to_rest > 0:
+            gevent.sleep(to_rest)
 
 
-def probe(ips):
+def probe(ips, url=None):
     if not ONLINE:
         ips = FAKE_IPS
     print 'start probe ips:', ips
-    jobs = [gevent.spawn(http_time, ip) for ip in ips]
+    jobs = [gevent.spawn(http_time, ip, url) for ip in ips]
     gevent.joinall(jobs, timeout=PROBE_TIMEOUT)
-    res = sorted([job.value for job in jobs])
-    print 'sorted:', res
+    res = sorted([job.value or (None, None) for job in jobs])
+    print 'sorted res:', res
     sorted_ips = []
-    for (t, ip) in res:
-        if t:
-            sorted_ips.append(ip)
+    for i in res:
+        if i:
+            t, ip = i
+            if t:
+                sorted_ips.append(ip)
     return sorted_ips
 
 
 def serve_file(environ, start_response):
-    f = open(ANYHOST, 'r')
-    start_response('200 OK', [('Content-Type', 'text/html')])
-    yield f.read()
+    with open(ANYHOST, 'r') as fp:
+        start_response('200 OK', [('Content-Type', 'text/html')])
+        #  yield f.read()
+        while True:
+            chunk = fp.read(4096)
+            if not chunk: break
+            yield chunk
 
 
 def serve_result():
@@ -224,9 +242,13 @@ def serve_result():
     server.serve_forever()
 
 
-def http_time(ip):
-    headers = {"Host": SERVER_NAME}
-    req = urllib2.Request("http://%s:%d/%s" % (ip, UP_PORT, FILE_2M),
+def http_time(ip, url):
+    if url:
+        host_name, path = url.split('/', 1)
+    else:
+        host_name, path = SERVER_NAME, FILE_2M
+    headers = {"Host": host_name}
+    req = urllib2.Request("http://%s:%d/%s" % (ip, UP_PORT, path),
                           headers=headers)
     start = time.time()
     t = None
