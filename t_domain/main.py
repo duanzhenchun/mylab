@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+# requirement
+# sudo yum install python-gevent
+# python2.6+
+
 import gevent
 import gevent.monkey
 gevent.monkey.patch_all()
@@ -21,6 +25,7 @@ HTTP_TIMEOUT = 3
 PROBE_TIMEOUT = 10
 SERVER_NAME = "kcache.hc.org"
 FILE_2M = "2M.dat"
+# TODO random str
 TEST_UP_PORT = 8081
 SERVE_PORT = 8089
 DOMAIN_CONF = './domain.conf'
@@ -160,7 +165,7 @@ def filter_needs(sorted_ips, ips, num_need):
     for ip in sorted_ips:
         if ip in ips:
             res.append(ip)
-            if len(res) > num_need:
+            if len(res) >= num_need:
                 break
     return res
 
@@ -181,8 +186,9 @@ def write_anyhost(sorted_ips, wild_ips, domain_needs, domain_auth):
                     write_host_format(fo, domain, ip)
             elif backups:
                 filtered = filter_needs(sorted_ips, backups, num_need)
-                for ip in backups:
+                for ip in filtered:
                     write_host_format(fo, domain, ip)
+            # TODO if none available, set all or all backup
 
 
 def write_host_format(fo, domain, ip):
@@ -269,5 +275,5 @@ def http_time(ip, url):
 if __name__ == "__main__":
     hash_wait()
     gevent.signal(signal.SIGQUIT, gevent.kill)
-    gevent.joinall([gevent.Greenlet.spawn(loop_probe), gevent.spawn(
-        serve_http)])
+    gevent.joinall([gevent.spawn(loop_probe),
+                    gevent.spawn(serve_http)])
