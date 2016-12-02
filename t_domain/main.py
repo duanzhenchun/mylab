@@ -17,16 +17,16 @@ import traceback
 ONLINE = False
 
 PERIOD = 60  #sec
-HTTP_TIMEOUT = 5
-PROBE_TIMEOUT = HTTP_TIMEOUT + 5
+HTTP_TIMEOUT = 3
+PROBE_TIMEOUT = 10
+SERVER_NAME = "kcache.hc.org"
 FILE_2M = "2M.dat"
-UP_PORT = 8081
+TEST_UP_PORT = 8081
 SERVE_PORT = 8089
 DOMAIN_CONF = './domain.conf'
 AUTH_CONF = './auth_domain.conf'
 ANYHOST = "./anyhost"
 
-SERVER_NAME = "fake.com"
 FAKE_IPS = ['103.192.253.225', '222.222.207.9', '123.123.123.123']
 
 domain_conf_title = "#Host Info Detect Times WarnTime(S) good_time(s) Len(Byte) Good_Ip Modify Backup Method Code Ip" [
@@ -36,8 +36,6 @@ COL_BACKUP = domain_conf_title.index('Backup')
 COL_GOOD_IP = domain_conf_title.index('Good_Ip')
 
 if ONLINE:
-    UP_PORT = 80
-    SERVER_NAME = "kcache.hc.org"
     squid_path = "/usr/local/squid/etc/"
     DOMAIN_CONF = squid_path + DOMAIN_CONF
     AUTH_CONF = squid_path + AUTH_CONF
@@ -82,7 +80,8 @@ def parse_auth_conf():
             if not line:
                 continue
             domain, url, ips = line.split()
-            sorted_ips = probe(ips, url)
+            # TODO probe together
+            sorted_ips = probe(ips.split('|'), url)
             dic[domain] = (url, sorted_ips)
     return dic
 
@@ -128,7 +127,7 @@ def parse_conf():
             up_ips.append(ip)
     assert valid_ips_num[0] < len(up_ips) < valid_ips_num[1]
     print "wild_ips:", wild_ips
-    print "up_ips:", up_ips
+    print "len(up_ips):", len(up_ips)
     print "len(domain_needs):", len(domain_needs)
     return up_ips, wild_ips, domain_needs, domain_auth
 
@@ -177,6 +176,7 @@ def write_anyhost(sorted_ips, wild_ips, domain_needs, domain_auth):
         for domain, (num_need, backups, ips) in domain_needs.iteritems():
             filtered = filter_needs(sorted_ips, ips, num_need)
             if filtered:
+                print ips, sorted_ips
                 for ip in filtered:
                     write_host_format(fo, domain, ip)
             elif backups:
@@ -205,18 +205,19 @@ def loop_probe():
         except:
             alert(traceback.print_exc())
         to_rest = PERIOD - int(time.time() - start)
-        if to_rest > 0:
-            gevent.sleep(to_rest)
+        assert to_rest > 0, "to_rest: %d" %to_rest
+        print 'sleep:', to_rest
+        gevent.sleep(to_rest)
 
 
 def probe(ips, url=None):
-    if not ONLINE:
+    if not ONLINE and None == url:
         ips = FAKE_IPS
     print 'start probe ips:', ips
     jobs = [gevent.spawn(http_time, ip, url) for ip in ips]
     gevent.joinall(jobs, timeout=PROBE_TIMEOUT)
     res = sorted([job.value or (None, None) for job in jobs])
-    print 'sorted res:', res
+    print 'res to be sorted:', res
     sorted_ips = []
     for i in res:
         if i:
@@ -236,8 +237,8 @@ def serve_file(environ, start_response):
             yield chunk
 
 
-def serve_result():
-    print 'start serve_result...'
+def serve_http():
+    print 'start serve_http...'
     server = pywsgi.WSGIServer(('', SERVE_PORT), serve_file)
     server.serve_forever()
 
@@ -248,8 +249,12 @@ def http_time(ip, url):
     else:
         host_name, path = SERVER_NAME, FILE_2M
     headers = {"Host": host_name}
-    req = urllib2.Request("http://%s:%d/%s" % (ip, UP_PORT, path),
-                          headers=headers)
+    port_str = ""
+    if not ONLINE and not url:
+        port_str = ":%d" %TEST_UP_PORT
+    s = "http://%s%s/%s" % (ip, port_str, path)
+    print 'url str:', s, 'host_name:', host_name
+    req = urllib2.Request(s, headers=headers)
     start = time.time()
     t = None
     try:
@@ -265,4 +270,4 @@ if __name__ == "__main__":
     hash_wait()
     gevent.signal(signal.SIGQUIT, gevent.kill)
     gevent.joinall([gevent.Greenlet.spawn(loop_probe), gevent.spawn(
-        serve_result)])
+        serve_http)])
