@@ -17,28 +17,21 @@ import urllib2
 import signal
 import traceback
 
-### configure
-ONLINE = False
+########################################
+# configure
+ONLINE = False # set to True
 
 PERIOD = 60  #sec
 HTTP_TIMEOUT = 3
 PROBE_TIMEOUT = 10
 SERVER_NAME = "kcache.hc.org"
-FILE_2M = "2M.dat"
-# TODO random str
+DOWNLOAD_SUFFIX = ".dat"
 TEST_UP_PORT = 8081
 SERVE_PORT = 8089
 DOMAIN_CONF = './domain.conf'
 AUTH_CONF = './auth_domain.conf'
 ANYHOST = "./anyhost"
 
-FAKE_IPS = ['103.192.253.225', '222.222.207.9', '123.123.123.123']
-
-domain_conf_title = "#Host Info Detect Times WarnTime(S) good_time(s) Len(Byte) Good_Ip Modify Backup Method Code Ip" [
-    1:].split()
-COL_IP = domain_conf_title.index('Ip')
-COL_BACKUP = domain_conf_title.index('Backup')
-COL_GOOD_IP = domain_conf_title.index('Good_Ip')
 
 if ONLINE:
     squid_path = "/usr/local/squid/etc/"
@@ -46,10 +39,15 @@ if ONLINE:
     AUTH_CONF = squid_path + AUTH_CONF
 
 WILD = 'wild.'
-NEGLECT = ('#', '*')
-EXTRA_COL = 15
+NEGLECT = ('*',)
 ip4_pattern = '^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$'
 valid_ips_num = (1, 10000)
+
+
+MAIL_FROM = ''
+MAIL_TOS= ['wangzhiguo1@kingsoft.com']
+MAIL_SUBJECT = ''
+
 
 ANYHOST_HEADER = """;-----
 $TTL 60
@@ -76,6 +74,7 @@ ns1 86400       IN A    127.0.0.1
 *.edu.cn.                IN      CNAME   wild
 """
 
+########################################################
 
 def parse_auth_conf():
     dic = {}
@@ -102,6 +101,13 @@ def parse_conf():
         line = line.strip()
         if not line:
             continue
+        # read column format
+        if line.startswith("Host"):
+            #"#Host Info Detect Times WarnTime(S) good_time(s) Len(Byte) Good_Ip Modify Backup Method Code Ip"
+            domain_conf_title = line[1:].split()
+            col_ip = domain_conf_title.index('Ip')
+            col_backup = domain_conf_title.index('Backup')
+            col_good_ip = domain_conf_title.index('Good_Ip')
         for neg in NEGLECT:
             if line.startswith(neg):
                 break
@@ -109,15 +115,15 @@ def parse_conf():
             # valid line
             col = line.split()
             domain = col[0]
-            num_need = int(col[COL_GOOD_IP])
-            ips = col[COL_IP].split('|')
+            num_need = int(col[col_good_ip])
+            ips = col[col_ip].split('|')
             if WILD == domain:
                 wild_ips = ips[:num_need]  # do not need to probe
             elif domain in auth_dic:
                 domain_auth[domain] = auth_dic[domain][1][:num_need]
             else:
                 ips = set(ips)
-                backups = col[COL_BACKUP]
+                backups = col[col_backup]
                 if "no" != backups:
                     backups = backups.split('|')
                     all_ip.update(set(backups))
@@ -197,8 +203,9 @@ def write_host_format(fo, domain, ip):
 
 
 def alert(trace):
+    import mailer
     print trace
-    #mail.send(trace)
+    mailer.send(MAIL_FROM, MAIL_TOS, MAIL_SUBJECT, trace)
 
 
 def loop_probe():
@@ -218,7 +225,8 @@ def loop_probe():
 
 def probe(ips, url=None):
     if not ONLINE and None == url:
-        ips = FAKE_IPS
+        # fake test
+        ips = ['103.192.253.225', '222.222.207.9', '123.123.123.123']
     print 'start probe ips:', ips
     jobs = [gevent.spawn(http_time, ip, url) for ip in ips]
     gevent.joinall(jobs, timeout=PROBE_TIMEOUT)
@@ -253,7 +261,7 @@ def http_time(ip, url):
     if url:
         host_name, path = url.split('/', 1)
     else:
-        host_name, path = SERVER_NAME, FILE_2M
+        host_name, path = SERVER_NAME, id_generator + DOWNLOAD_SUFFIX
     headers = {"Host": host_name}
     port_str = ""
     if not ONLINE and not url:
@@ -270,6 +278,11 @@ def http_time(ip, url):
     except:  #  any exception: urllib2.URLError, socket.error, etc
         pass
     return (t, ip)
+
+import string
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    import random
+    return ''.join(random.choice(chars) for _ in range(size))
 
 
 if __name__ == "__main__":

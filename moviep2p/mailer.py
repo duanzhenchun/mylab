@@ -23,6 +23,7 @@ From = 'whille@163.com'
 Server = 'smtp.163.com'
 password = 'XXXX'
 
+
 def send(infos, tolist, sub=Subject):
     msg = MIMEMultipart('alternative')
     msg['Subject'] = sub
