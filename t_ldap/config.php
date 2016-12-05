@@ -329,7 +329,7 @@ $servers->setValue('login','auth_type','session');
    the directory for users (ie, if your LDAP server does not allow anonymous
    binds. */
 // $servers->setValue('login','bind_id','');
-$servers->setValue('login','bind_id','cn=kingsoft,dc=myksc,dc=com');
+$servers->setValue('login','bind_id','cn=macrosoft,dc=myksc,dc=com');
 
 /* Your LDAP password. If you specified an empty bind_id above, this MUST also
    be blank. */

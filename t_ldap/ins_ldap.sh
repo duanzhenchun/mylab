@@ -11,7 +11,7 @@ vi /etc/openldap/slapd.conf
 #Add entries:
 database bdb
 suffix "dc=myksc,dc=com"
-rootdn "cn=kingsoft,dc=myksc,dc=com"
+rootdn "cn=macrosoft,dc=myksc,dc=com"
 rootpw {SSHA}pasted_from_slappasswd_output
 directory /var/lib/ldap
 
@@ -30,7 +30,7 @@ chkconfig slapd on
 slaptest  -f /etc/openldap/slapd.conf -F /etc/openldap/slapd.d
 
 DC="dc=myksc,dc=com"
-ADM_DN="cn=kingsoft,${DC}"
+ADM_DN="cn=macrosoft,${DC}"
 # set passwd here
 ADM_PWD=Ksc123456
 #linux
@@ -38,7 +38,7 @@ HOST="192.168.138.131"
 HOST="123.59.14.9"
 #windows
 # HOST="123.59.14.251"
-# ADM_DN="cn=kingsoft,cn=Users,${DC}"
+# ADM_DN="cn=macrosoft,cn=Users,${DC}"
 
 export LDAP_ARG="-x -w $ADM_PWD -D ${ADM_DN} -H ldap://${HOST}/389"
 

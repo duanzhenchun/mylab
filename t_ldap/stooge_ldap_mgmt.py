@@ -1,6 +1,6 @@
 #!/bin/env python
 
-#ldapadd -x -D "cn=kingsoft,dc=myksc,dc=com" -W -f stooges.ldif
+#ldapadd -x -D "cn=macrosoft,dc=myksc,dc=com" -W -f stooges.ldif
 #ldapsearch -x -b 'dc=myksc,dc=com' '(o=stooges)'
 
 
@@ -8,7 +8,7 @@ import ldap
 
 LDAP_HOST = '123.59.14.251'
 LDAP_BASE_DN = 'DC=myksc,DC=com'
-MGR_CRED = 'CN=kingsoft,CN=Users,DC=myksc,DC=com'
+MGR_CRED = 'CN=macrosoft,CN=Users,DC=myksc,DC=com'
 MGR_PASSWD = 'Ksc123456'
 #add oganization unit first
 STOOGE_OU = 'MemberGroupB'
