@@ -1,0 +1,22 @@
+remote:
+    nc -l 8008 < $f
+localhost:
+    nc 222.222.207.10 8008 > $f
+
+dig domain @127.0.0.1
+
+dd if=/dev/urandom of=/tmp/2M.dat bs=1024k count=2
+
+vim /etc/nginx/nginx.conf
+    server {
+        listen 8081;
+        server_name  fake.com;
+        location = /2M.dat {
+            root  /tmp/;
+        }
+    }
+
+nginx -s reload
+
+#test mail alert
+echo "test" | mail -s "test ${HOSTNAME}"  xxx@xxx.com
