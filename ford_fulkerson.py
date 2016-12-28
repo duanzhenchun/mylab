@@ -2,8 +2,10 @@
 # encoding: utf-8
 
 from collections import defaultdict
+import os
 
 DEBUG = False
+MIN_BW = 0.01
 
 
 class Edge(object):
@@ -26,7 +28,7 @@ class FlowNetwork(object):
         return self.adj[u]
 
     def get_edge(self, u, v):
-        return self.edges[(u, v)]
+        return self.edges.get((u, v), None)
 
     def add_edge(self, u, v, w=0):
         if u == v:
@@ -47,7 +49,12 @@ class FlowNetwork(object):
                 current, target, path)
         if current == target:
             return path
-        for edge in self.get_adjacent_edges(current):  # deep traverse
+        # deep traverse
+        order = sorted(
+            [(edge.capacity - self.flow[edge], edge)
+             for edge in self.get_adjacent_edges(current)],
+            reverse=True)
+        for edge in [i[1] for i in order]:
             residual = edge.capacity - self.flow[edge]
             if residual > 0 and edge not in path and (
                     not path or edge.sink != path[0].source):  # avoid circle
@@ -61,8 +68,9 @@ class FlowNetwork(object):
             residuals = [edge.capacity - self.flow[edge] for edge in path]
             flow = min(residuals)
             if DEBUG:
-                print "residuals: %s, path: %s, min: %s" % (residuals, path,
-                                                            flow)
+                print "residuals: %s, path: %s, min: %s" % (residuals, path, flow)
+            if flow < MIN_BW:
+                break
             for edge in path:
                 self.flow[edge] += flow
                 self.flow[edge.redge] -= flow
@@ -74,7 +82,7 @@ class FlowNetwork(object):
     def topology_flow(self):
         print 'topology flow, format: source -> sink: (flow/capability):'
         for edge in self.flow:
-            if edge.capacity > 0.0:
+            if self.flow[edge] > 0.0:
                 print "%s->%s: (%s/%s)" % (edge.source, edge.sink,
                                            self.flow[edge], edge.capacity)
 
@@ -94,24 +102,108 @@ def test():
 
 
 def sim_cdn():
+    dic_gr = {'g1r1': 0.8, 'g1r2': 0.2, 'g2r1': 0.1, 'g2r2': 0.4}
+    dic_n = {'n1': (0, 1.5), 'n2': (0, 0.8)}
+    dic_cover = {'g1r1': {'n1':1, 'n2':2},
+            'g1r2': {'n1':1},
+            'g2r1': {'n1':1},
+            'g2r2': {'n2':1}
+            }
+    solve_cdn(dic_n, dic_gr, dic_cover)
+
+
+def init_node():
+    """
+    SELECT name, minBandwidthThreshold, maxBandwidthThreshold FROM cdn_center_resource_new.rs_node where chName like '%电信%节点';
+    """
+    dic_n = {}
+    with open(os.sep.join((os.environ['HOME'], "bak/node_CT.csv"))) as f:
+        f.readline()  # head
+        for l in f:
+            l = l.strip().split(',')
+            node = 'cdn' + l[0]
+            minbw = float(l[1]) / 1000
+            maxbw = float(l[2]) / 1000
+            dic_n[node] = ((minbw, maxbw))
+    print 'len(dic_n):', len(dic_n)
+    return dic_n
+
+
+def init_gr():
+    dic_gr = defaultdict(float)
+    with open(os.sep.join((os.environ['HOME'], "bak/grn_CT.csv"))) as f:
+        for l in f:
+            l = l.strip().split(',')
+            gr, bw = l[0], float(l[2])
+            dic_gr[gr] += bw
+    print 'len(dic_gr):', len(dic_gr)
+    return dic_gr
+
+
+def init_cover():
+    """
+    SELECT
+    dispDomain, rs_region.enName, rs_node.name, rs_cover.cross_relative_level
+FROM
+    rs_dispgroup
+        JOIN
+    rs_dispgroup_node ON (rs_dispgroup_node.groupId = rs_dispgroup.id)
+        JOIN
+    rs_cover ON (rs_cover.node_id = rs_dispgroup_node.nodeId)
+        JOIN
+    rs_node ON (rs_node.id = rs_cover.node_id)
+        JOIN
+    rs_region ON (rs_cover.region_line_id = rs_region.id)
+WHERE
+    cross_relative_level IS NOT NULL
+        AND rs_node.status = 1
+        AND rs_dispgroup.status = 1
+        AND dispDomain REGEXP 'k(2|3|5|6|125).gslb'
+        AND rs_cover.cross_relative_level <= rs_dispgroup.crossLevel;
+    """
+    dic_cover = defaultdict(lambda: defaultdict(int))
+    with open(os.sep.join((os.environ['HOME'], "bak/cover_CT.csv"))) as f:
+        f.readline()
+        for l in f:
+            l = l.strip().split(',')
+            if not l[1].endswith('_CT'):
+                continue
+            gr, node, level = '%s_%s' % (l[0].split('.', 1)[0], l[1]), "cdn" + l[2], int(l[3])
+            dic_cover[gr][node] = level
+    print 'len(dic_cover):', len(dic_cover)
+    return dic_cover
+
+
+def solve_cdn(dic_n, dic_gr, dic_cover):
     g = FlowNetwork()
-    g.add_edge('s', 'g1r1', 0.8)
-    g.add_edge('s', 'g1r2', 0.2)
-    g.add_edge('s', 'g2r1', 0.1)
-    g.add_edge('s', 'g2r2', 0.4)
-    g.add_edge('n1', 't', 1.5)
-    g.add_edge('n2', 't', 0.8)
+    for gr, bw in dic_gr.iteritems():
+        g.add_edge('s', gr, bw)
+    for node, (_, maxbw) in dic_n.iteritems():
+        g.add_edge(node, 't', maxbw)
     # set capability by availability
-    for a, b in (("g1r1", "n1"), ("g1r1", "n2"), ("g1r2", "n1"), ("g2r1", "n1"),
-                 ("g2r2", "n2")):
-        cap = min(g.get_edge("s", a).capacity, g.get_edge(b, "t").capacity)
-        if DEBUG:
-            print "link gr: %s, n: %s, cap: %s" % (a, b, cap)
-        g.add_edge(a, b, cap)
+    for gr in dic_cover:
+        for node in dic_cover[gr]:
+            if not g.get_edge("s", gr) or not g.get_edge(node, "t"):
+                continue
+            cap = min(
+                g.get_edge("s", gr).capacity, g.get_edge(node, "t").capacity)
+            if DEBUG:
+                print "link %s -->%s, cap: %s" % (gr, node, cap)
+            g.add_edge(gr, node, cap)
     res = g.max_flow('s', 't')
     print 'max_flow:', res
 
 
+"""
+order:
+    demand: g1 > g2
+    quality: r1n1 > r1n2
+    price: n1 > n2
+    bottom_bw: n1: 0.4, n2: 0.2
+        dynamic calculate
+"""
+
 if __name__ == "__main__":
     #test()
-    sim_cdn()
+    #sim_cdn()
+    solve_cdn(init_node(), init_gr(), init_cover())
