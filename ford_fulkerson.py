@@ -5,7 +5,7 @@ from collections import defaultdict
 import os
 
 DEBUG = False
-MIN_BW = 0.01
+MIN_BW = 0.1
 
 
 class Edge(object):
@@ -94,7 +94,7 @@ class FlowNetwork(object):
         print 'topology flow, format: source -> sink: (flow/capability):'
         for edge in self.flow:
             if self.flow[edge] > 0.0:
-                print "%s->%s: (%s/%s)" % (edge.source, edge.sink,
+                print "%s->%s: (%.1f/%.1f)" % (edge.source, edge.sink,
                                            self.flow[edge], edge.capacity)
 
     def init_prefer(self, g_order, dic_cover):
