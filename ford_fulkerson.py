@@ -49,12 +49,23 @@ class FlowNetwork(object):
                 current, target, path)
         if current == target:
             return path
+
         # deep traverse
-        order = sorted(
-            [(edge.capacity - self.flow[edge], edge)
-             for edge in self.get_adjacent_edges(current)],
-            reverse=True)
-        for edge in [i[1] for i in order]:
+        if 's' == current and self.pref_g:
+            order = self.gen_g()
+        elif current.find("_") > 0 and current in self.pref_cover:
+            dic = self.pref_cover[current]
+            order = [i[0] for i in sorted(dic.iteritems(), key=lambda (node, v): (v, self.get_edge(current, node) and -1 * ( self.get_edge(current, node).capacity - self.flow[self.get_edge(current, node)] or 1e6)))]
+        else:
+            order = [i[1] for i in sorted(
+                [(edge.capacity - self.flow[edge], edge.sink)
+                for edge in self.get_adjacent_edges(current)],
+                reverse=True)]
+
+        for sink in order:
+            edge = self.get_edge(current, sink)
+            if not edge:
+                continue
             residual = edge.capacity - self.flow[edge]
             if residual > 0 and edge not in path and (
                     not path or edge.sink != path[0].source):  # avoid circle
@@ -86,6 +97,36 @@ class FlowNetwork(object):
                 print "%s->%s: (%s/%s)" % (edge.source, edge.sink,
                                            self.flow[edge], edge.capacity)
 
+    def init_prefer(self, g_order, dic_cover):
+        """
+        group: k2 > k6
+        cover: g1r1: n1 > n2
+            quality: http://10.4.22.135:9877/multiping/quality?str=20161229
+        price: n1 < n2
+        bottom_bw: n1: 0.4, n2: 0.2
+            dynamic calculate
+        """
+        self.pref_g = []
+        dic = defaultdict(lambda: defaultdict(int))
+        for edge in self.adj['s']:
+            g,r = edge.sink.split('_', 1)
+            dic[g][r] = edge.capacity
+        for g in g_order:
+            lst = sorted(dic[g].iteritems(), reverse=True, key=lambda (k, v): v)
+            self.pref_g.append((g, lst))
+        if DEBUG:
+            print 'self.pref_g:', self.pref_g
+
+        self.pref_cover = dic_cover
+        #  self.pref_node = {}
+
+    def gen_g(self):
+        if not self.pref_g:
+            return
+        for (g, lst) in self.pref_g:
+            for (r, capacity) in  lst:
+                yield "%s_%s" %(g, r)
+
 
 def test():
     g = FlowNetwork()
@@ -114,7 +155,7 @@ def sim_cdn():
 
 def init_node():
     """
-    SELECT name, minBandwidthThreshold, maxBandwidthThreshold FROM cdn_center_resource_new.rs_node where chName like '%电信%节点';
+    SELECT name, minBandwidthThreshold, maxBandwidthThreshold,unitPrice FROM cdn_center_resource_new.rs_node where chName like '%电信%节点';
     """
     dic_n = {}
     with open(os.sep.join((os.environ['HOME'], "bak/node_CT.csv"))) as f:
@@ -176,6 +217,7 @@ WHERE
 
 def solve_cdn(dic_n, dic_gr, dic_cover):
     g = FlowNetwork()
+    g_order = ['k2', 'k6', 'k135', 'k5', 'k3']
     for gr, bw in dic_gr.iteritems():
         g.add_edge('s', gr, bw)
     for node, (_, maxbw) in dic_n.iteritems():
@@ -190,18 +232,11 @@ def solve_cdn(dic_n, dic_gr, dic_cover):
             if DEBUG:
                 print "link %s -->%s, cap: %s" % (gr, node, cap)
             g.add_edge(gr, node, cap)
+
+    g.init_prefer(g_order, dic_cover)
     res = g.max_flow('s', 't')
     print 'max_flow:', res
 
-
-"""
-order:
-    demand: g1 > g2
-    quality: r1n1 > r1n2
-    price: n1 > n2
-    bottom_bw: n1: 0.4, n2: 0.2
-        dynamic calculate
-"""
 
 if __name__ == "__main__":
     #test()
