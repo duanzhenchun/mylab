@@ -71,15 +71,32 @@ class FlowNetwork(object):
                     not path or edge.sink != path[0].source):  # avoid circle
                 result = self.find_path(edge.sink, target, path + [edge])
                 if result != None:
+                    flow = self.path_flow(result)
+                    if self.gr_finished(current, flow):
+                        if DEBUG:
+                            print 'gr_finish, current:%s, flow: %s' %(current, current)
+                        if not self.adjust_integer_ip(current, path):
+                            continue
                     return result
+
+    def gr_finish(self, current, flow):
+        edge = self.get_edge('s', current)
+        return self.flow[edge] == flow + sum([e.flow for e in self.adj[current]])
+
+    def adjust_integer_ip(self, current, path):
+        pass
+
+    def path_flow(self, path):
+        residuals = [edge.capacity - self.flow[edge] for edge in path]
+        flow = min(residuals)
+        if DEBUG:
+            print "residuals: %s, path: %s, min: %s" % (residuals, path, flow)
+        return flow
 
     def max_flow(self, source, sink):
         path = self.find_path(source, sink, [])
         while path != None:
-            residuals = [edge.capacity - self.flow[edge] for edge in path]
-            flow = min(residuals)
-            if DEBUG:
-                print "residuals: %s, path: %s, min: %s" % (residuals, path, flow)
+            flow = self.path_flow(path)
             if flow < MIN_BW:
                 break
             for edge in path:

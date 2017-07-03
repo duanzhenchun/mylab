@@ -6,7 +6,6 @@ import copy
 from dateutil.relativedelta import relativedelta
 sys.path.insert(0, os.path.split(os.getcwd())[0])
 sys.path.insert(0, os.path.split(os.path.split(os.getcwd())[0])[0])
-from django.conf import settings
 os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
 try:
     from django.db import IntegrityError, transaction
@@ -20,7 +19,7 @@ def fan_growth(uid, start, end):
     #因为查询的是fans_trend表 只有几个有商业接口的才有数据。这里要另外加张表统计粉丝增长
     fansdata = fan_num(uid, start)
     start_fans, end_fans = (0, 0)
-    if fansdata: 
+    if fansdata:
         start_fans = fansdata[0][0]
         for i in fansdata:
             if i[1] > end and end_fans:
@@ -36,7 +35,7 @@ def fan_growth(uid, start, end):
 def fan_num(uid, start):
     cmd = 'select followers_count, day from %s where uid=%s and day>="%s" order by day'%(ACCOUNT_GROWTH_TABLE, uid, start)
     return get_DB(cmd)
-    
+
 def tweets_stat(uid, start, end):
     cursor = get_connect()
     cmd = 'select reposts_count, comments_count, attitudes_count from ' + ACCOUNT_TWEET_TABLE + \
@@ -65,12 +64,12 @@ def directat_num(uid, start, end):
 def exposure_num(uid, start, end):
     cmd = 'select sum(exposure_count) from %s ' % EXPOSURE_TALBE + \
           ' where uid = %s and ' % uid + time_between('date(day)', start, end)
-    return get1_DB(cmd)      
+    return get1_DB(cmd)
 
 def er_nday(uid, ndays, end):
-    """ 
+    """
     (retweet+comment+direct @)/tweet number/fans number of past 30 days
-    2014-2-17 change to 
+    2014-2-17 change to
     (retweet+comment+direct @+attitudes)/tweet number/fans number of past 30 days
     """
     start = daysago(end, ndays-1)
@@ -81,9 +80,9 @@ def er_nday(uid, ndays, end):
     if nt == 0 or nfan == 0:
         er = 0
     else:
-        er = float(nret + ncmt + nat + natt) / nt / nfan 
+        er = float(nret + ncmt + nat + natt) / nt / nfan
     return er
-    
+
 def top_hashtags(n, uid, start, end):
     tops = topn.TopN(n)
     cmd = 'select hashtag, reposts_count, comments_count, followers_count ' + \
@@ -92,13 +91,13 @@ def top_hashtags(n, uid, start, end):
     tweets = get_DB(cmd)
     dic = {}
     for hashtag, nret, ncmt, nfan in tweets:
-        er = float(nret + ncmt) / nfan 
+        er = float(nret + ncmt) / nfan
         dic.setdefault(hashtag, [])
         dic[hashtag].append(er)
     for k, ers in dic.iteritems():
         average = sum(ers) * 1.0 / len(ers)
         tops.feed((average, k))
-    res = tops.result()    
+    res = tops.result()
     return res
 
 def top_posts(n, uid, start, end):
@@ -123,9 +122,9 @@ def top_posts(n, uid, start, end):
     '''
     nfan = fan_growth(uid, start, end)[0]
     for tid, v in dic.iteritems():
-        er = float(sum(v.values())) / nfan 
+        er = float(sum(v.values())) / nfan
         tops.feed((er, {'url':tweet_url(uid, tid), 'nret':v.get('reposts', 0), 'ncmt':v.get('comments', 0)}))
-    res = tops.result()    
+    res = tops.result()
     return res
 
 def top_influencers(n, target_uid, start, end):
@@ -154,12 +153,12 @@ def top_influencers(n, target_uid, start, end):
         f = sum(v.values())
         v['uid'] = uid
         tops.feed((f, v))
-    res = tops.result()    
-    return res       
-    
+    res = tops.result()
+    return res
+
 def time_between(field, start, end):
     return ' (%s between "%s" and "%s")' % (field, start, end)
-    
+
 def get1_DB(cmd):
     cursor = get_connect()
     cursor.execute(cmd)
@@ -174,7 +173,7 @@ def get_DB(cmd):
     cursor.connection.close()
     return res
 
-def response(uid, start, end):            
+def response(uid, start, end):
     cmd = 'select count(1) from %s ' % DIRECTAT_TABLE + \
           ' where target_uid=%s and is_question=1 and' % uid + \
           time_between('date(created_at)', start, end)
@@ -185,7 +184,7 @@ def response(uid, start, end):
     respnum = len(resps)
     mean = respnum > 0 and sum([i[0] for i in resps]) / respnum or 0.0
     return allnum, respnum, mean
-    
+
 def fan_active(uid, day):
     cmd = 'select %s,%s,%s from %s where uid=%s and day="%s"' % \
         ('active_follower', 'loyal_follower', 'follower_count', FANS_TREND, uid, day)
@@ -196,14 +195,14 @@ def fan_active(uid, day):
     act, interact, total = res and res or (0, 0, 0)
     res = 0.0, 0.0
     if total > 0:
-        res = act * 1.0 / total, interact * 1.0 / total 
+        res = act * 1.0 / total, interact * 1.0 / total
     return res
 
 def fans_day_activity(uid, ndayago=1):
     #根据时间修改表名
     day = daysago(datetime.date.today(), ndayago)
     cmd = 'select hour(created_at) from ' + INTERACT_TABLE + month_str(day) + \
-          ' where src_uid=%s and date(created_at)=%s' 
+          ' where src_uid=%s and date(created_at)=%s'
     cursor = get_connect()
     try:
         cursor.execute(cmd, (uid, day))
@@ -226,13 +225,13 @@ def fans_day_activity(uid, ndayago=1):
              }
         insertDB(cursor, FANS_ACTIVITY_TABLE, dic, True, ('uid', 'day', 'hour'))
     cursor.connection.close()
-    
+
 def insertDB(cursor, tablename, dic, update=False, privatekeys=None):
     cmd = 'insert into %s (%s) value (%s) ' % (tablename,
                 ','.join(dic.keys()), ','.join(('%s',) * len(dic)))
     if update and privatekeys:
         dic2 = copy.deepcopy(dic)
-        for k in privatekeys: 
+        for k in privatekeys:
             dic2.pop(k)
         s = ', '.join(['%s' % k + '=%s' for k in dic2])
         cmd += 'on duplicate key update %s' % s
@@ -254,7 +253,7 @@ def insertDB(cursor, tablename, dic, update=False, privatekeys=None):
         cursor.connection.rollback()
         transaction.rollback_unless_managed()
     return dataexist
-    
+
 def distri_pos(n, lst):
     for i in xrange(len(lst)):
         if n < lst[i]:
@@ -283,7 +282,7 @@ def newfan_dist(uid, start, end):
     for table in month_tables(start, end):
         cmd = 'select verified_type, province, followers_count, tags, gender from %s where src_uid=%s and '\
              % (FANS_TABLE + table, uid) + time_between('follow_time', start, end)
-        fans = get_DB(cmd)        
+        fans = get_DB(cmd)
         for vtype, province, follownum, tags, gender in fans:
             v_dist[get_vtype(vtype)] += 1
             prov_dist.setdefault(province, 0)
@@ -301,11 +300,11 @@ def newfan_dist(uid, start, end):
         top_distribution(tag_dist, 10, False)
 #     return percent(v_dist), percent(subfan_dist), top_distribution(prov_dist, 10), \
 #            top_distribution(gender_dist, len(gender_dist)), top_distribution(tag_dist, 10)
-   
+
 # AGE_DISTRIBUTION = [18, 25, 30, 35, 40, 50, 60]
 
 def newfan_age(uid, day, relative=True):
-    cmd = 'select ages from %s where uid=%s and day="%s"' % (FANS_TREND, uid, day) 
+    cmd = 'select ages from %s where uid=%s and day="%s"' % (FANS_TREND, uid, day)
     ages = get1_DB(cmd)
     if not ages:
         print 'no ages data crawled on %s' % day
@@ -325,7 +324,7 @@ def fan_activity(uid, end, ndays):
     hour_dist = [0, ] * 24
     ori_weekday, ori_hour = [0, ] * 7, [0, ] * 24
     for i in range(ndays):
-        day = daysago(end, i) 
+        day = daysago(end, i)
         cmd = 'select count,weekday,hour,ori_postnum from %s where day="%s" and uid=%s' % \
             (FANS_ACTIVITY_TABLE, day, uid)
         res = get_DB(cmd)
@@ -335,7 +334,7 @@ def fan_activity(uid, end, ndays):
             hour_dist[hour] += count
             ori_hour[hour] += ori_postnum
     return weekday_dist, hour_dist, ori_weekday, ori_hour
-    
+
 def top_distribution(dic, n, relative=True):
     total = float(sum(dic.values()))
     if relative and total > 0.0:
@@ -362,10 +361,10 @@ def test_insertdb():
             cursor.connection.rollback()
             transaction.rollback_unless_managed()
     cursor.connection.close()
-    
+
 def allfan_dist(uid, start, end):
     cmd = '''select follower_count, v_followers_count, daren_followers_count, male, female, locations
-                          from %s where uid=%s and day="%s"''' % (FANS_TREND, uid, end) 
+                          from %s where uid=%s and day="%s"''' % (FANS_TREND, uid, end)
     allfans = get_DB(cmd)
     verified, gender, province = [], [], []
     if not allfans:

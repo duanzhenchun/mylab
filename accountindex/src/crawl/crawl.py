@@ -2,15 +2,16 @@
 
 
 import os, sys
+import datetime
+import traceback
 #sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.split(os.getcwd())[0])
 sys.path.insert(0, os.path.split(os.path.split(os.getcwd())[0])[0])
 
-from django.conf import settings
 os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
 from utils import *
 from conf import *
-from django.db import DatabaseError, IntegrityError, transaction
+from django.db import IntegrityError, transaction
 import MySQLdb
 
 
@@ -24,14 +25,14 @@ class Base(object):
             self.client = client
         else:
             self.client = set_client(self.cursor)
-        
+
     def execute_sql(self, sql, params=()):
         # 执行sql语句 当连接超时 自动重新连接重新执行
         for i in range(3):
             try:
                 self.cursor.execute(sql, params)
                 return
-            except (MySQLdb.OperationalError, MySQLdb.InterfaceError), e:
+            except (MySQLdb.OperationalError, MySQLdb.InterfaceError):
                 if self.cursor:
                     print self.cursor.messages
                 # print 'num: %s db errer:%s %s'%(i, sql, e)
@@ -46,7 +47,7 @@ class Base(object):
         self.client, usershow = loop_get_data(self.client, 'users__show', 'id', uid=uid)
         screen_name = usershow.get('screen_name', '')
         return screen_name
-    
+
     def get_weiboid(self, querymid, wtype=1):
         self.client, weiboid = loop_get_data(self.client, 'statuses__queryid', 'id', mid=querymid, type=wtype, isBase62=1)
         try:
@@ -71,11 +72,11 @@ class Base(object):
             return text
         else:
             return text
-        
+
     def _get_cursor(self):
         if not self.cursor:
             self.cursor = get_connect()
-                
+
     def insertDB(self, tablename, dic):
         cmd = 'insert into %s (%s) value (%s)' % (tablename,
                     ','.join(dic.keys()), ','.join(('%s',) * len(dic)))

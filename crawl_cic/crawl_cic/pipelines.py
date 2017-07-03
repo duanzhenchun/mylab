@@ -18,7 +18,7 @@ class XlsPipeline(object):
         self.sheet = self.workbook.add_sheet('data')
         self.keys = ['url', 'title', 'desc', 'replys']
         self.create_headrow()
-    
+
     def create_headrow(self):
         self.nrow = self.sheet.get_rows()
         if self.nows > 0:
@@ -26,14 +26,14 @@ class XlsPipeline(object):
         for i, k in enumerate(self.keys):
             self.sheet.write(self.nrow, i, k)
         self.nrow += 1
-                        
+
     def process_item(self, item, spider):
         for i, k in enumerate(self.keys):
             self.sheet.write(self.nrow, i, item.get(k, ''))
         self.workbook.save('%s.out.xls' % os.getpid())
         self.nrow += 1
         return item
-    
+
     def __del__(self):
         print 'save workbook'
         self.workbook.save('%s.out.xls' % os.getpid())
@@ -51,39 +51,39 @@ class SQLStorePipeline(object):
         query.addErrback(self.handle_error)
         return item
 
-         
+
 class SQLiteStorePipeline(object):
     filename = 'data.sqlite'
-    
+
     def __init__(self):
         from scrapy.core import signals
         from scrapy.xlib.pydispatch import dispatcher
-        
+
         self.conn = None
         dispatcher.connect(self.initialize, signals.engine_started)
         dispatcher.connect(self.finalize, signals.engine_stopped)
- 
+
     def process_item(self, item, spider):
         self.conn.execute('insert into question values(?,?,?,?)',
                           (item.url, item.title, item.desc, item.replys))
         return item
- 
+
     def initialize(self):
         if os.path.exists(self.filename):
             self.conn = sqlite3.connect(self.filename)
         else:
             self.conn = self.create_table(self.filename)
- 
+
     def finalize(self):
         if self.conn is not None:
             self.conn.commit()
             self.conn.close()
             self.conn = None
- 
+
     def create_table(self, filename):
         conn = sqlite3.connect(filename)
         conn.execute("""create table question
                      (url primary key, title, desc, replys)""")
         conn.commit()
         return conn
-    
+
