@@ -2,6 +2,7 @@
 # encoding: utf-8
 import math
 import random
+from collections import defaultdict
 
 
 def stable_1(series):
@@ -10,7 +11,7 @@ def stable_1(series):
     for i in series:
         dic.setdefault(i, 0)
         dic[i] += 1
-        k, _ = max_k(dic)
+        k = max_k(dic)
         if k != max_i:
             print 'leader changed to:', k
             max_i = k
@@ -36,12 +37,12 @@ def max_k(dic, leader=None):
     """
     dic: {k: count}
     """
+    #  print 'max_k', 'dic:', dic, 'leader:', leader
     threshold = 0
-    if None != leader:
+    if None != leader and leader in dic:
         v = dic[leader]
         threshold = 2**(math.ceil(math.log(v, 2)) + 1)
         #print 'dic:', dic, 'leader: ', leader, 'v:', dic[leader], 'threshold:', threshold
-
     max_k = None
     for k, v in dic.iteritems():
         if k == leader:
@@ -50,7 +51,9 @@ def max_k(dic, leader=None):
             #print 'k: %s, v: %s, threshold: %s' %(k, v, threshold)
             max_k, threshold = k, v
     #print max_k, threshold
-    return max_k, threshold
+    if not max_k:
+        max_k = leader
+    return max_k
 
 
 def toss():
@@ -65,38 +68,70 @@ def test_stable(n=1000):
     stable_2(lst)
 
 
-import copy
-
-min_c = 3
-max_c = 720 # latest half day
-
-
-def rank_nodes(dic_nodes):
+def rank_nodes(orders, last_rank=[]):
     """
-    dic_nodes: {node_i: {1:3, 2:1}}
+    reurn sorted nodes by rank: [A,C,B,...]
     """
-    while dic_nodes:
-        limit_n, min_node = min([(sum(scores.values()), n) for (n, scores) in dic_nodes.iteritems()])
-        best = evaluate(dic_nodes, limit_n)
-        if best != min_node:
-            # re evalutate
-            best = evaluate(copy.copy(dic_nodes).pop(min_node))
-        dic_nodes.pop(best)
+    ranks = []
+    while orders:
+        candidates = set(orders[-1])
+        leaders = lead_count(orders, candidates)
+        #  print 'leaders:', leaders
+        # supply new node by 2**count
+        leader_n = orders[-1][0]
+        supply_i = 0
+        for order in orders:
+            if leader_n not in order:
+                supply_i += 1
+        #  print 'node: %s, supply_i: %s' %(leader_n, supply_i)
+        if supply_i > 0:
+            leaders[leader_n] += 2**supply_i
+        leader = last_rank and last_rank[0] or None
+        k = max_k(leaders, leader)
+        #  print 'leader:', k
+        leader = k
+        try:
+            last_rank.remove(leader)
+        except:
+            pass
+        ranks.append(leader)
+        orders = remove_node(orders, leader)
+    return ranks
+
+def remove_node(orders, node):
+    new_orders = []
+    for o in orders:
+        try:
+            o.remove(node)
+        except:
+            pass
+        if o:
+            new_orders.append(o)
+    return new_orders
 
 
-def evaluate(dic_nodes, limit_n):
-    for n, scores in dic_nodes.iteritems():
-        if len(scores) > limit_n:
-            score_n = sorted(scores)[:limit_n]
-    best = best(nodes)
-    return best
+def test_rank():
+    import copy
+    orders = []
+    rank = []
+    for data in (
+            ['A', 'B', 'C', 'D'],
+            ['A', 'C', 'B', 'D'],
+            ['B', 'A', 'C'],
+            ['E', 'A', 'B']
+        ):
+        print 'data:', data
+        orders.append(data)
+        rank = rank_nodes(copy.deepcopy(orders), rank)
+        print 'rank:', rank
 
-from collections import defaultdict
 
-def pop_ranks(orders):
+def lead_count(orders, candidates):
+    #  print 'lead_count', 'orders:', orders,'candidates:',  candidates
     dic = defaultdict(int)
     for r in orders:
-        dic[r[0]] += 1
+        if r and r[0] in candidates:
+            dic[r[0]] += 1
     return dic
 
 
@@ -148,4 +183,4 @@ if __name__ == "__main__":
     import doctest
     doctest.testmod()
     #  test_stable()
-
+    test_rank()
