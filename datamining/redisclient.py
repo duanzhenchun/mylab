@@ -10,14 +10,14 @@ rdscli=redis.client.Redis()
 def getTos(pid):
     From = CONTACTS+':'+pid
     return rdscli.smembers(From)
-    
+
 def randkey(pre, count=100):
     while count:
         k=rdscli.randomkey()
         if k.startswith(pre):
             return k
     return None
-    
+
 def randFrom():
     From = randkey(CONTACTS)
     if From:
