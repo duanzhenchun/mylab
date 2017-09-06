@@ -19,7 +19,7 @@ class Node(object):
         while p:
             print p.v
             p=p.next
-       
+
 
 class Link(object):
     def __init__(self,lst0):
@@ -29,7 +29,7 @@ class Link(object):
                 lst[i].next = lst[i+1]
         self.head = lst[0]
         del lst
-    
+
 
 link=Link([2,5,6,8])
 link.head.traverse()

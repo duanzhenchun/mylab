@@ -4,7 +4,6 @@
 import web
 
 urls = (
-    #  '/', 'index',
     '/(.*)', 'index',
     '/(\d+)/node_stats', 'node_stats',
     '/sync', "sync",

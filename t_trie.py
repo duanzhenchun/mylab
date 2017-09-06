@@ -27,7 +27,7 @@ class Trie(object):
         node = self.root
         for c in word:
             if c not in node.children:
-                return 
+                return
             node = node.children[c]
         print node.c,node.children
         for node in node.children.values():
