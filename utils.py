@@ -1,8 +1,8 @@
-#encoding:utf-8
+# encoding:utf-8
 import time
-import chardet
 import datetime
 import math
+import functools
 import sys
 
 
@@ -24,12 +24,12 @@ def test_signal():
 
 
 def benchmark(f):
+    @functools.wraps(f)
     def wrapper(*args, **kwargs):
         t = time.time()
         res = f(*args, **kwargs)
-        print '%s %f %s' % (f.__name__, time.time() - t, 'sec')
+        print '%s:%s %f %s' % (f.__module__, f.__name__, time.time() - t, 'sec')
         return res
-
     return wrapper
 
 
@@ -101,6 +101,7 @@ def chunks(l, n):
 
 
 def get_encoding(txt):
+    import chardet
     return chardet.detect(txt[:100])['encoding']
 
 
