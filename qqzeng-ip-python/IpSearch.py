@@ -34,8 +34,9 @@ class IpSearch:
             offset = self.int_from_3byte(4 + p)     # 可能性 <= 2 **(3*8)
             length = self.int_from_1byte(7 + p)
             self.endArr.append(self.int_from_4byte(p))
-            self.addrArr.append(
-                self.data[offset:offset + length].decode('utf-8'))
+            print 'record_%d, p:%d, ip_end:%d, offset:%d, length:%d' %(
+                j, p, self.int_from_4byte(p), offset, length)
+            self.addrArr.append(self.data[offset:offset + length])
 
     def __enter__(self):
         return self
