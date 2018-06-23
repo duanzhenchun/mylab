@@ -15,11 +15,12 @@ def long2ip(n):
 
 
 class IpSearch:
-    def __init__(self, file_name):
+    def __init__(self, file_name,debug=False):
         self._handle = open(file_name, "rb")
         self.data = mmap.mmap(
             self._handle.fileno(), 0, access=mmap.ACCESS_READ)
-        record_size = self.int_from_4byte(0)        # size <= 2**32
+        record_size = self.int_from_4byte(0)        # size <= 2**32 = 4M
+        print('record_size:%d' %(record_size))
         self.prefArr = []
         for i in range(256):
             p = i * 8 + 4
@@ -29,13 +30,17 @@ class IpSearch:
 
         self.endArr = []        # record的结束ip位置
         self.addrArr = []       # 地区流, len(info) < 2**8 = 256
+        record_start = 4 + 256 * 8
+        info_start = record_start + record_size * 8
         for j in range(record_size):
-            p = 2052 + (j * 8)  # 4 + 256 * 8
-            offset = self.int_from_3byte(4 + p)     # 可能性 <= 2 **(3*8)
+            p = record_start + (j * 8)
+            # 如果用绝对地址，则record_size 不能超过2**(3*8) /8 = 2M 个, 所以这里改用相对位置
+            offset = self.int_from_3byte(4 + p) + info_start    # 可能性 <= 2 **(3*8)
             length = self.int_from_1byte(7 + p)
             self.endArr.append(self.int_from_4byte(p))
-            print 'record_%d, p:%d, ip_end:%d, offset:%d, length:%d' %(
-                j, p, self.int_from_4byte(p), offset, length)
+            if debug:
+                print('record_%d, p:%d, ip_end:%d, info_pos:%d, length:%d' %(
+                    j, p, self.int_from_4byte(p), offset, length))
             self.addrArr.append(self.data[offset:offset + length])
 
     def __enter__(self):

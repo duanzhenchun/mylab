@@ -34,11 +34,11 @@ def create_dat(f_txt, f_dat):
                 len_record += 1
             dic_info = {}
             info_start = record_start + len_record * 8
-            pos_info = info_start
+            pos_info = 0
             for info in s_info:
                 dic_info[info] = pos_info
                 pos_info += len(info)
-            N = pos_info
+            N = info_start + pos_info
             print "record_start: %d, info_start: %d, N: %d, len_record: %d, len(s_info): %d" % (
                 record_start, info_start, N, len_record, len(s_info))
             fo.write("\0" * N)
@@ -62,26 +62,31 @@ def process(mm, f_txt, dic_info, info_start, len_record):
         int_ip_start = ip2long(ip_start)
         int_ip_end = int_ip_start + ip_len - 1
         lst_record.append((int_ip_end, dic_info[info]))
-    mm[:4] = struct.pack('<L', len_record)
+    mm[:4] = int2byte(len_record)
+    print len_record
     # write prefix dat
     count = 0
     for i, n in enumerate(lst_pref):
         loc = 4 + 8 * i
-        mm[loc:loc + 4] = struct.pack('<L', count)
-        mm[loc + 4:loc + 8] = struct.pack('<L', count + n)
+        mm[loc:loc + 4] = int2byte(count)
+        mm[loc + 4:loc + 8] = int2byte(count + n)
         count += n
     # write record dat
     lst_record.sort()
     for i, (int_ip_end, pos_info) in enumerate(lst_record):
         len_info = len(dic_info_r[pos_info])
         loc = record_start + 8 * i
-        print 'record_%d, p:%d, ip_end:%d, offset:%d, length:%d' %(i, loc, int_ip_end, pos_info, len_info)
-        mm[loc:loc + 4] = struct.pack('<L', int_ip_end)
-        mm[loc + 4:loc + 8] = struct.pack('<L', pos_info)[:-1] + struct.pack('B', len_info)
+        print 'record_%d, p:%d, ip_end:%d, info_pos:%d, length:%d' %(i, loc, int_ip_end, pos_info, len_info)
+        mm[loc:loc + 4] = int2byte(int_ip_end)
+        mm[loc + 4:loc + 8] = int2byte(pos_info)[:-1] + struct.pack('B', len_info)
     # write info dat
     for pos_info, info in dic_info_r.iteritems():
-        mm[pos_info:pos_info + len(info)] = info
+        mm[info_start + pos_info:info_start + pos_info + len(info)] = info
     mm.close()
+
+
+def int2byte(n):
+    return struct.pack('<L', n)
 
 
 def make_dat():
