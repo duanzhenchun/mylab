@@ -1,19 +1,28 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from IpSearch import IpSearch
 
-finder = IpSearch("ip-3.0.dat", debug=False)
+def make_IpSearcher():
+    from IpSearch import IpSearch
+    return IpSearch("ip-3.0.dat", debug=False)
 
 
-def show(ip):
-    result = finder.lookup(ip)
-    print('%s: %s' %(ip, result))
+def make_RadixSearcher():
+    from RadixSearch import Radixer
+    return Radixer('./ipdetail')
 
+
+def show(searcher, ip):
+    print('%s: %s' % (ip, searcher.lookup(ip)))
+
+
+searcher = make_IpSearcher()
+# TODO very slow, why?
+# searcher = make_RadixSearcher()
 
 ip_list = ['1.1.1.1', '8.8.8.8', '114.114.114.114']
 for index, ip in enumerate(ip_list):
-    show(ip)
+    show(searcher, ip)
 
 # |Cloudflare||||CloudflareDNS/APNIC|||||
 # 北美洲|美国||||GoogleDNS||United States|US|-95.712891|37.09024
@@ -23,4 +32,4 @@ while True:
     if 'q' == ip4:
         break
     else:
-        show(ip4)
+        show(searcher, ip4)

@@ -15,8 +15,8 @@ def gen_data(f_txt):
             if not line:
                 continue
             ip_range, info = line.split()
-            ip_start, ip_len = ip_range.split('/')
-            yield ip_start, 2**(32 - int(ip_len)), info
+            ip_start, mask_len = ip_range.split('/')
+            yield ip_start, int(mask_len), info
 
 
 def create_dat(f_txt, f_dat):
@@ -53,14 +53,14 @@ def process(mm, f_txt, dic_info, info_start, len_record):
     dic_info_r = dict((v, k) for k, v in dic_info.iteritems())
     lst_record = []
     lst_pref = [0 for i in range(256)]
-    for ip_start, ip_len, info in gen_data(f_txt):
+    for ip_start, mask_len, info in gen_data(f_txt):
         ipdot = ip_start.split('.')
         prefix = int(ipdot[0])
         if prefix < 0 or prefix > 255 or len(ipdot) != 4:
             raise ValueError("invalid ip address")
         lst_pref[prefix] += 1
         int_ip_start = ip2long(ip_start)
-        int_ip_end = int_ip_start + ip_len - 1
+        int_ip_end = int_ip_start + 2**(32 - mask_len) - 1
         lst_record.append((int_ip_end, dic_info[info]))
     mm[:4] = int2byte(len_record)
     print len_record
