@@ -6,7 +6,7 @@ import jieba.posseg as pseg
 from collections import defaultdict
 import sys
 import codecs
-sys.stdout = codecs.lookup('utf-8')[-1](sys.stdout) 
+sys.stdout = codecs.lookup('utf-8')[-1](sys.stdout)
 
 
 pattern = re.compile(u'[\u4e00-\u9fa5]+')
