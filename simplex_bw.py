@@ -41,13 +41,18 @@ def calc(units, dic_nodes, relations):
         A_ub[j] = tmp.flatten()
     A_ub = np.hstack((A_ub, -A_ub))  # U - V
     A_ub = np.vstack((A_ub, -A_ub))  # min_quota, quota
-    print 'A_ub', A_ub.shape
-    print A_ub
     # Z_ij = X_ij/q_j - B = U - V
-    # X_ij = (U_ij - V_ij + B) * q_j
+    # X_ij = (U_ij - V_ij + B) * q_j >= 0
     b_ub1 = np.ones(n) * (1 - B)
     b_ub2 = np.array(-mq / q + B)
+    b_ub3 = np.ones(m * n) * B
+    A_ub3 = np.eye(m * n)
+    A_ub3 = np.hstack((-A_ub3, A_ub3))
     b_ub = np.hstack((b_ub1, b_ub2))
+    A_ub = np.vstack((A_ub, A_ub3))
+    b_ub = np.hstack((b_ub, b_ub3))
+    print 'A_ub', A_ub.shape
+    print A_ub
     print 'b_ub', b_ub.shape, b_ub
 
     A_eq = np.zeros((m, m * n))
@@ -63,8 +68,7 @@ def calc(units, dic_nodes, relations):
     A_eq = np.hstack((A_eq, -A_eq))  # U - V
     print 'A_eq', A_eq.shape
     print A_eq
-    print S, B, q
-    b_eq = S - B * q.sum()
+    b_eq = S - B / 1 * q.sum()
     print 'b_eq:', b_eq
     # 1 <= n_ij <= P_ij
     # 1/(sum_j(P_ij) - P_ij  + 1) <= X_ij/S_i <= P_ij / (sum_j(P_ij + 1) -1)
@@ -87,8 +91,7 @@ def calc(units, dic_nodes, relations):
     print res
     # X = (U - V + B) * q
     print 'argmin:', res.fun
-    print res.x
-    print A_eq.dot(res.x)
+    print 'res.x:', res.x
     print 'quota:', q
     X_ij = get_Xij(res.x, B, q, m, n)
     print 'X_ij:', X_ij
@@ -103,7 +106,7 @@ def get_Xij(x, B, q, m, n):
 
 def test():
     units = [
-        Unit('g1', 'r1', 10),
+        Unit('g1', 'r1', 20),
         Unit('g2', 'r1', 30),
     ]
     dic_nodes = {
